@@ -15,10 +15,17 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
-public class DashboardTallerMecanico extends JFrame{
+/**
+ * Vista principal del Dashboard.
+ * Contiene el SidebarPanel (izquierda) y MainContentPanel (centro).
+ */
+public class DashboardVista extends JFrame {
 
-	public DashboardTallerMecanico() {
-		setTitle("UABCS - Taller Mecánico");
+    private SidebarPanel sidebar;
+    private MainContentPanel mainContent;
+
+    public DashboardVista() {
+        setTitle("UABCS - Taller Mecánico | Dashboard");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(950, 600);
         setMinimumSize(new Dimension(800, 500));
@@ -26,11 +33,18 @@ public class DashboardTallerMecanico extends JFrame{
 
         setLayout(new BorderLayout());
 
-        SidebarPanel sidebar = new SidebarPanel();
-        MainContentPanel mainContent = new MainContentPanel();
+        sidebar = new SidebarPanel();
+        mainContent = new MainContentPanel();
 
         add(sidebar, BorderLayout.WEST);
         add(mainContent, BorderLayout.CENTER);
     }
 
+    public SidebarPanel getSidebar() {
+        return sidebar;
+    }
+
+    public MainContentPanel getMainContent() {
+        return mainContent;
+    }
 }
