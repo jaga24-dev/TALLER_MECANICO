@@ -166,11 +166,11 @@ public class MainContentPanel extends JPanel {
         card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
 
         JLabel entregaTitle = new JLabel("PRÓXIMAS ENTREGAS (Hoy)");
-        entregaTitle.setFont(new Font("SansSerif", Font.BOLD, 12));
+        entregaTitle.setFont(new Font("Inter", Font.BOLD, 12));
         entregaTitle.setForeground(GOLD);
 
         JLabel entregaItem = new JLabel("  1.  Ford Explorer 2012 (Santiago De Anda)");
-        entregaItem.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        entregaItem.setFont(new Font("Inter", Font.PLAIN, 12));
         entregaItem.setForeground(Color.decode("#323C46"));
 
         card.add(entregaTitle);
