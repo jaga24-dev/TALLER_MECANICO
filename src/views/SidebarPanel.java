@@ -40,12 +40,17 @@ public class SidebarPanel extends JPanel {
             "Órdenes de servicio", "Vehículos"
     };
     private final String[] menuIconFiles = {
-            "dashboard.png", "clientes.png", "crear_orden.png",
+            "dashboard.png", "buscar.png", "crear_orden.png",
             "ordenes.png", "vehiculo.png"
     };
 
     private int selectedIndex = 0;
     private Runnable onCerrarSesion;
+    private OnMenuSelectedListener onMenuSelectedListener;
+    
+    public interface OnMenuSelectedListener {
+        void onMenuSelected(int index, String title);
+    }
 
     public SidebarPanel() {
         setPreferredSize(new Dimension(200, 0));
@@ -173,9 +178,12 @@ public class SidebarPanel extends JPanel {
             }
 
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mousePressed(MouseEvent e) {
                 selectedIndex = index;
                 SidebarPanel.this.repaint();
+                if (onMenuSelectedListener != null) {
+                    onMenuSelectedListener.onMenuSelected(index, text);
+                }
             }
         });
 
@@ -185,5 +193,9 @@ public class SidebarPanel extends JPanel {
     /** Registra callback para cuando se hace clic en "Cerrar sesión". */
     public void setOnCerrarSesion(Runnable callback) {
         this.onCerrarSesion = callback;
+    }
+    
+    public void setOnMenuSelectedListener(OnMenuSelectedListener listener) {
+        this.onMenuSelectedListener = listener;
     }
 }

@@ -3,7 +3,7 @@ package aplication;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import controlles.LoginControlador;
+import controllers.LoginControlador;
 import models.UsuarioModelo;
 import views.LoginVista;
 
