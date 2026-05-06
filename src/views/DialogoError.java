@@ -84,17 +84,17 @@ public class DialogoError extends JDialog {
         iconPanel.add(iconLabel);
 
         JLabel titulo = new JLabel("¡ATENCIÓN!");
-        titulo.setFont(new Font("SansSerif", Font.BOLD, 22));
+        titulo.setFont(new Font("Inter", Font.BOLD, 22));
         titulo.setForeground(TEXT_WHITE);
         titulo.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel msg1 = new JLabel("Usuario o contraseña incorrectos.");
-        msg1.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        msg1.setFont(new Font("Inter", Font.PLAIN, 13));
         msg1.setForeground(TEXT_WHITE);
         msg1.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel msg2 = new JLabel("Por favor, inténtelo de nuevo");
-        msg2.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        msg2.setFont(new Font("Inter", Font.PLAIN, 13));
         msg2.setForeground(TEXT_WHITE);
         msg2.setAlignmentX(Component.CENTER_ALIGNMENT);
 

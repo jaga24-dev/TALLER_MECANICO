@@ -24,7 +24,7 @@ import javax.swing.ImageIcon;
  */
 public class IconoManager {
 
-    private static final String RUTA_ICONOS = "src" + File.separator + "img" + File.separator;
+    private static final String RUTA_ICONOS = "src/img/";
     private static final Map<String, ImageIcon> cache = new HashMap<>();
 
     /**
@@ -71,7 +71,7 @@ public class IconoManager {
         g2.fillOval(1, 1, ancho - 2, alto - 2);
 
         g2.setColor(Color.decode("#00314A"));
-        g2.setFont(new Font("SansSerif", Font.BOLD, Math.min(ancho, alto) / 2));
+        g2.setFont(new Font("Inter", Font.BOLD, Math.min(ancho, alto) / 2));
         String letra = nombre.replace(".png", "").substring(0, 1).toUpperCase();
         FontMetrics fm = g2.getFontMetrics();
         g2.drawString(letra, (ancho - fm.stringWidth(letra)) / 2,

@@ -49,8 +49,8 @@ public class OrdenesServicioVista extends JPanel {
     // --- Colores del diseño ---
     private static final Color BG_LIGHT = Color.decode("#EBF0F5");
     private static final Color HEADER_BG = Color.decode("#00314A");
-    private static final Color GOLD = Color.decode("#FFB800");
-    private static final Color ROW_BG_1 = Color.decode("#E3CAA5");
+    private static final Color GOLD = Color.decode("#E4C25E");
+    private static final Color ROW_BG_1 = Color.decode("#E4C25E");
     private static final Color ROW_BG_2 = Color.decode("#9DB2BF");
 
     // --- Componentes de la vista ---
@@ -114,20 +114,20 @@ public class OrdenesServicioVista extends JPanel {
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
 
         JLabel title = new JLabel("TABLA DE ÓRDENES DE SERVICIO");
-        title.setFont(new Font("SansSerif", Font.BOLD, 13));
+        title.setFont(new Font("Inter", Font.BOLD, 13));
         title.setForeground(GOLD);
 
         String fecha = LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE d MMM yyyy", new Locale("es", "MX")));
         fecha = fecha.substring(0, 1).toUpperCase() + fecha.substring(1);
         JLabel dateLabel = new JLabel(fecha);
-        dateLabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
-        dateLabel.setForeground(Color.decode("#B4C8D2"));
+        dateLabel.setFont(new Font("Inter", Font.PLAIN, 11));
+        dateLabel.setForeground(GOLD);
 
         leftPanel.add(title);
         leftPanel.add(dateLabel);
 
         JLabel techLabel = new JLabel("  Técnico: Juan Angel  ");
-        techLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        techLabel.setFont(new Font("Inter", Font.PLAIN, 12));
         techLabel.setForeground(GOLD);
         techLabel.setIcon(IconoManager.cargarIcono("tecnico.png", 16, 16));
         techLabel.setBorder(BorderFactory.createCompoundBorder(
@@ -200,7 +200,7 @@ public class OrdenesServicioVista extends JPanel {
         String[] columnas = {" ", "NOMBRE DE CLIENTE", "VEHICULO RELACIONADO",
                 "FECHA DE INGRESO", "FECHA DE ENTREGA",
                 "COSTO MANO DE OBRA", "COSTO DE REFACCIONES",
-                "MONTO TOTAL + (IVA)", "ESTADO", "Acción"};
+                "MONTO TOTAL + (IVA)", "ESTADO", "ACCION"};
 
         tableModel = new DefaultTableModel(columnas, 0) {
             @Override
@@ -218,7 +218,7 @@ public class OrdenesServicioVista extends JPanel {
         // Estilo del encabezado
         tablaOrdenes.getTableHeader().setBackground(HEADER_BG);
         tablaOrdenes.getTableHeader().setForeground(GOLD);
-        tablaOrdenes.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 10));
+        tablaOrdenes.getTableHeader().setFont(new Font("Inter", Font.BOLD, 10));
         tablaOrdenes.getTableHeader().setPreferredSize(new Dimension(0, 45));
 
         // Renderer para filas de colores alternos
@@ -310,7 +310,7 @@ public class OrdenesServicioVista extends JPanel {
             JPanel p = new JPanel(new GridBagLayout());
             p.setBackground(isSelected ? table.getSelectionBackground() : (row % 2 == 0 ? ROW_BG_1 : ROW_BG_2));
             JLabel circle = new JLabel("○");
-            circle.setFont(new Font("SansSerif", Font.BOLD, 18));
+            circle.setFont(new Font("inter", Font.BOLD, 18));
             p.add(circle);
             return p;
         }
@@ -319,7 +319,7 @@ public class OrdenesServicioVista extends JPanel {
     class AccionesRenderer extends JPanel implements TableCellRenderer {
         public AccionesRenderer() {
             setOpaque(true);
-            setLayout(new FlowLayout(FlowLayout.CENTER, 5, 0));
+            setLayout(new FlowLayout(FlowLayout.CENTER, 5, 8));
         }
 
         @Override

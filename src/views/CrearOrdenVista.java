@@ -47,7 +47,7 @@ public class CrearOrdenVista extends JPanel {
     // --- Colores ---
     private static final Color BG_LIGHT = Color.decode("#EBF0F5");
     private static final Color HEADER_BG = Color.decode("#00314A");
-    private static final Color GOLD = Color.decode("#FFB800");
+    private static final Color GOLD = Color.decode("#E4C25E");
     private static final Color TEAL = Color.decode("#005064");
 
     // --- Campos del formulario ---
@@ -119,7 +119,7 @@ public class CrearOrdenVista extends JPanel {
         btnCrearOrden.setContentAreaFilled(false);
         btnCrearOrden.setBorderPainted(false);
         btnCrearOrden.setFocusPainted(false);
-        btnCrearOrden.setFont(new Font("SansSerif", Font.BOLD, 14));
+        btnCrearOrden.setFont(new Font("Inter", Font.BOLD, 14));
         btnCrearOrden.setForeground(HEADER_BG);
         btnCrearOrden.setIcon(IconoManager.cargarIcono("agregar.png", 18, 18));
         btnCrearOrden.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -161,14 +161,14 @@ public class CrearOrdenVista extends JPanel {
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
 
         JLabel title = new JLabel("ORDEN DE TRABAJO #1");
-        title.setFont(new Font("SansSerif", Font.BOLD, 13));
+        title.setFont(new Font("Inter", Font.BOLD, 13));
         title.setForeground(GOLD);
 
         String fecha = LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE d MMM yyyy", new Locale("es", "MX")));
         fecha = fecha.substring(0, 1).toUpperCase() + fecha.substring(1);
         JLabel dateLabel = new JLabel(fecha);
-        dateLabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
-        dateLabel.setForeground(Color.decode("#B4C8D2"));
+        dateLabel.setFont(new Font("Inter", Font.PLAIN, 11));
+        dateLabel.setForeground(GOLD);
 
         leftPanel.add(title);
         leftPanel.add(dateLabel);
@@ -178,7 +178,7 @@ public class CrearOrdenVista extends JPanel {
         cmbEstado.setSelectedIndex(2); // "EN ESPERA" por defecto
         cmbEstado.setBackground(GOLD);
         cmbEstado.setForeground(HEADER_BG);
-        cmbEstado.setFont(new Font("SansSerif", Font.BOLD, 11));
+        cmbEstado.setFont(new Font("Inter", Font.BOLD, 11));
 
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 5));
         rightPanel.setOpaque(false);
@@ -208,7 +208,7 @@ public class CrearOrdenVista extends JPanel {
 
         JLabel iconCliente = new JLabel(IconoManager.cargarIcono("clientes.png", 20, 20));
         txtNombreCliente = new JTextField();
-        txtNombreCliente.setFont(new Font("SansSerif", Font.BOLD, 13));
+        txtNombreCliente.setFont(new Font("Inter", Font.BOLD, 13));
         txtNombreCliente.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
         txtNombreCliente.setToolTipText("Nombre de cliente...");
 
@@ -219,7 +219,7 @@ public class CrearOrdenVista extends JPanel {
 
         // --- Tipo de falla (Radio buttons) ---
         JLabel lblFalla = new JLabel("FALLA O REQUERIMIENTO");
-        lblFalla.setFont(new Font("SansSerif", Font.BOLD, 12));
+        lblFalla.setFont(new Font("Inter", Font.BOLD, 12));
         lblFalla.setForeground(GOLD);
         lblFalla.setAlignmentX(Component.LEFT_ALIGNMENT);
         panel.add(lblFalla);
@@ -267,7 +267,7 @@ public class CrearOrdenVista extends JPanel {
 
         // --- Servicio o Producto ---
         JLabel lblServicio = new JLabel("SERVICIO O PRODUCTO");
-        lblServicio.setFont(new Font("SansSerif", Font.BOLD, 12));
+        lblServicio.setFont(new Font("Inter", Font.BOLD, 12));
         lblServicio.setForeground(GOLD);
         lblServicio.setAlignmentX(Component.LEFT_ALIGNMENT);
         panel.add(lblServicio);
@@ -304,7 +304,7 @@ public class CrearOrdenVista extends JPanel {
         costosPanel.add(txtImpuesto);
 
         JLabel lblTotal = new JLabel("TOTAL:");
-        lblTotal.setFont(new Font("SansSerif", Font.BOLD, 12));
+        lblTotal.setFont(new Font("Inter", Font.BOLD, 12));
         costosPanel.add(lblTotal);
         txtTotal = new JTextField(6);
         txtTotal.setEditable(false); // El total se calcula automáticamente
@@ -378,7 +378,7 @@ public class CrearOrdenVista extends JPanel {
         JPanel kmPanel = new JPanel(new BorderLayout(5, 2));
         kmPanel.setOpaque(false);
         JLabel lblKm = new JLabel("Kilometraje");
-        lblKm.setFont(new Font("SansSerif", Font.ITALIC, 11));
+        lblKm.setFont(new Font("Inter", Font.ITALIC, 11));
         lblKm.setForeground(GOLD);
         txtKilometraje = new JTextField();
         txtKilometraje.setBorder(BorderFactory.createCompoundBorder(
@@ -392,7 +392,7 @@ public class CrearOrdenVista extends JPanel {
         JPanel combPanel = new JPanel(new BorderLayout(5, 2));
         combPanel.setOpaque(false);
         JLabel lblComb = new JLabel("Nivel de combustible");
-        lblComb.setFont(new Font("SansSerif", Font.ITALIC, 11));
+        lblComb.setFont(new Font("Inter", Font.ITALIC, 11));
         lblComb.setForeground(GOLD);
         cmbCombustible = new JComboBox<>(new String[]{"E", "1/4", "1/2", "3/4", "F"});
         combPanel.add(lblComb, BorderLayout.NORTH);
@@ -405,7 +405,7 @@ public class CrearOrdenVista extends JPanel {
 
         // --- Condición del vehículo ---
         JLabel lblCondicion = new JLabel("Condición del vehículo");
-        lblCondicion.setFont(new Font("SansSerif", Font.ITALIC, 11));
+        lblCondicion.setFont(new Font("Inter", Font.ITALIC, 11));
         lblCondicion.setForeground(GOLD);
         lblCondicion.setAlignmentX(Component.LEFT_ALIGNMENT);
         panel.add(lblCondicion);
@@ -432,7 +432,7 @@ public class CrearOrdenVista extends JPanel {
         imgPanel.setBackground(Color.decode("#D0E0E8"));
 
         JLabel lblImg = new JLabel("Agregar imágenes", SwingConstants.CENTER);
-        lblImg.setFont(new Font("SansSerif", Font.ITALIC, 12));
+        lblImg.setFont(new Font("Inter", Font.ITALIC, 12));
         lblImg.setForeground(GOLD);
 
         JLabel iconPlus = new JLabel(IconoManager.cargarIcono("agregar.png", 40, 40), SwingConstants.CENTER);

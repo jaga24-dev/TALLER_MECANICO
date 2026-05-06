@@ -36,7 +36,7 @@ public class MainContentPanel extends JPanel {
 
     private static final Color BG_LIGHT = Color.decode("#EBF0F5");
     private static final Color HEADER_BG = Color.decode("#00314A");
-    private static final Color GOLD = Color.decode("#FFB800");
+    private static final Color GOLD = Color.decode("#E4C25E");
     private static final Color TEAL_DARK = Color.decode("#005064");
     private static final Color BORDER_TEAL = Color.decode("#008296");
 
@@ -78,7 +78,7 @@ public class MainContentPanel extends JPanel {
 
         JLabel estadosTitle = new JLabel("ESTADOS");
         estadosTitle.setFont(new Font("Inter", Font.BOLD, 16));
-        estadosTitle.setForeground(TEAL_DARK);
+        estadosTitle.setForeground(GOLD);
         estadosTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
         body.add(estadosTitle);
         body.add(Box.createVerticalStrut(10));

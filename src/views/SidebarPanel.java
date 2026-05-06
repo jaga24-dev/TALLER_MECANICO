@@ -30,8 +30,7 @@ public class SidebarPanel extends JPanel {
 
     private static final Color BG_DARK = Color.decode("#00314A");
     private static final Color BG_MEDIUM = Color.decode("#004561");
-    private static final Color GOLD = Color.decode("#FFB800");
-    private static final Color TEXT_WHITE = Color.decode("#DCE6F0");
+    private static final Color GOLD = Color.decode("#E4C25E");
     private static final Color HOVER_BG = Color.decode("#00506E");
 
     // Nombres de los iconos PNG (el usuario los coloca en recursos/iconos/)
@@ -109,7 +108,7 @@ public class SidebarPanel extends JPanel {
         JLabel logoutIcon = new JLabel(IconoManager.cargarIcono("cerrar sesion.png", 18, 18));
         JLabel logoutLabel = new JLabel("Cerrar sesión");
         logoutLabel.setFont(new Font("Inter", Font.PLAIN, 13));
-        logoutLabel.setForeground(TEXT_WHITE);
+        logoutLabel.setForeground(GOLD);
         logoutLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
         logoutLabel.addMouseListener(new MouseAdapter() {
             @Override
@@ -156,7 +155,7 @@ public class SidebarPanel extends JPanel {
 
         JLabel textLabel = new JLabel(text);
         textLabel.setFont(new Font("Inter", Font.PLAIN, 13));
-        textLabel.setForeground(index == selectedIndex ? GOLD : TEXT_WHITE);
+        textLabel.setForeground(GOLD);
 
         item.add(iconLabel, BorderLayout.WEST);
         item.add(textLabel, BorderLayout.CENTER);

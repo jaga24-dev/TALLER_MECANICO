@@ -27,7 +27,7 @@ import models.ClienteModelo;
 public class ClienteFormDialog extends JDialog {
 
     private static final Color BG_DARK = Color.decode("#00314A");
-    private static final Color GOLD = Color.decode("#FFB800");
+    private static final Color GOLD = Color.decode("#E4C25E");
     private static final Color TEXT_DARK = Color.decode("#323C46");
     private static final Color BG_LIGHT = Color.decode("#EBF0F5");
 
@@ -101,14 +101,14 @@ public class ClienteFormDialog extends JDialog {
 
     private JLabel crearLabel(String texto) {
         JLabel label = new JLabel(texto);
-        label.setFont(new Font("SansSerif", Font.BOLD, 13));
+        label.setFont(new Font("Inter", Font.BOLD, 13));
         label.setForeground(TEXT_DARK);
         return label;
     }
 
     private JTextField crearTextField() {
         JTextField textField = new JTextField();
-        textField.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        textField.setFont(new Font("Inter", Font.PLAIN, 13));
         textField.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)
@@ -150,7 +150,7 @@ public class ClienteFormDialog extends JDialog {
             setFocusPainted(false);
             setBorderPainted(false);
             setForeground(BG_DARK);
-            setFont(new Font("SansSerif", Font.BOLD, 13));
+            setFont(new Font("Inter", Font.BOLD, 13));
             setCursor(new Cursor(Cursor.HAND_CURSOR));
             setPreferredSize(new Dimension(100, 35));
         }

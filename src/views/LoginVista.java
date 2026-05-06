@@ -21,7 +21,7 @@ import javax.swing.JPanel;
  */
 public class LoginVista extends JFrame {
 
-    private static final Color GOLD = Color.decode("#FFB800");
+    private static final Color GOLD = Color.decode("#E4C25E");
     private static final Color TEXT_LIGHT = Color.decode("#D5B578");
 
     private CampoTexto campoUsuario;
@@ -37,7 +37,7 @@ public class LoginVista extends JFrame {
         setLocationRelativeTo(null);
 
         // Panel de fondo con imagen
-        panelFondo = new PanelFondo("src" + java.io.File.separator + "img" + java.io.File.separator + "fondo.png");
+        panelFondo = new PanelFondo("src/img/fondo.png");
         panelFondo.setLayout(new GridBagLayout());
         setContentPane(panelFondo);
 

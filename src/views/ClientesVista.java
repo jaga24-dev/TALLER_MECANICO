@@ -41,7 +41,7 @@ public class ClientesVista extends JPanel {
 
     private static final Color BG_LIGHT = Color.decode("#EBF0F5");
     private static final Color HEADER_BG = Color.decode("#00314A");
-    private static final Color GOLD = Color.decode("#FFB800");
+    private static final Color GOLD = Color.decode("#E4C25E");
     private static final Color TABLE_HEADER_BG = Color.decode("#00314A");
     private static final Color ROW_BG_1 = Color.decode("#E4C25E"); // Similar to screenshot row 1
     private static final Color ROW_BG_2 = Color.decode("#014461"); // Similar to screenshot row 2
@@ -119,7 +119,7 @@ public class ClientesVista extends JPanel {
         fecha = fecha.substring(0, 1).toUpperCase() + fecha.substring(1);
         JLabel dateLabel = new JLabel(fecha);
         dateLabel.setFont(new Font("Inter", Font.PLAIN, 11));
-        dateLabel.setForeground(Color.decode("#B4C8D2"));
+        dateLabel.setForeground(GOLD);
 
         leftPanel.add(title);
         leftPanel.add(dateLabel);
@@ -187,10 +187,10 @@ public class ClientesVista extends JPanel {
         // Botón Agregar
         btnAgregar = new JButton("Agregar cliente nuevo");
         btnAgregar.setIcon(IconoManager.cargarIcono("agregar.png", 18, 18));
-        btnAgregar.setBackground(GOLD);
         btnAgregar.setForeground(Color.decode("#00314A"));
+        btnAgregar.setBackground(GOLD);
         btnAgregar.setFont(new Font("Inter", Font.BOLD, 12));
-        btnAgregar.setFocusPainted(false);
+        //btnAgregar.setFocusPainted(false);
         btnAgregar.setBorder(new EmptyBorder(8, 15, 8, 15));
         btnAgregar.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
@@ -303,7 +303,7 @@ public class ClientesVista extends JPanel {
     }
 
     // --- Clases Internas para Renderers ---
-    // NOTA PARA NOVATOS: 
+    // NOTA: 
     // Los "Renderers" (dibujadores) se usan para cambiar cómo se ve una celda en una JTable.
     // Los "Editors" (editores) se usan para controlar qué pasa cuando el usuario hace clic en la celda.
 
@@ -355,12 +355,12 @@ public class ClientesVista extends JPanel {
     }
 
     /**
-     * Dibuja los 3 botones (Lápiz, PDF, Basurero) en la última columna.
+     * Dibuja los 3 botones (Lápiz, PDF, Equis) en la última columna.
      */
     class AccionesRenderer extends JPanel implements TableCellRenderer {
         public AccionesRenderer() {
             setOpaque(true);
-            setLayout(new FlowLayout(FlowLayout.CENTER, 5, 0));
+            setLayout(new FlowLayout(FlowLayout.CENTER, 5, 8));
             setBackground(ROW_BG_1);
         }
 
