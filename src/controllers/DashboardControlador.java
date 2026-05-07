@@ -62,7 +62,19 @@ public class DashboardControlador {
         // El controlador de "Crear Orden" necesita acceso al controlador de órdenes
         // para poder agregar nuevas órdenes a la tabla
         this.crearOrdenControlador = new CrearOrdenControlador(this.crearOrdenVista, this.ordenesControlador);
-
+        
+        // Configurar listener para editar órdenes
+        this.ordenesControlador.setOnEditarOrdenReq(orden -> {
+            views.EditarOrdenVista editarVista = new views.EditarOrdenVista();
+            new EditarOrdenControlador(editarVista, orden, () -> {
+                // Al terminar de editar, volver a la tabla de órdenes
+                dashboard.setMainContent(this.ordenesVista);
+                // Refrescar la tabla para mostrar los cambios
+                this.ordenesControlador.refrescarTabla();
+            });
+            dashboard.setMainContent(editarVista);
+        });
+        
         // ============ REGISTRAR EVENTOS ============
 
         // Botón "Cerrar sesión" del menú lateral

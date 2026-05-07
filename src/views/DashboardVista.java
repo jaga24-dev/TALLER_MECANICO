@@ -26,7 +26,7 @@ public class DashboardVista extends JFrame {
     private JPanel centerContainer;
 
     public DashboardVista() {
-        setTitle("UABCS - Taller Mecánico | Dashboard");
+        setTitle("UABCS - Taller Mecánico");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(950, 600);
         setMinimumSize(new Dimension(800, 500));

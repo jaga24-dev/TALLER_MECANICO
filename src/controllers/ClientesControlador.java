@@ -117,12 +117,20 @@ public class ClientesControlador {
  private void verVehiculos(int row) {
      if (row >= 0 && row < clientes.size()) {
          ClienteModelo cliente = clientes.get(row); // Sacamos al cliente
-         // Creamos y mostramos el diálogo de vehículos
-         VehiculosDialog dialog = new VehiculosDialog(SwingUtilities.getWindowAncestor(vista), cliente);
+      // Abrimos el formulario de vehículo en modo agregar
+         VehiculosDialog dialog = new VehiculosDialog(SwingUtilities.getWindowAncestor(vista), null);
          dialog.setVisible(true);
          
-         // Refrescamos la tabla principal por si cambió la cantidad de vehículos (el resumen)
-         vista.setClientes(clientes); 
+         if (dialog.isGuardado()) {
+             int anio = 0;
+             try { anio = Integer.parseInt(dialog.getAnioText()); } catch (NumberFormatException ex) { }
+             VehiculoModelo nuevo = new VehiculoModelo(
+                 java.util.UUID.randomUUID().toString(),
+                 dialog.getMarca(), dialog.getModelo(), anio, dialog.getPlacas()
+             );
+             cliente.agregarVehiculo(nuevo);
+             vista.setClientes(clientes);
+         } 
      }
  }
 

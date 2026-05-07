@@ -54,48 +54,21 @@ public class OrdenesServicioControlador {
          }
      });
  }
+ 
+ private java.util.function.Consumer<OrdenServicioModelo> onEditarOrdenReq;
 
+ public void setOnEditarOrdenReq(java.util.function.Consumer<OrdenServicioModelo> listener) {
+     this.onEditarOrdenReq = listener;
+ }
  /**
-  * Abre un formulario para editar la orden de servicio.
+  * Avisa al dashboard para abrir la vista de editar.
   */
  private void editarOrden(int row) {
      if (row < 0 || row >= ordenes.size()) return;
      OrdenServicioModelo o = ordenes.get(row);
 
-     JTextField txtCliente = new JTextField(o.getNombreCliente());
-     JTextField txtVehiculo = new JTextField(o.getVehiculoRelacionado());
-     JTextField txtIngreso = new JTextField(o.getFechaIngreso());
-     JTextField txtEntrega = new JTextField(o.getFechaEntrega());
-     JTextField txtManoObra = new JTextField(String.valueOf(o.getCostoManoObra()));
-     JTextField txtRefacciones = new JTextField(String.valueOf(o.getCostoRefacciones()));
-     JTextField txtTotal = new JTextField(String.valueOf(o.getMontoTotal()));
-     JComboBox<String> cmbEstado = new JComboBox<>(new String[]{"EN ESPERA", "EN REPARACIÓN", "LISTO"});
-     cmbEstado.setSelectedItem(o.getEstado());
-
-     Object[] campos = {
-             "Cliente:", txtCliente,
-             "Vehículo:", txtVehiculo,
-             "Fecha Ingreso:", txtIngreso,
-             "Fecha Entrega:", txtEntrega,
-             "Costo Mano de Obra:", txtManoObra,
-             "Costo Refacciones:", txtRefacciones,
-             "Monto Total + IVA:", txtTotal,
-             "Estado:", cmbEstado
-     };
-
-     int resultado = JOptionPane.showConfirmDialog(vista, campos, "Editar Orden de Servicio",
-             JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-     if (resultado == JOptionPane.OK_OPTION) {
-         o.setNombreCliente(txtCliente.getText().trim());
-         o.setVehiculoRelacionado(txtVehiculo.getText().trim());
-         o.setFechaIngreso(txtIngreso.getText().trim());
-         o.setFechaEntrega(txtEntrega.getText().trim());
-         try { o.setCostoManoObra(Double.parseDouble(txtManoObra.getText().trim())); } catch (NumberFormatException ex) { /* ignorar */ }
-         try { o.setCostoRefacciones(Double.parseDouble(txtRefacciones.getText().trim())); } catch (NumberFormatException ex) { /* ignorar */ }
-         try { o.setMontoTotal(Double.parseDouble(txtTotal.getText().trim())); } catch (NumberFormatException ex) { /* ignorar */ }
-         o.setEstado((String) cmbEstado.getSelectedItem());
-         vista.setOrdenes(ordenes);
+     if (onEditarOrdenReq != null) {
+         onEditarOrdenReq.accept(o);
      }
  }
 
@@ -165,6 +138,13 @@ public class OrdenesServicioControlador {
  }
 
  public OrdenesServicioVista getVista() { return vista; }
+ 
+ /**
+  * Refresca la tabla con los datos actuales.
+  */
+ public void refrescarTabla() {
+     vista.setOrdenes(ordenes);
+ }
 
  private void cargarDatosPrueba() {
      ordenes.add(new OrdenServicioModelo(

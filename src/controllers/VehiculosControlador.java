@@ -9,6 +9,7 @@ import com.itextpdf.text.BaseColor;
 
 
 import models.VehiculoModelo;
+import views.VehiculosDialog;
 import views.VehiculosVista;
 
 import java.io.FileOutputStream;
@@ -19,6 +20,7 @@ import java.util.UUID;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 /**
  * Controlador de la sección "Vehículos".
@@ -74,45 +76,26 @@ public class VehiculosControlador {
     }
 
     /**
-     * Abre un formulario simple para agregar un nuevo vehículo.
+     * Abre el formulario estilizado para agregar un nuevo vehículo.
      */
     private void agregarVehiculo() {
-        // Usamos JOptionPane con múltiples campos (simple para novatos)
-        JTextField txtMarca = new JTextField();
-        JTextField txtModelo = new JTextField();
-        JTextField txtAnio = new JTextField();
-        JTextField txtPlacas = new JTextField();
-        JTextField txtSerie = new JTextField();
-        JTextField txtFalla = new JTextField();
-        JComboBox<String> cmbEstado = new JComboBox<>(new String[]{"En Espera", "En Reparación", "Listo"});
+    	VehiculosDialog dialog = new VehiculosDialog(SwingUtilities.getWindowAncestor(vista), null);
+        dialog.setVisible(true);
 
-        Object[] campos = {
-                "Marca:", txtMarca,
-                "Modelo:", txtModelo,
-                "Año:", txtAnio,
-                "Placas:", txtPlacas,
-                "Número de Serie:", txtSerie,
-                "Falla Reportada:", txtFalla,
-                "Estado:", cmbEstado
-        };
-
-        int resultado = JOptionPane.showConfirmDialog(vista, campos, "Agregar Vehículo Nuevo",
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-        if (resultado == JOptionPane.OK_OPTION && !txtMarca.getText().trim().isEmpty()) {
+        if (dialog.isGuardado()) {
             int anio = 0;
-            try { anio = Integer.parseInt(txtAnio.getText().trim()); } catch (NumberFormatException ex) { /* ignorar */ }
+            try { anio = Integer.parseInt(dialog.getAnioText()); } catch (NumberFormatException ex) { /* ignorar */ }
 
             VehiculoModelo nuevo = new VehiculoModelo(
                     UUID.randomUUID().toString(),
-                    txtMarca.getText().trim(),
-                    txtModelo.getText().trim(),
+                    dialog.getMarca(),
+                    dialog.getModelo(),
                     anio,
-                    txtPlacas.getText().trim(),
-                    txtSerie.getText().trim(),
-                    txtFalla.getText().trim(),
+                    dialog.getPlacas(),
+                    dialog.getNumSerie(),
+                    dialog.getFallaReportada(),
                     null,
-                    (String) cmbEstado.getSelectedItem()
+                    "En Espera"
             );
 
             vehiculos.add(nuevo);
@@ -121,42 +104,17 @@ public class VehiculosControlador {
     }
 
     /**
-     * Abre un formulario para editar un vehículo existente.
+     * Abre el formulario estilizado para editar un vehículo existente.
      */
     private void editarVehiculo(int row) {
         if (row < 0 || row >= vehiculos.size()) return;
         VehiculoModelo v = vehiculos.get(row);
 
-        JTextField txtMarca = new JTextField(v.getMarca());
-        JTextField txtModelo = new JTextField(v.getModelo());
-        JTextField txtAnio = new JTextField(String.valueOf(v.getAnio()));
-        JTextField txtPlacas = new JTextField(v.getPlacas());
-        JTextField txtSerie = new JTextField(v.getNumeroSerie());
-        JTextField txtFalla = new JTextField(v.getFallaReportada());
-        JComboBox<String> cmbEstado = new JComboBox<>(new String[]{"En Espera", "En Reparación", "Listo"});
-        cmbEstado.setSelectedItem(v.getEstado());
+        VehiculosDialog dialog = new VehiculosDialog(SwingUtilities.getWindowAncestor(vista), v);
+        dialog.setVisible(true);
 
-        Object[] campos = {
-                "Marca:", txtMarca,
-                "Modelo:", txtModelo,
-                "Año:", txtAnio,
-                "Placas:", txtPlacas,
-                "Número de Serie:", txtSerie,
-                "Falla Reportada:", txtFalla,
-                "Estado:", cmbEstado
-        };
-
-        int resultado = JOptionPane.showConfirmDialog(vista, campos, "Editar Vehículo",
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-        if (resultado == JOptionPane.OK_OPTION) {
-            v.setMarca(txtMarca.getText().trim());
-            v.setModelo(txtModelo.getText().trim());
-            try { v.setAnio(Integer.parseInt(txtAnio.getText().trim())); } catch (NumberFormatException ex) { /* ignorar */ }
-            v.setPlacas(txtPlacas.getText().trim());
-            v.setNumeroSerie(txtSerie.getText().trim());
-            v.setFallaReportada(txtFalla.getText().trim());
-            v.setEstado((String) cmbEstado.getSelectedItem());
+        if (dialog.isGuardado()) {
+            // El diálogo ya actualizó el objeto 'v' directamente
             vista.setVehiculos(vehiculos);
         }
     }

@@ -202,7 +202,7 @@ public class VehiculosVista extends JPanel {
         btnAgregar.setIcon(IconoManager.cargarIcono("agregar.png", 18, 18));
         btnAgregar.setBackground(GOLD);
         btnAgregar.setForeground(Color.decode("#00314A"));
-        btnAgregar.setFont(new Font("SansSerif", Font.BOLD, 12));
+        btnAgregar.setFont(new Font("Inter", Font.BOLD, 12));
         btnAgregar.setFocusPainted(false);
         btnAgregar.setBorder(new EmptyBorder(8, 15, 8, 15));
         btnAgregar.setCursor(new Cursor(Cursor.HAND_CURSOR));

@@ -17,6 +17,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
+import java.awt.Rectangle;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -29,6 +31,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
@@ -86,10 +89,23 @@ public class CrearOrdenVista extends JPanel {
         // Cabecera
         add(createHeader(), BorderLayout.NORTH);
 
-        // Cuerpo del formulario
-        JPanel body = new JPanel(new BorderLayout(15, 15));
+     // Cuerpo del formulario con Scrollable para ser responsivo
+        class ScrollablePanel extends JPanel implements Scrollable {
+            public ScrollablePanel() { super(new BorderLayout(15, 15)); }
+            @Override public Dimension getPreferredScrollableViewportSize() { return getPreferredSize(); }
+            @Override public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) { return 16; }
+            @Override public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction) { return 16; }
+            @Override public boolean getScrollableTracksViewportWidth() { return true; }
+            @Override public boolean getScrollableTracksViewportHeight() { 
+                if (getParent() instanceof javax.swing.JViewport) {
+                    return ((javax.swing.JViewport)getParent()).getHeight() > getPreferredSize().height;
+                }
+                return false;
+            }
+        }
+        ScrollablePanel body = new ScrollablePanel();
         body.setOpaque(false);
-        body.setBorder(new EmptyBorder(15, 20, 20, 20));
+        body.setBorder(new EmptyBorder(5, 20, 5, 20));
 
         // Panel central: lado izquierdo y lado derecho
         JPanel formContent = new JPanel(new GridLayout(1, 2, 15, 0));
@@ -99,7 +115,20 @@ public class CrearOrdenVista extends JPanel {
         formContent.add(createRightPanel());  // Datos del vehículo
 
         body.add(formContent, BorderLayout.CENTER);
-
+        
+        // Hacer el panel responsive
+        formContent.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                if (formContent.getWidth() < 650) {
+                    formContent.setLayout(new GridLayout(2, 1, 0, 15));
+                } else {
+                    formContent.setLayout(new GridLayout(1, 2, 15, 0));
+                }
+                formContent.revalidate();
+            }
+        });
+        
         // Botón "Crear Orden" en la parte inferior
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         btnPanel.setOpaque(false);
@@ -126,12 +155,14 @@ public class CrearOrdenVista extends JPanel {
         btnCrearOrden.setPreferredSize(new Dimension(250, 45));
 
         btnPanel.add(btnCrearOrden);
-        body.add(btnPanel, BorderLayout.SOUTH);
+        add(btnPanel, BorderLayout.SOUTH); // Botones fijos abajo
 
         // Scroll por si la ventana es pequeña
         JScrollPane scrollPane = new JScrollPane(body);
         scrollPane.setBorder(null);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         add(scrollPane, BorderLayout.CENTER);
     }
 
@@ -198,7 +229,7 @@ public class CrearOrdenVista extends JPanel {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(TEAL, 1, true),
-                new EmptyBorder(15, 15, 15, 15)
+                new EmptyBorder(5, 10, 5, 10)
         ));
 
         // --- Nombre del cliente ---
@@ -215,7 +246,7 @@ public class CrearOrdenVista extends JPanel {
         clientePanel.add(iconCliente, BorderLayout.WEST);
         clientePanel.add(txtNombreCliente, BorderLayout.CENTER);
         panel.add(clientePanel);
-        panel.add(Box.createVerticalStrut(12));
+        panel.add(Box.createVerticalStrut(5));
 
         // --- Tipo de falla (Radio buttons) ---
         JLabel lblFalla = new JLabel("FALLA O REQUERIMIENTO");
@@ -223,7 +254,7 @@ public class CrearOrdenVista extends JPanel {
         lblFalla.setForeground(GOLD);
         lblFalla.setAlignmentX(Component.LEFT_ALIGNMENT);
         panel.add(lblFalla);
-        panel.add(Box.createVerticalStrut(5));
+        panel.add(Box.createVerticalStrut(2));
 
         JPanel radioPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
         radioPanel.setOpaque(false);
@@ -247,10 +278,10 @@ public class CrearOrdenVista extends JPanel {
         radioPanel.add(rbMantencion);
         radioPanel.add(rbGarantia);
         panel.add(radioPanel);
-        panel.add(Box.createVerticalStrut(8));
+        panel.add(Box.createVerticalStrut(5));
 
         // --- Descripción de la falla ---
-        txtDescripcionFalla = new JTextArea(3, 20);
+        txtDescripcionFalla = new JTextArea(2, 20);
         txtDescripcionFalla.setLineWrap(true);
         txtDescripcionFalla.setWrapStyleWord(true);
         txtDescripcionFalla.setBorder(BorderFactory.createCompoundBorder(
@@ -261,9 +292,9 @@ public class CrearOrdenVista extends JPanel {
         txtDescripcionFalla.setToolTipText("Agregar falla o requerimientos...");
         JScrollPane scrollFalla = new JScrollPane(txtDescripcionFalla);
         scrollFalla.setAlignmentX(Component.LEFT_ALIGNMENT);
-        scrollFalla.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
+        scrollFalla.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         panel.add(scrollFalla);
-        panel.add(Box.createVerticalStrut(12));
+        panel.add(Box.createVerticalStrut(5));
 
         // --- Servicio o Producto ---
         JLabel lblServicio = new JLabel("SERVICIO O PRODUCTO");
@@ -271,9 +302,9 @@ public class CrearOrdenVista extends JPanel {
         lblServicio.setForeground(GOLD);
         lblServicio.setAlignmentX(Component.LEFT_ALIGNMENT);
         panel.add(lblServicio);
-        panel.add(Box.createVerticalStrut(5));
+        panel.add(Box.createVerticalStrut(2));
 
-        txtServicioProducto = new JTextArea(4, 20);
+        txtServicioProducto = new JTextArea(2, 20);
         txtServicioProducto.setLineWrap(true);
         txtServicioProducto.setWrapStyleWord(true);
         txtServicioProducto.setBorder(BorderFactory.createCompoundBorder(
@@ -284,9 +315,9 @@ public class CrearOrdenVista extends JPanel {
         txtServicioProducto.setToolTipText("Agregar nuevo...");
         JScrollPane scrollServicio = new JScrollPane(txtServicioProducto);
         scrollServicio.setAlignmentX(Component.LEFT_ALIGNMENT);
-        scrollServicio.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+        scrollServicio.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         panel.add(scrollServicio);
-        panel.add(Box.createVerticalStrut(12));
+        panel.add(Box.createVerticalStrut(5));
 
         // --- Costos (Subtotal, Impuesto, Total) ---
         JPanel costosPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
@@ -329,11 +360,11 @@ public class CrearOrdenVista extends JPanel {
         vehiculoCard.setLayout(new BoxLayout(vehiculoCard, BoxLayout.Y_AXIS));
         vehiculoCard.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(TEAL, 1, true),
-                new EmptyBorder(10, 10, 10, 10)
+                new EmptyBorder(5, 5, 5, 5)
         ));
         vehiculoCard.setBackground(Color.WHITE);
         vehiculoCard.setAlignmentX(Component.LEFT_ALIGNMENT);
-        vehiculoCard.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+        vehiculoCard.setMaximumSize(new Dimension(Integer.MAX_VALUE, 85));
 
         JPanel vehiculoRow1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 2));
         vehiculoRow1.setOpaque(false);
@@ -366,13 +397,13 @@ public class CrearOrdenVista extends JPanel {
         vehiculoCard.add(vehiculoRow3);
 
         panel.add(vehiculoCard);
-        panel.add(Box.createVerticalStrut(10));
+        panel.add(Box.createVerticalStrut(5));
 
         // --- Kilometraje y Nivel de combustible ---
         JPanel kmCombPanel = new JPanel(new GridLayout(1, 2, 10, 0));
         kmCombPanel.setOpaque(false);
         kmCombPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        kmCombPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+        kmCombPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
 
         // Kilometraje
         JPanel kmPanel = new JPanel(new BorderLayout(5, 2));
@@ -401,7 +432,7 @@ public class CrearOrdenVista extends JPanel {
         kmCombPanel.add(kmPanel);
         kmCombPanel.add(combPanel);
         panel.add(kmCombPanel);
-        panel.add(Box.createVerticalStrut(10));
+        panel.add(Box.createVerticalStrut(5));
 
         // --- Condición del vehículo ---
         JLabel lblCondicion = new JLabel("Condición del vehículo");
@@ -409,7 +440,7 @@ public class CrearOrdenVista extends JPanel {
         lblCondicion.setForeground(GOLD);
         lblCondicion.setAlignmentX(Component.LEFT_ALIGNMENT);
         panel.add(lblCondicion);
-        panel.add(Box.createVerticalStrut(3));
+        panel.add(Box.createVerticalStrut(2));
 
         txtCondicionVehiculo = new JTextArea(2, 20);
         txtCondicionVehiculo.setLineWrap(true);
@@ -420,9 +451,9 @@ public class CrearOrdenVista extends JPanel {
         ));
         JScrollPane scrollCondicion = new JScrollPane(txtCondicionVehiculo);
         scrollCondicion.setAlignmentX(Component.LEFT_ALIGNMENT);
-        scrollCondicion.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+        scrollCondicion.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         panel.add(scrollCondicion);
-        panel.add(Box.createVerticalStrut(10));
+        panel.add(Box.createVerticalStrut(5));
 
         // --- Agregar imágenes (simulación) ---
         JPanel imgPanel = new JPanel(new BorderLayout());

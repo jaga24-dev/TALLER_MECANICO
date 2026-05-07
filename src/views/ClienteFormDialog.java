@@ -14,7 +14,10 @@ import java.awt.Window;
 import java.awt.geom.RoundRectangle2D;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -26,14 +29,14 @@ import models.ClienteModelo;
 
 public class ClienteFormDialog extends JDialog {
 
-    private static final Color BG_DARK = Color.decode("#00314A");
+	private static final Color TEAL = Color.decode("#005064");
     private static final Color GOLD = Color.decode("#E4C25E");
-    private static final Color TEXT_DARK = Color.decode("#323C46");
-    private static final Color BG_LIGHT = Color.decode("#EBF0F5");
+    private static final Color BG_FIELD = Color.decode("#EBEBEB");
 
     private JTextField txtNombre;
-    private JTextField txtTelefono;
+    private JComboBox<String> cmbHistorial;
     private JTextField txtCorreo;
+    private JTextField txtTelefono;
     
     // Variable para saber si el usuario guardó los datos o canceló
     private boolean guardado = false;
@@ -50,28 +53,76 @@ public class ClienteFormDialog extends JDialog {
         super(owner, clienteAEditar == null ? "Agregar Cliente Nuevo" : "Editar Cliente", ModalityType.APPLICATION_MODAL);
         this.cliente = clienteAEditar != null ? clienteAEditar : new ClienteModelo();
         
-        setSize(400, 350);
+        setSize(520, 350);
         setLocationRelativeTo(owner);
-        setResizable(false);
+        setUndecorated(true);
+        setBackground(new Color(0, 0, 0, 0));
         
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(BG_LIGHT);
-        mainPanel.setBorder(new EmptyBorder(20, 30, 20, 30));
+        JPanel bgPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(Color.WHITE);
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 30, 30));
+                g2.setColor(TEAL);
+                g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 30, 30));
+                g2.dispose();
+            }
+        };
+        bgPanel.setOpaque(false);
+        bgPanel.setLayout(new BorderLayout());
+        bgPanel.setBorder(new EmptyBorder(25, 30, 25, 30));
 
-        JPanel formPanel = new JPanel(new GridLayout(3, 2, 10, 20));
-        formPanel.setBackground(BG_LIGHT);
+        JPanel mainPanel = new JPanel();
+        mainPanel.setOpaque(false);
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
-        formPanel.add(crearLabel("Nombre Completo:"));
+        // Row 1
+        JPanel pnlRow1 = new JPanel(new BorderLayout());
+        pnlRow1.setOpaque(false);
+
+        JPanel pnlNombre = new JPanel(new BorderLayout()); pnlNombre.setOpaque(false);
+        pnlNombre.add(crearLabel("NOMBRE COMPLETO"), BorderLayout.NORTH);
         txtNombre = crearTextField();
-        formPanel.add(txtNombre);
+        pnlNombre.add(txtNombre, BorderLayout.CENTER);
 
-        formPanel.add(crearLabel("Teléfono:"));
-        txtTelefono = crearTextField();
-        formPanel.add(txtTelefono);
+        pnlRow1.add(pnlNombre, BorderLayout.CENTER);
 
-        formPanel.add(crearLabel("Correo Electrónico:"));
+        // Row 2
+        JPanel pnlRow2 = new JPanel(new BorderLayout());
+        pnlRow2.setOpaque(false);
+        pnlRow2.add(crearLabel("HISTORIAL DE VEHICULOS"), BorderLayout.NORTH);
+        cmbHistorial = new JComboBox<>(new String[]{" "});
+        cmbHistorial.setBackground(BG_FIELD);
+        cmbHistorial.setFont(new Font("Inter", Font.PLAIN, 13));
+        cmbHistorial.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(TEAL, 1, true),
+                new EmptyBorder(2, 2, 2, 2)
+        ));
+        pnlRow2.add(cmbHistorial, BorderLayout.CENTER);
+
+        // Row 3
+        JPanel pnlRow3 = new JPanel(new GridLayout(1, 2, 15, 0));
+        pnlRow3.setOpaque(false);
+        JPanel pnlCorreo = new JPanel(new BorderLayout()); pnlCorreo.setOpaque(false);
+        pnlCorreo.add(crearLabel("CORREO"), BorderLayout.NORTH);
         txtCorreo = crearTextField();
-        formPanel.add(txtCorreo);
+        pnlCorreo.add(txtCorreo, BorderLayout.CENTER);
+
+        JPanel pnlTel = new JPanel(new BorderLayout()); pnlTel.setOpaque(false);
+        pnlTel.add(crearLabel("TÉLEFONO"), BorderLayout.NORTH);
+        txtTelefono = crearTextField();
+        pnlTel.add(txtTelefono, BorderLayout.CENTER);
+
+        pnlRow3.add(pnlCorreo);
+        pnlRow3.add(pnlTel);
+
+        mainPanel.add(pnlRow1);
+        mainPanel.add(Box.createVerticalStrut(15));
+        mainPanel.add(pnlRow2);
+        mainPanel.add(Box.createVerticalStrut(15));
+        mainPanel.add(pnlRow3);
 
         if (clienteAEditar != null) {
             txtNombre.setText(cliente.getNombreCompleto());
@@ -79,39 +130,77 @@ public class ClienteFormDialog extends JDialog {
             txtCorreo.setText(cliente.getCorreo());
         }
 
-        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-        btnPanel.setBackground(BG_LIGHT);
-        btnPanel.setBorder(new EmptyBorder(20, 0, 0, 0));
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        btnPanel.setOpaque(false);
+        btnPanel.setBorder(new EmptyBorder(25, 0, 0, 0));
 
-        JButton btnCancelar = new JButton("Cancelar");
+        JButton btnCancelar = new JButton("X  CANCELAR") {
+            @Override protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(Color.decode("#9DB2BF"));
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 35, 35));
+                super.paintComponent(g);
+                g2.dispose();
+            }
+        };
+        btnCancelar.setContentAreaFilled(false);
+        btnCancelar.setBorderPainted(false);
         btnCancelar.setFocusPainted(false);
+        btnCancelar.setForeground(Color.WHITE);
+        btnCancelar.setFont(new Font("Inter", Font.BOLD, 13));
+        btnCancelar.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnCancelar.setPreferredSize(new Dimension(160, 40));
         btnCancelar.addActionListener(e -> dispose());
 
-        JButton btnGuardar = new BotonEstilizado("Guardar");
+        String btnText = clienteAEditar == null ? "  AGREGAR CLIENTE" : "  GUARDAR CAMBIOS";
+        JButton btnGuardar = new JButton(btnText) {
+            @Override protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(GOLD);
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 35, 35));
+                super.paintComponent(g);
+                g2.dispose();
+            }
+        };
+        btnGuardar.setContentAreaFilled(false);
+        btnGuardar.setBorderPainted(false);
+        btnGuardar.setFocusPainted(false);
+        btnGuardar.setForeground(TEAL);
+        btnGuardar.setFont(new Font("Inter", Font.BOLD, 13));
+        // Intenta cargar icono si es posible, o dejalo sin icono si no hay gestor disponible aca
+        try {
+            btnGuardar.setIcon(views.IconoManager.cargarIcono("agregar.png", 18, 18)); 
+        } catch(Exception ex){}
+        btnGuardar.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnGuardar.setPreferredSize(new Dimension(210, 40));
         btnGuardar.addActionListener(e -> guardar());
 
         btnPanel.add(btnCancelar);
         btnPanel.add(btnGuardar);
 
-        mainPanel.add(formPanel, BorderLayout.CENTER);
-        mainPanel.add(btnPanel, BorderLayout.SOUTH);
+        bgPanel.add(mainPanel, BorderLayout.CENTER);
+        bgPanel.add(btnPanel, BorderLayout.SOUTH);
 
-        add(mainPanel);
+        add(bgPanel);
     }
 
     private JLabel crearLabel(String texto) {
         JLabel label = new JLabel(texto);
-        label.setFont(new Font("Inter", Font.BOLD, 13));
-        label.setForeground(TEXT_DARK);
+        label.setFont(new Font("Inter", Font.BOLD, 12));
+        label.setForeground(GOLD);
+        label.setBorder(new EmptyBorder(0, 0, 5, 0));
         return label;
     }
 
     private JTextField crearTextField() {
         JTextField textField = new JTextField();
         textField.setFont(new Font("Inter", Font.PLAIN, 13));
+        textField.setBackground(BG_FIELD);
         textField.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Color.LIGHT_GRAY),
-                BorderFactory.createEmptyBorder(5, 5, 5, 5)
+        		BorderFactory.createLineBorder(TEAL, 1, true),
+                BorderFactory.createEmptyBorder(8, 8, 8, 8)
         ));
         return textField;
     }
@@ -134,35 +223,6 @@ public class ClienteFormDialog extends JDialog {
         dispose(); // Cerramos la ventana
     }
 
-    public boolean isGuardado() {
-        return guardado;
-    }
-
-    public ClienteModelo getCliente() {
-        return cliente;
-    }
-
-    // Clase interna para botón con estilo redondeado y amarillo
-    private static class BotonEstilizado extends JButton {
-        public BotonEstilizado(String text) {
-            super(text);
-            setContentAreaFilled(false);
-            setFocusPainted(false);
-            setBorderPainted(false);
-            setForeground(BG_DARK);
-            setFont(new Font("Inter", Font.BOLD, 13));
-            setCursor(new Cursor(Cursor.HAND_CURSOR));
-            setPreferredSize(new Dimension(100, 35));
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(GOLD);
-            g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 15, 15));
-            super.paintComponent(g);
-            g2.dispose();
-        }
-    }
+    public boolean isGuardado() { return guardado; }
+    public ClienteModelo getCliente() { return cliente; }
 }
