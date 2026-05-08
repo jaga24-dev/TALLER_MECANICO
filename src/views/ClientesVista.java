@@ -187,7 +187,7 @@ public class ClientesVista extends JPanel {
         // Botón Agregar
         btnAgregar = new JButton("Agregar cliente nuevo");
         btnAgregar.setIcon(IconoManager.cargarIcono("agregar.png", 18, 18));
-        btnAgregar.setForeground(Color.decode("#00314A"));
+        btnAgregar.setForeground(HEADER_BG);
         btnAgregar.setBackground(GOLD);
         btnAgregar.setFont(new Font("Inter", Font.BOLD, 12));
         //btnAgregar.setFocusPainted(false);

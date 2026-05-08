@@ -233,18 +233,44 @@ public class CrearOrdenVista extends JPanel {
         ));
 
         // --- Nombre del cliente ---
-        JPanel clientePanel = new JPanel(new BorderLayout(5, 0));
+        JPanel clientePanel = new JPanel();
+        clientePanel.setLayout(new BoxLayout(clientePanel, BoxLayout.X_AXIS));
         clientePanel.setOpaque(false);
-        clientePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
+        clientePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        clientePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel iconCliente = new JLabel(IconoManager.cargarIcono("clientes.png", 20, 20));
-        txtNombreCliente = new JTextField();
+        iconCliente.setAlignmentY(Component.CENTER_ALIGNMENT);
+        txtNombreCliente = new JTextField() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (getText().isEmpty() && !hasFocus()) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2.setColor(Color.GRAY);
+                    g2.setFont(new Font("Inter", Font.ITALIC, 12));
+                    g2.drawString("Nombre de cliente...", getInsets().left, getHeight() / 2 + 4);
+                    g2.dispose();
+                }
+            }
+        };
         txtNombreCliente.setFont(new Font("Inter", Font.BOLD, 13));
-        txtNombreCliente.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
-        txtNombreCliente.setToolTipText("Nombre de cliente...");
+        txtNombreCliente.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 2, 0, TEAL),
+                BorderFactory.createEmptyBorder(5, 5, 5, 5)
+        ));
+        txtNombreCliente.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
+        txtNombreCliente.setAlignmentY(Component.CENTER_ALIGNMENT);
+        // Repaint on focus to show/hide placeholder
+        txtNombreCliente.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override public void focusGained(java.awt.event.FocusEvent e) { txtNombreCliente.repaint(); }
+            @Override public void focusLost(java.awt.event.FocusEvent e) { txtNombreCliente.repaint(); }
+        });
 
-        clientePanel.add(iconCliente, BorderLayout.WEST);
-        clientePanel.add(txtNombreCliente, BorderLayout.CENTER);
+        clientePanel.add(iconCliente);
+        clientePanel.add(Box.createHorizontalStrut(8));
+        clientePanel.add(txtNombreCliente);
         panel.add(clientePanel);
         panel.add(Box.createVerticalStrut(5));
 
@@ -320,26 +346,44 @@ public class CrearOrdenVista extends JPanel {
         panel.add(Box.createVerticalStrut(5));
 
         // --- Costos (Subtotal, Impuesto, Total) ---
-        JPanel costosPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        JPanel costosPanel = new JPanel();
+        costosPanel.setLayout(new BoxLayout(costosPanel, BoxLayout.X_AXIS));
         costosPanel.setOpaque(false);
         costosPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        costosPanel.setBorder(BorderFactory.createLineBorder(TEAL, 1, true));
-        costosPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
+        costosPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(TEAL, 1, true),
+                BorderFactory.createEmptyBorder(5, 8, 5, 8)
+        ));
+        costosPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
-        costosPanel.add(new JLabel("SUBTOTAL:"));
-        txtSubtotal = new JTextField(5);
+        JLabel lblSub = new JLabel("SUBTOTAL:");
+        lblSub.setFont(new Font("Inter", Font.PLAIN, 11));
+        costosPanel.add(lblSub);
+        costosPanel.add(Box.createHorizontalStrut(4));
+        txtSubtotal = new JTextField(4);
+        txtSubtotal.setMaximumSize(new Dimension(60, 25));
         costosPanel.add(txtSubtotal);
 
-        costosPanel.add(new JLabel("IMPUESTO:"));
-        txtImpuesto = new JTextField(5);
+        costosPanel.add(Box.createHorizontalStrut(8));
+
+        JLabel lblImp = new JLabel("IMPUESTO:");
+        lblImp.setFont(new Font("Inter", Font.PLAIN, 11));
+        costosPanel.add(lblImp);
+        costosPanel.add(Box.createHorizontalStrut(4));
+        txtImpuesto = new JTextField(4);
+        txtImpuesto.setMaximumSize(new Dimension(60, 25));
         costosPanel.add(txtImpuesto);
 
+        costosPanel.add(Box.createHorizontalGlue());
+        
         JLabel lblTotal = new JLabel("TOTAL:");
         lblTotal.setFont(new Font("Inter", Font.BOLD, 12));
         costosPanel.add(lblTotal);
-        txtTotal = new JTextField(6);
-        txtTotal.setEditable(false); // El total se calcula automáticamente
+        costosPanel.add(Box.createHorizontalStrut(4));
+        txtTotal = new JTextField(5);
+        txtTotal.setEditable(false);
         txtTotal.setBackground(Color.WHITE);
+        txtTotal.setMaximumSize(new Dimension(80, 25));
         costosPanel.add(txtTotal);
 
         panel.add(costosPanel);
