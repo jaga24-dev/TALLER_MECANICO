@@ -218,11 +218,36 @@ public class EditarOrdenVista extends JPanel {
         leftPanel.add(title);
         leftPanel.add(dateLabel);
 
-        cmbEstado = new JComboBox<>(new String[]{"LISTO", "EN REPARACION", "EN ESPERA"});
-        cmbEstado.setSelectedIndex(0); 
-        cmbEstado.setBackground(GOLD);
-        cmbEstado.setForeground(HEADER_BG);
+        cmbEstado = new JComboBox<>(new String[]{"LISTO", "EN REPARACION", "EN ESPERA"});       
         cmbEstado.setFont(new Font("Inter", Font.BOLD, 11));
+        cmbEstado.setBackground(Color.WHITE);
+
+        Color colorListo = new Color(40, 167, 69);      // Verde
+        Color colorReparacion = new Color(220, 53, 69); // Rojo
+        Color colorEspera = new Color(242, 156, 31);    // Amarillo/Dorado
+
+        cmbEstado.setRenderer(new javax.swing.DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(javax.swing.JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value != null && !isSelected) {
+                    String status = value.toString();
+                    if (status.equals("LISTO")) c.setForeground(colorListo);
+                    else if (status.equals("EN REPARACION")) c.setForeground(colorReparacion);
+                    else if (status.equals("EN ESPERA")) c.setForeground(colorEspera);
+                }
+                return c;
+            }
+        });
+
+        cmbEstado.addActionListener(e -> {
+            String status = (String) cmbEstado.getSelectedItem();
+            if ("LISTO".equals(status)) cmbEstado.setForeground(colorListo);
+            else if ("EN REPARACION".equals(status)) cmbEstado.setForeground(colorReparacion);
+            else if ("EN ESPERA".equals(status)) cmbEstado.setForeground(colorEspera);
+        });
+
+        cmbEstado.setSelectedIndex(0); 
 
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 5));
         rightPanel.setOpaque(false);

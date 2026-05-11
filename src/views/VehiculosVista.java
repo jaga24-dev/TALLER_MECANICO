@@ -262,10 +262,45 @@ public class VehiculosVista extends JPanel {
         tablaVehiculos.getColumnModel().getColumn(0).setPreferredWidth(30);
 
         // Asignar el renderer centrado a todas las columnas de datos
-        for (int i = 1; i <= 8; i++) {
+        for (int i = 1; i <= 7; i++) {
             tablaVehiculos.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
 
+        // Renderer para la columna ESTADO (8)
+        DefaultTableCellRenderer estadoRenderer = new DefaultTableCellRenderer() {
+            Color colorListo = new Color(40, 167, 69);
+            Color colorReparacion = new Color(220, 53, 69);
+            Color colorEspera = new Color(242, 156, 31);
+
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                setHorizontalAlignment(SwingConstants.CENTER);
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? ROW_BG_1 : ROW_BG_2);
+                }
+                
+                if (value != null) {
+                    String status = value.toString().toUpperCase();
+                    if (status.equals("LISTO")) {
+                        c.setForeground(colorListo);
+                        c.setFont(c.getFont().deriveFont(Font.BOLD));
+                    } else if (status.equals("EN REPARACION") || status.equals("EN REPARACIÓN")) {
+                        c.setForeground(colorReparacion);
+                        c.setFont(c.getFont().deriveFont(Font.BOLD));
+                    } else if (status.equals("EN ESPERA")) {
+                        c.setForeground(colorEspera);
+                        c.setFont(c.getFont().deriveFont(Font.BOLD));
+                    } else {
+                        c.setForeground(isSelected ? table.getSelectionForeground() : Color.BLACK);
+                    }
+                }
+                return c;
+            }
+        };
+        tablaVehiculos.getColumnModel().getColumn(8).setCellRenderer(estadoRenderer);
+        
         // Asignar renderer y editor de acciones a la última columna
         tablaVehiculos.getColumnModel().getColumn(9).setCellRenderer(new AccionesRenderer());
         tablaVehiculos.getColumnModel().getColumn(9).setCellEditor(new AccionesEditor());

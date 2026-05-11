@@ -248,7 +248,7 @@ public class ClientesVista extends JPanel {
 
         // Historial Renderer (simular ComboBox)
         tablaClientes.getColumnModel().getColumn(5).setCellRenderer(new HistorialRenderer());
-        tablaClientes.getColumnModel().getColumn(5).setCellEditor(new HistorialEditor());
+        //tablaClientes.getColumnModel().getColumn(5).setCellEditor(new HistorialEditor());
         tablaClientes.getColumnModel().getColumn(5).setPreferredWidth(150);
 
         // Acciones Renderer/Editor
@@ -342,7 +342,7 @@ public class ClientesVista extends JPanel {
      * Detecta cuando el usuario hace clic en el historial y avisa al controlador
      * para que abra la ventana detallada de vehículos.
      */
-    class HistorialEditor extends AbstractCellEditor implements TableCellEditor {
+    /*class HistorialEditor extends AbstractCellEditor implements TableCellEditor {
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
             // Si hay alguien escuchando (el controlador), avisamos que se quieren ver los vehículos de esta fila
@@ -352,7 +352,7 @@ public class ClientesVista extends JPanel {
             return new JLabel(value != null ? value.toString() : "");
         }
         @Override public Object getCellEditorValue() { return null; }
-    }
+    }*/
 
     /**
      * Dibuja los 3 botones (Lápiz, PDF, Equis) en la última columna.

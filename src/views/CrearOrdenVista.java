@@ -206,10 +206,35 @@ public class CrearOrdenVista extends JPanel {
 
         // Lado derecho: selector de estado
         cmbEstado = new JComboBox<>(new String[]{"LISTO", "EN REPARACIÓN", "EN ESPERA"});
-        cmbEstado.setSelectedIndex(2); // "EN ESPERA" por defecto
-        cmbEstado.setBackground(GOLD);
-        cmbEstado.setForeground(HEADER_BG);
         cmbEstado.setFont(new Font("Inter", Font.BOLD, 11));
+        cmbEstado.setBackground(Color.WHITE);
+
+        Color colorListo = new Color(40, 167, 69);      // Verde
+        Color colorReparacion = new Color(220, 53, 69); // Rojo
+        Color colorEspera = new Color(242, 156, 31);    // Amarillo/Dorado
+
+        cmbEstado.setRenderer(new javax.swing.DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(javax.swing.JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value != null && !isSelected) {
+                    String status = value.toString();
+                    if (status.equals("LISTO")) c.setForeground(colorListo);
+                    else if (status.equals("EN REPARACIÓN")) c.setForeground(colorReparacion);
+                    else if (status.equals("EN ESPERA")) c.setForeground(colorEspera);
+                }
+                return c;
+            }
+        });
+
+        cmbEstado.addActionListener(e -> {
+            String status = (String) cmbEstado.getSelectedItem();
+            if ("LISTO".equals(status)) cmbEstado.setForeground(colorListo);
+            else if ("EN REPARACIÓN".equals(status)) cmbEstado.setForeground(colorReparacion);
+            else if ("EN ESPERA".equals(status)) cmbEstado.setForeground(colorEspera);
+        });
+
+        cmbEstado.setSelectedIndex(2); // "EN ESPERA" por defecto
 
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 5));
         rightPanel.setOpaque(false);
@@ -228,20 +253,25 @@ public class CrearOrdenVista extends JPanel {
         panel.setOpaque(false);
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(TEAL, 1, true),
+                BorderFactory.createLineBorder(TEAL, 2, true),
                 new EmptyBorder(5, 10, 5, 10)
         ));
+        panel.setBackground(Color.WHITE);
+        panel.setOpaque(true);
 
         // --- Nombre del cliente ---
-        JPanel clientePanel = new JPanel();
+        JPanel clientePanel = new JPanel() {
+            @Override
+            public Dimension getMaximumSize() {
+                return new Dimension(Integer.MAX_VALUE, super.getPreferredSize().height);
+            }
+        };
         clientePanel.setLayout(new BoxLayout(clientePanel, BoxLayout.X_AXIS));
         clientePanel.setOpaque(false);
-        clientePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
         clientePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel iconCliente = new JLabel(IconoManager.cargarIcono("clientes.png", 20, 20));
-        iconCliente.setAlignmentY(Component.CENTER_ALIGNMENT);
-        txtNombreCliente = new JTextField() {
+        JLabel iconCliente = new JLabel(IconoManager.cargarIcono("clientes.png", 30, 30));
+        txtNombreCliente = new JTextField(15) {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
@@ -249,46 +279,50 @@ public class CrearOrdenVista extends JPanel {
                     Graphics2D g2 = (Graphics2D) g.create();
                     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                     g2.setColor(Color.GRAY);
-                    g2.setFont(new Font("Inter", Font.ITALIC, 12));
-                    g2.drawString("Nombre de cliente...", getInsets().left, getHeight() / 2 + 4);
+                    g2.setFont(new Font("Inter", Font.ITALIC, 16));
+                    g2.drawString("Nombre de cliente...", getInsets().left + 2, getHeight() / 2 + 5);
                     g2.dispose();
                 }
             }
+            @Override
+            public Dimension getMaximumSize() {
+                return new Dimension(super.getPreferredSize().width, super.getPreferredSize().height);
+            }
         };
-        txtNombreCliente.setFont(new Font("Inter", Font.BOLD, 13));
-        txtNombreCliente.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 2, 0, TEAL),
-                BorderFactory.createEmptyBorder(5, 5, 5, 5)
-        ));
-        txtNombreCliente.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
-        txtNombreCliente.setAlignmentY(Component.CENTER_ALIGNMENT);
-        // Repaint on focus to show/hide placeholder
+        txtNombreCliente.setFont(new Font("Inter", Font.BOLD, 20));
+        txtNombreCliente.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        txtNombreCliente.setOpaque(false);
+        
         txtNombreCliente.addFocusListener(new java.awt.event.FocusAdapter() {
             @Override public void focusGained(java.awt.event.FocusEvent e) { txtNombreCliente.repaint(); }
             @Override public void focusLost(java.awt.event.FocusEvent e) { txtNombreCliente.repaint(); }
         });
 
         clientePanel.add(iconCliente);
-        clientePanel.add(Box.createHorizontalStrut(8));
+        clientePanel.add(Box.createHorizontalStrut(10));
         clientePanel.add(txtNombreCliente);
         panel.add(clientePanel);
-        panel.add(Box.createVerticalStrut(5));
+        panel.add(Box.createVerticalStrut(18));
 
         // --- Tipo de falla (Radio buttons) ---
         JLabel lblFalla = new JLabel("FALLA O REQUERIMIENTO");
-        lblFalla.setFont(new Font("Inter", Font.BOLD, 12));
+        lblFalla.setFont(new Font("Inter", Font.BOLD, 13));
         lblFalla.setForeground(GOLD);
         lblFalla.setAlignmentX(Component.LEFT_ALIGNMENT);
         panel.add(lblFalla);
         panel.add(Box.createVerticalStrut(2));
 
-        JPanel radioPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
+        JPanel radioPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0)) {
+            @Override
+            public Dimension getMaximumSize() {
+                return new Dimension(Integer.MAX_VALUE, super.getPreferredSize().height);
+            }
+        };
         radioPanel.setOpaque(false);
-        radioPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
         radioPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         rbReparacion = new JRadioButton("Reparación");
-        rbMantencion = new JRadioButton("Mantención");
+        rbMantencion = new JRadioButton("Mantenimiento"); // Cambiado texto a Mantenimiento
         rbGarantia = new JRadioButton("Garantía");
 
         grupoFalla = new ButtonGroup();
@@ -296,9 +330,11 @@ public class CrearOrdenVista extends JPanel {
         grupoFalla.add(rbMantencion);
         grupoFalla.add(rbGarantia);
 
-        rbReparacion.setOpaque(false);
-        rbMantencion.setOpaque(false);
-        rbGarantia.setOpaque(false);
+        rbReparacion.setOpaque(false); rbReparacion.setFont(new Font("Inter", Font.PLAIN, 13));
+        rbMantencion.setOpaque(false); rbMantencion.setFont(new Font("Inter", Font.PLAIN, 13));
+        rbGarantia.setOpaque(false); rbGarantia.setFont(new Font("Inter", Font.PLAIN, 13));
+        
+        rbReparacion.setSelected(true); // Default
 
         radioPanel.add(rbReparacion);
         radioPanel.add(rbMantencion);
@@ -310,81 +346,105 @@ public class CrearOrdenVista extends JPanel {
         txtDescripcionFalla = new JTextArea(2, 20);
         txtDescripcionFalla.setLineWrap(true);
         txtDescripcionFalla.setWrapStyleWord(true);
+        txtDescripcionFalla.setFont(new Font("Inter", Font.PLAIN, 13));
         txtDescripcionFalla.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(TEAL, 1),
+                BorderFactory.createLineBorder(TEAL, 2, true),
                 new EmptyBorder(5, 5, 5, 5)
         ));
-        txtDescripcionFalla.setBackground(Color.decode("#D0E0E8"));
         txtDescripcionFalla.setToolTipText("Agregar falla o requerimientos...");
         JScrollPane scrollFalla = new JScrollPane(txtDescripcionFalla);
         scrollFalla.setAlignmentX(Component.LEFT_ALIGNMENT);
         scrollFalla.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         panel.add(scrollFalla);
-        panel.add(Box.createVerticalStrut(5));
+        panel.add(Box.createVerticalStrut(10));
 
         // --- Servicio o Producto ---
         JLabel lblServicio = new JLabel("SERVICIO O PRODUCTO");
-        lblServicio.setFont(new Font("Inter", Font.BOLD, 12));
+        lblServicio.setFont(new Font("Inter", Font.BOLD, 13));
         lblServicio.setForeground(GOLD);
         lblServicio.setAlignmentX(Component.LEFT_ALIGNMENT);
         panel.add(lblServicio);
         panel.add(Box.createVerticalStrut(2));
 
-        txtServicioProducto = new JTextArea(2, 20);
+        txtServicioProducto = new JTextArea(3, 20);
         txtServicioProducto.setLineWrap(true);
         txtServicioProducto.setWrapStyleWord(true);
+        txtServicioProducto.setFont(new Font("Inter", Font.PLAIN, 13));
         txtServicioProducto.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(TEAL, 1),
+                BorderFactory.createLineBorder(TEAL, 2, true),
                 new EmptyBorder(5, 5, 5, 5)
         ));
-        txtServicioProducto.setBackground(Color.decode("#D0E0E8"));
         txtServicioProducto.setToolTipText("Agregar nuevo...");
         JScrollPane scrollServicio = new JScrollPane(txtServicioProducto);
         scrollServicio.setAlignmentX(Component.LEFT_ALIGNMENT);
-        scrollServicio.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+        scrollServicio.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
         panel.add(scrollServicio);
-        panel.add(Box.createVerticalStrut(5));
+        panel.add(Box.createVerticalStrut(10));
 
         // --- Costos (Subtotal, Impuesto, Total) ---
-        JPanel costosPanel = new JPanel();
-        costosPanel.setLayout(new BoxLayout(costosPanel, BoxLayout.X_AXIS));
+        JPanel costosPanel = new JPanel(new GridLayout(1, 3, 15, 0)) {
+            @Override
+            public Dimension getMaximumSize() {
+                return new Dimension(Integer.MAX_VALUE, super.getPreferredSize().height);
+            }
+        };
         costosPanel.setOpaque(false);
         costosPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        costosPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(TEAL, 1, true),
-                BorderFactory.createEmptyBorder(5, 8, 5, 8)
-        ));
-        costosPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
-        JLabel lblSub = new JLabel("SUBTOTAL:");
-        lblSub.setFont(new Font("Inter", Font.PLAIN, 11));
-        costosPanel.add(lblSub);
-        costosPanel.add(Box.createHorizontalStrut(4));
-        txtSubtotal = new JTextField(4);
-        txtSubtotal.setMaximumSize(new Dimension(60, 25));
-        costosPanel.add(txtSubtotal);
+     // Subtotal
+        JPanel subPanel = new JPanel(new GridLayout(2, 1));
+        subPanel.setOpaque(false);
+        JLabel lSub = new JLabel("SUBTOTAL:"); lSub.setFont(new Font("Inter", Font.PLAIN, 10)); lSub.setForeground(GOLD);
+        txtSubtotal = new JTextField(5);
+        txtSubtotal.setFont(new Font("Inter", Font.PLAIN, 13));
+        txtSubtotal.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY));
+        txtSubtotal.setOpaque(false);
+        subPanel.add(lSub); subPanel.add(txtSubtotal);
+        costosPanel.add(subPanel);
 
-        costosPanel.add(Box.createHorizontalStrut(8));
+        // Impuesto
+        JPanel impPanel = new JPanel(new GridLayout(2, 1));
+        impPanel.setOpaque(false);
+        JLabel lImp = new JLabel("IMPUESTO:"); lImp.setFont(new Font("Inter", Font.PLAIN, 10)); lImp.setForeground(GOLD);
+        txtImpuesto = new JTextField(5);
+        txtImpuesto.setFont(new Font("Inter", Font.PLAIN, 13));
+        txtImpuesto.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY));
+        txtImpuesto.setOpaque(false);
+        impPanel.add(lImp); impPanel.add(txtImpuesto);
+        costosPanel.add(impPanel);
 
-        JLabel lblImp = new JLabel("IMPUESTO:");
-        lblImp.setFont(new Font("Inter", Font.PLAIN, 11));
-        costosPanel.add(lblImp);
-        costosPanel.add(Box.createHorizontalStrut(4));
-        txtImpuesto = new JTextField(4);
-        txtImpuesto.setMaximumSize(new Dimension(60, 25));
-        costosPanel.add(txtImpuesto);
-
-        costosPanel.add(Box.createHorizontalGlue());
+        // Total
+        JPanel totPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(Color.WHITE);
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 25, 25));
+                g2.setColor(Color.decode("#005064"));
+                g2.draw(new RoundRectangle2D.Float(0, 0, getWidth()-1, getHeight()-1, 25, 25));
+                super.paintComponent(g);
+                g2.dispose();
+            }
+        };
+        totPanel.setOpaque(false);
+        totPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 2));
         
         JLabel lblTotal = new JLabel("TOTAL:");
-        lblTotal.setFont(new Font("Inter", Font.BOLD, 12));
-        costosPanel.add(lblTotal);
-        costosPanel.add(Box.createHorizontalStrut(4));
-        txtTotal = new JTextField(5);
+        lblTotal.setFont(new Font("Inter", Font.BOLD, 13));
+        lblTotal.setForeground(GOLD);
+        
+        txtTotal = new JTextField(6);
+        txtTotal.setFont(new Font("Inter", Font.BOLD, 13));
+        txtTotal.setForeground(Color.decode("#005064"));
         txtTotal.setEditable(false);
-        txtTotal.setBackground(Color.WHITE);
-        txtTotal.setMaximumSize(new Dimension(80, 25));
-        costosPanel.add(txtTotal);
+        txtTotal.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 0));
+        txtTotal.setOpaque(false);
+        
+        totPanel.add(lblTotal);
+        totPanel.add(txtTotal);
+        
+        costosPanel.add(totPanel);
 
         panel.add(costosPanel);
 
@@ -400,115 +460,157 @@ public class CrearOrdenVista extends JPanel {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
         // --- Datos del vehículo ---
-        JPanel vehiculoCard = new JPanel();
-        vehiculoCard.setLayout(new BoxLayout(vehiculoCard, BoxLayout.Y_AXIS));
+        JPanel vehiculoCard = new JPanel(new BorderLayout(15, 0)) {
+            @Override
+            public Dimension getMaximumSize() {
+                return new Dimension(Integer.MAX_VALUE, super.getPreferredSize().height);
+            }
+        };
         vehiculoCard.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(TEAL, 1, true),
-                new EmptyBorder(5, 5, 5, 5)
+        		BorderFactory.createLineBorder(TEAL, 2, true),
+                new EmptyBorder(10, 15, 10, 15)
         ));
         vehiculoCard.setBackground(Color.WHITE);
         vehiculoCard.setAlignmentX(Component.LEFT_ALIGNMENT);
-        vehiculoCard.setMaximumSize(new Dimension(Integer.MAX_VALUE, 85));
 
-        JPanel vehiculoRow1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 2));
-        vehiculoRow1.setOpaque(false);
-        JLabel iconV = new JLabel(IconoManager.cargarIcono("vehiculos.png", 20, 20));
-        txtNombreVehiculo = new JTextField(15);
-        txtNombreVehiculo.setToolTipText("Nombre de vehículo...");
-        vehiculoRow1.add(iconV);
-        vehiculoRow1.add(txtNombreVehiculo);
+     // --- Inicializar campos de texto ocultos para que el controlador no falle ---
+        txtNombreVehiculo = new JTextField();
+        txtPlaca = new JTextField();
+        txtNumSerie = new JTextField();
+        txtAnio = new JTextField();
+        txtColor = new JTextField();
 
-        JPanel vehiculoRow2 = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 2));
-        vehiculoRow2.setOpaque(false);
-        txtPlaca = new JTextField(8);
-        txtPlaca.setToolTipText("Placa");
-        txtNumSerie = new JTextField(10);
-        txtNumSerie.setToolTipText("Número de serie (VIN)");
-        vehiculoRow2.add(new JLabel("Placa:")); vehiculoRow2.add(txtPlaca);
-        vehiculoRow2.add(new JLabel("  N° Serie:")); vehiculoRow2.add(txtNumSerie);
+        // --- Icono de selector (Círculo naranja con flecha azul) ---
+        JPanel iconPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(Color.decode("#F29C1F")); // Naranja
+                g2.fillOval(2, 2, 40, 40);
+                g2.setColor(Color.decode("#00A2ED")); // Borde celeste
+                g2.setStroke(new java.awt.BasicStroke(2f));
+                g2.drawOval(2, 2, 40, 40);
+                
+                // Flecha
+                g2.setColor(Color.decode("#00314A")); // Azul oscuro
+                int[] xPoints = {15, 29, 22};
+                int[] yPoints = {16, 16, 26};
+                g2.fillPolygon(xPoints, yPoints, 3);
+                g2.dispose();
+            }
+        };
+        iconPanel.setPreferredSize(new Dimension(46, 46));
+        iconPanel.setOpaque(false);
 
-        JPanel vehiculoRow3 = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 2));
-        vehiculoRow3.setOpaque(false);
-        txtAnio = new JTextField(5);
-        txtAnio.setToolTipText("Año");
-        txtColor = new JTextField(8);
-        txtColor.setToolTipText("Color");
-        vehiculoRow3.add(new JLabel("Año:")); vehiculoRow3.add(txtAnio);
-        vehiculoRow3.add(new JLabel("  Color:")); vehiculoRow3.add(txtColor);
+        // --- Textos (puro texto simulando selector) ---
+        JPanel textPanel = new JPanel();
+        textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
+        textPanel.setOpaque(false);
 
-        vehiculoCard.add(vehiculoRow1);
-        vehiculoCard.add(vehiculoRow2);
-        vehiculoCard.add(vehiculoRow3);
+        JLabel lblNombre = new JLabel("Nombre de vehiculo...");
+        lblNombre.setFont(new Font("Inter", Font.PLAIN, 15));
+        lblNombre.setForeground(GOLD); // Dorado
+        
+        JLabel lblPlacaSerie = new JLabel("Placa - Número de serie (VIN)");
+        lblPlacaSerie.setFont(new Font("Inter", Font.PLAIN, 15));
+        lblPlacaSerie.setForeground(GOLD);
+        
+        JLabel lblAnioColor = new JLabel("Año - Color");
+        lblAnioColor.setFont(new Font("Inter", Font.PLAIN, 15));
+        lblAnioColor.setForeground(GOLD);
+
+        textPanel.add(lblNombre);
+        textPanel.add(Box.createVerticalStrut(2));
+        textPanel.add(lblPlacaSerie);
+        textPanel.add(Box.createVerticalStrut(2));
+        textPanel.add(lblAnioColor);
+
+        // Layout
+        vehiculoCard.add(iconPanel, BorderLayout.WEST);
+        vehiculoCard.add(textPanel, BorderLayout.CENTER);
 
         panel.add(vehiculoCard);
-        panel.add(Box.createVerticalStrut(5));
+        panel.add(Box.createVerticalStrut(10));
 
         // --- Kilometraje y Nivel de combustible ---
-        JPanel kmCombPanel = new JPanel(new GridLayout(1, 2, 10, 0));
+        JPanel kmCombPanel = new JPanel(new GridLayout(1, 2, 20, 0)) {
+            @Override
+            public Dimension getMaximumSize() {
+                return new Dimension(Integer.MAX_VALUE, super.getPreferredSize().height);
+            }
+        };
         kmCombPanel.setOpaque(false);
         kmCombPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        kmCombPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
 
         // Kilometraje
-        JPanel kmPanel = new JPanel(new BorderLayout(5, 2));
+        JPanel kmPanel = new JPanel(new BorderLayout(0, 5));
         kmPanel.setOpaque(false);
         JLabel lblKm = new JLabel("Kilometraje");
-        lblKm.setFont(new Font("Inter", Font.ITALIC, 11));
+        lblKm.setFont(new Font("Inter", Font.ITALIC, 13));
         lblKm.setForeground(GOLD);
         txtKilometraje = new JTextField();
+        txtKilometraje.setFont(new Font("Inter", Font.BOLD, 13));
+        txtKilometraje.setHorizontalAlignment(SwingConstants.CENTER);
         txtKilometraje.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(TEAL, 1),
+                BorderFactory.createLineBorder(TEAL, 2, true),
                 new EmptyBorder(5, 5, 5, 5)
         ));
         kmPanel.add(lblKm, BorderLayout.NORTH);
         kmPanel.add(txtKilometraje, BorderLayout.CENTER);
 
         // Nivel de combustible
-        JPanel combPanel = new JPanel(new BorderLayout(5, 2));
+        JPanel combPanel = new JPanel(new BorderLayout(0, 5));
         combPanel.setOpaque(false);
         JLabel lblComb = new JLabel("Nivel de combustible");
-        lblComb.setFont(new Font("Inter", Font.ITALIC, 11));
+        lblComb.setFont(new Font("Inter", Font.ITALIC, 13));
         lblComb.setForeground(GOLD);
         cmbCombustible = new JComboBox<>(new String[]{"E", "1/4", "1/2", "3/4", "F"});
+        cmbCombustible.setFont(new Font("Inter", Font.PLAIN, 13));
+        cmbCombustible.setBackground(Color.WHITE);
+        cmbCombustible.setBorder(BorderFactory.createLineBorder(TEAL, 2, true));
         combPanel.add(lblComb, BorderLayout.NORTH);
         combPanel.add(cmbCombustible, BorderLayout.CENTER);
 
         kmCombPanel.add(kmPanel);
         kmCombPanel.add(combPanel);
         panel.add(kmCombPanel);
-        panel.add(Box.createVerticalStrut(5));
+        panel.add(Box.createVerticalStrut(10));
 
         // --- Condición del vehículo ---
         JLabel lblCondicion = new JLabel("Condición del vehículo");
-        lblCondicion.setFont(new Font("Inter", Font.ITALIC, 11));
+        lblCondicion.setFont(new Font("Inter", Font.ITALIC, 13));
         lblCondicion.setForeground(GOLD);
         lblCondicion.setAlignmentX(Component.LEFT_ALIGNMENT);
         panel.add(lblCondicion);
         panel.add(Box.createVerticalStrut(2));
 
-        txtCondicionVehiculo = new JTextArea(2, 20);
+        txtCondicionVehiculo = new JTextArea(3, 20);
         txtCondicionVehiculo.setLineWrap(true);
         txtCondicionVehiculo.setWrapStyleWord(true);
+        txtCondicionVehiculo.setFont(new Font("Inter", Font.PLAIN, 13));
         txtCondicionVehiculo.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(TEAL, 1),
+                BorderFactory.createLineBorder(TEAL, 2, true),
                 new EmptyBorder(5, 5, 5, 5)
         ));
         JScrollPane scrollCondicion = new JScrollPane(txtCondicionVehiculo);
         scrollCondicion.setAlignmentX(Component.LEFT_ALIGNMENT);
-        scrollCondicion.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+        scrollCondicion.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
         panel.add(scrollCondicion);
-        panel.add(Box.createVerticalStrut(5));
+        panel.add(Box.createVerticalStrut(10));
 
-        // --- Agregar imágenes (simulación) ---
+        // --- Agregar imágenes  ---
         JPanel imgPanel = new JPanel(new BorderLayout());
         imgPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         imgPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
-        imgPanel.setBorder(BorderFactory.createLineBorder(TEAL, 1, true));
+        imgPanel.setBorder(BorderFactory.createLineBorder(TEAL, 2, true));
         imgPanel.setBackground(Color.decode("#D0E0E8"));
 
         JLabel lblImg = new JLabel("Agregar imágenes", SwingConstants.CENTER);
-        lblImg.setFont(new Font("Inter", Font.ITALIC, 12));
+        lblImg.setFont(new Font("Inter", Font.ITALIC, 13));
         lblImg.setForeground(GOLD);
+        lblImg.setBorder(new EmptyBorder(5, 0, 0, 0));
 
         JLabel iconPlus = new JLabel(IconoManager.cargarIcono("agregar.png", 40, 40), SwingConstants.CENTER);
 
