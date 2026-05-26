@@ -43,8 +43,8 @@ public class ClientesVista extends JPanel {
     private static final Color HEADER_BG = Color.decode("#00314A");
     private static final Color GOLD = Color.decode("#E4C25E");
     private static final Color TABLE_HEADER_BG = Color.decode("#00314A");
-    private static final Color ROW_BG_1 = Color.decode("#E4C25E"); // Similar to screenshot row 1
-    private static final Color ROW_BG_2 = Color.decode("#014461"); // Similar to screenshot row 2
+    private static final Color ROW_BG_1 = Color.decode("#E4C25E");
+    private static final Color ROW_BG_2 = Color.decode("#014461");
 
     private DefaultTableModel tableModel;
     private JTable tablaClientes;
@@ -148,7 +148,6 @@ public class ClientesVista extends JPanel {
         toolbar.setOpaque(false);
         toolbar.setBorder(new EmptyBorder(0, 0, 15, 0));
 
-        // Search Bar
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         searchPanel.setOpaque(false);
         JLabel searchIcon = new JLabel(IconoManager.cargarIcono("buscar.png", 20, 20));

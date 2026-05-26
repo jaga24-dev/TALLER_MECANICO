@@ -26,6 +26,9 @@ public class IndicatorCard extends JPanel {
     private static final Color VALUE_COLOR = Color.decode("#003246");
     private static final Color SUB_COLOR = Color.decode("#647882");
 
+    private JLabel valueLabel;
+    private JLabel subLabel;
+
     public IndicatorCard(String title, String value, String subtitle, String iconFile) {
         setLayout(new BorderLayout());
         setBackground(Color.WHITE);
@@ -43,10 +46,10 @@ public class IndicatorCard extends JPanel {
         topRow.add(titleLabel, BorderLayout.WEST);
         topRow.add(iconLabel, BorderLayout.EAST);
 
-        JLabel valueLabel = new JLabel(value);
+        valueLabel = new JLabel(value);
         valueLabel.setFont(new Font("Inter", Font.BOLD, 26));
         valueLabel.setForeground(VALUE_COLOR);
-        JLabel subLabel = new JLabel(subtitle);
+        subLabel = new JLabel(subtitle);
         subLabel.setFont(new Font("Inter", Font.PLAIN, 11));
         subLabel.setForeground(SUB_COLOR);
 
@@ -60,6 +63,14 @@ public class IndicatorCard extends JPanel {
 
         add(topRow, BorderLayout.NORTH);
         add(centerPanel, BorderLayout.CENTER);
+    }
+
+    public void setValue(String val) {
+        if (valueLabel != null) valueLabel.setText(val);
+    }
+
+    public void setSubtitle(String sub) {
+        if (subLabel != null) subLabel.setText(sub);
     }
 
     private static class RoundBorder extends AbstractBorder {

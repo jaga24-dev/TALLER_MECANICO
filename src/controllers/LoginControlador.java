@@ -76,16 +76,17 @@ public class LoginControlador {
 
         // Validar credenciales
         if (modelo.validarCredenciales(usuario, password)) {
-            abrirDashboard();
+            abrirDashboard(usuario);
         } else {
             DialogoError.mostrar(vista);
         }
     }
 
-    private void abrirDashboard() {
+    private void abrirDashboard(String nombreUsuario) {
         vista.setVisible(false);
 
         DashboardVista dashboard = new DashboardVista();
+        dashboard.getMainContent().setNombreTecnico(nombreUsuario);
         DashboardControlador dashCtrl = new DashboardControlador(dashboard, this);
         dashboard.setVisible(true);
     }

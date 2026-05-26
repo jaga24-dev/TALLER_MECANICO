@@ -1,58 +1,51 @@
 package models;
 
-/**
- * Modelo que representa un vehículo en el taller.
- * Cada vehículo tiene datos básicos (marca, modelo, año, placas)
- * y datos del taller (número de serie, falla reportada, imagen, estado).
- */
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
 public class VehiculoModelo {
 
-    // --- Datos básicos del vehículo ---
     private String id;
-    private String marca;       // Ej: "Nissan"
-    private String modelo;      // Ej: "Sentra"
-    private int anio;           // Ej: 2018
-    private String placas;      // Ej: "HPR-456-A"
+    private String idCliente;
+    private String marca;
+    private String modelo;
+    private int anio;
+    private String placas;
+    private String numeroSerie;
+    private String imagen;
 
-    // --- Datos del taller (nuevos campos según la imagen) ---
-    private String numeroSerie;     // Ej: "3N1AB7AP1JY327654"
-    private String fallaReportada;  // Ej: "Falla en transmisión, no hace cambios de velocidad."
-    private String imagenRuta;      // Ruta a la imagen del vehículo (puede ser null)
-    private String estado;          // "Listo", "En Reparación", "En Espera"
-
-    // Constructor vacío
     public VehiculoModelo() {
-        this.estado = "En Espera"; // Estado por defecto
     }
 
-    // Constructor con datos básicos (el que ya se usaba antes)
+    public VehiculoModelo(String id, String idCliente, String marca, String modelo, int anio, String placas, String numeroSerie, String imagen) {
+        this.id = id;
+        this.idCliente = idCliente;
+        this.marca = marca;
+        this.modelo = modelo;
+        this.anio = anio;
+        this.placas = placas;
+        this.numeroSerie = numeroSerie;
+        this.imagen = imagen;
+    }
+
+    // Para retrocompatibilidad temporal con algunas partes de la interfaz
     public VehiculoModelo(String id, String marca, String modelo, int anio, String placas) {
         this.id = id;
         this.marca = marca;
         this.modelo = modelo;
         this.anio = anio;
         this.placas = placas;
-        this.estado = "En Espera";
     }
-
-    // Constructor completo con todos los campos
-    public VehiculoModelo(String id, String marca, String modelo, int anio, String placas,
-                          String numeroSerie, String fallaReportada, String imagenRuta, String estado) {
-        this.id = id;
-        this.marca = marca;
-        this.modelo = modelo;
-        this.anio = anio;
-        this.placas = placas;
-        this.numeroSerie = numeroSerie;
-        this.fallaReportada = fallaReportada;
-        this.imagenRuta = imagenRuta;
-        this.estado = estado;
-    }
-
-    // --- Getters y Setters (para acceder y modificar cada campo) ---
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
+
+    public String getIdCliente() { return idCliente; }
+    public void setIdCliente(String idCliente) { this.idCliente = idCliente; }
 
     public String getMarca() { return marca; }
     public void setMarca(String marca) { this.marca = marca; }
@@ -69,20 +62,120 @@ public class VehiculoModelo {
     public String getNumeroSerie() { return numeroSerie; }
     public void setNumeroSerie(String numeroSerie) { this.numeroSerie = numeroSerie; }
 
-    public String getFallaReportada() { return fallaReportada; }
-    public void setFallaReportada(String fallaReportada) { this.fallaReportada = fallaReportada; }
+    public String getImagen() { return imagen; }
+    public void setImagen(String imagen) { this.imagen = imagen; }
 
-    public String getImagenRuta() { return imagenRuta; }
-    public void setImagenRuta(String imagenRuta) { this.imagenRuta = imagenRuta; }
-
-    public String getEstado() { return estado; }
-    public void setEstado(String estado) { this.estado = estado; }
-
-    /**
-     * Devuelve un texto resumen del vehículo. Ej: "Nissan Sentra (2018)"
-     */
     @Override
     public String toString() {
         return marca + " " + modelo + " (" + anio + ")";
+    }
+
+    // --- Métodos de Base de Datos ---
+
+    public static List<VehiculoModelo> obtenerTodos() {
+        List<VehiculoModelo> lista = new ArrayList<>();
+        String query = "SELECT * FROM Vehiculos";
+        try (Connection conn = ConexionDB.obtenerConexion();
+             PreparedStatement ps = conn.prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                lista.add(new VehiculoModelo(
+                        String.valueOf(rs.getInt("id_vehiculo")),
+                        String.valueOf(rs.getInt("id_cliente")),
+                        rs.getString("marca"),
+                        rs.getString("modelo"),
+                        rs.getInt("anio"),
+                        rs.getString("placas"),
+                        rs.getString("numero_serie"),
+                        rs.getString("imagen_vehiculo")
+                ));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
+
+    public static List<VehiculoModelo> obtenerPorCliente(String idCliente) {
+        List<VehiculoModelo> lista = new ArrayList<>();
+        String query = "SELECT * FROM Vehiculos WHERE id_cliente = ?";
+        try (Connection conn = ConexionDB.obtenerConexion();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, Integer.parseInt(idCliente));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(new VehiculoModelo(
+                            String.valueOf(rs.getInt("id_vehiculo")),
+                            String.valueOf(rs.getInt("id_cliente")),
+                            rs.getString("marca"),
+                            rs.getString("modelo"),
+                            rs.getInt("anio"),
+                            rs.getString("placas"),
+                            rs.getString("numero_serie"),
+                            rs.getString("imagen_vehiculo")
+                    ));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
+
+    public boolean guardar() {
+        String query = "INSERT INTO Vehiculos (id_cliente, marca, modelo, anio, placas, numero_serie, imagen_vehiculo) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (Connection conn = ConexionDB.obtenerConexion();
+             PreparedStatement ps = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setInt(1, Integer.parseInt(this.idCliente));
+            ps.setString(2, this.marca);
+            ps.setString(3, this.modelo);
+            ps.setInt(4, this.anio);
+            ps.setString(5, this.placas);
+            ps.setString(6, this.numeroSerie);
+            ps.setString(7, this.imagen);
+            int filas = ps.executeUpdate();
+            if (filas > 0) {
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        this.id = String.valueOf(rs.getInt(1));
+                    }
+                }
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean actualizar() {
+        String query = "UPDATE Vehiculos SET id_cliente=?, marca=?, modelo=?, anio=?, placas=?, numero_serie=?, imagen_vehiculo=? WHERE id_vehiculo=?";
+        try (Connection conn = ConexionDB.obtenerConexion();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, Integer.parseInt(this.idCliente));
+            ps.setString(2, this.marca);
+            ps.setString(3, this.modelo);
+            ps.setInt(4, this.anio);
+            ps.setString(5, this.placas);
+            ps.setString(6, this.numeroSerie);
+            ps.setString(7, this.imagen);
+            ps.setInt(8, Integer.parseInt(this.id));
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean eliminar(String id) {
+        String query = "DELETE FROM Vehiculos WHERE id_vehiculo=?";
+        try (Connection conn = ConexionDB.obtenerConexion();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, Integer.parseInt(id));
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

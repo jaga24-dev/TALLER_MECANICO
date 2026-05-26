@@ -30,8 +30,7 @@ public class ClientesControlador {
 
  public ClientesControlador(ClientesVista vista) {
      this.vista = vista;
-     this.clientes = new ArrayList<>();
-     cargarDatosPrueba(); // Solo para prototipo
+     this.clientes = ClienteModelo.obtenerTodos(); // Cargar de la base de datos
      
      this.vista.setClientes(clientes);
      inicializarEventos();
@@ -66,7 +65,7 @@ public class ClientesControlador {
  }
 
  /**
-  * Abre la ventana para crear un nuevo cliente y lo añade a la lista si se guarda.
+  * Abre la ventana para crear un nuevo cliente y lo añade a la BD.
   */
  private void agregarCliente() {
      ClienteFormDialog dialog = new ClienteFormDialog(SwingUtilities.getWindowAncestor(vista), null);
@@ -74,15 +73,17 @@ public class ClientesControlador {
 
      if (dialog.isGuardado()) {
          ClienteModelo nuevo = dialog.getCliente();
-         // Generar ID dummy
-         nuevo.setId(String.format("%03d", clientes.size() + 1));
-         clientes.add(nuevo);
-         vista.setClientes(clientes);
+         if (nuevo.guardar()) {
+             clientes.add(nuevo);
+             vista.setClientes(clientes);
+         } else {
+             JOptionPane.showMessageDialog(vista, "Error al guardar en la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
+         }
      }
  }
 
  /**
-  * Abre la ventana de edición con los datos del cliente seleccionado.
+  * Abre la ventana de edición con los datos del cliente seleccionado y actualiza la BD.
   */
  private void editarCliente(int row) {
      if (row >= 0 && row < clientes.size()) {
@@ -91,22 +92,31 @@ public class ClientesControlador {
          ClienteFormDialog dialog = new ClienteFormDialog(SwingUtilities.getWindowAncestor(vista), cliente);
          dialog.setVisible(true); // Mostramos la ventana
 
-         // Si el usuario apretó "Guardar", actualizamos la tabla
+         // Si el usuario apretó "Guardar", actualizamos la BD y tabla
          if (dialog.isGuardado()) {
-             vista.setClientes(clientes); // Refrescar tabla
+             if (cliente.actualizar()) {
+                 vista.setClientes(clientes); // Refrescar tabla
+             } else {
+                 JOptionPane.showMessageDialog(vista, "Error al actualizar en la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
+             }
          }
      }
  }
 
  /**
-  * Pregunta al usuario si desea eliminar y borra al cliente de la lista.
+  * Pregunta al usuario si desea eliminar y borra al cliente de la BD.
   */
  private void eliminarCliente(int row) {
      if (row >= 0 && row < clientes.size()) {
          int r = JOptionPane.showConfirmDialog(vista, "¿Está seguro de eliminar este cliente?", "Confirmar", JOptionPane.YES_NO_OPTION);
          if (r == JOptionPane.YES_OPTION) {
-             clientes.remove(row);
-             vista.setClientes(clientes);
+             ClienteModelo cliente = clientes.get(row);
+             if (cliente.eliminar()) {
+                 clientes.remove(row);
+                 vista.setClientes(clientes);
+             } else {
+                 JOptionPane.showMessageDialog(vista, "Error al eliminar de la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
+             }
          }
      }
  }
@@ -118,18 +128,26 @@ public class ClientesControlador {
      if (row >= 0 && row < clientes.size()) {
          ClienteModelo cliente = clientes.get(row); // Sacamos al cliente
       // Abrimos el formulario de vehículo en modo agregar
-         VehiculosDialog dialog = new VehiculosDialog(SwingUtilities.getWindowAncestor(vista), null);
+         java.util.List<ClienteModelo> listaClientes = ClienteModelo.obtenerTodos();
+         VehiculosDialog dialog = new VehiculosDialog(SwingUtilities.getWindowAncestor(vista), null, listaClientes);
          dialog.setVisible(true);
          
          if (dialog.isGuardado()) {
              int anio = 0;
              try { anio = Integer.parseInt(dialog.getAnioText()); } catch (NumberFormatException ex) { }
              VehiculoModelo nuevo = new VehiculoModelo(
-                 java.util.UUID.randomUUID().toString(),
-                 dialog.getMarca(), dialog.getModelo(), anio, dialog.getPlacas()
+                 null,
+                 cliente.getId(),
+                 dialog.getMarca(), dialog.getModelo(), anio, dialog.getPlacas(), 
+                 java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase(),
+                 dialog.getRutaImagen()
              );
-             cliente.agregarVehiculo(nuevo);
-             vista.setClientes(clientes);
+             if (nuevo.guardar()) {
+                 cliente.agregarVehiculo(nuevo);
+                 vista.setClientes(clientes);
+             } else {
+                 JOptionPane.showMessageDialog(vista, "Error al guardar el vehículo en la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
+             }
          } 
      }
  }
@@ -181,11 +199,5 @@ public class ClientesControlador {
 
  public ClientesVista getVista() {
      return vista;
- }
-
- private void cargarDatosPrueba() {
-     ClienteModelo c1 = new ClienteModelo("001", "Santiago De Anda", "6121112233", "sade_24@uabcs.mx");
-     c1.agregarVehiculo(new VehiculoModelo("v1", "Ford", "Explorer", 2012, "BCS-123"));
-     clientes.add(c1);
  }
 }

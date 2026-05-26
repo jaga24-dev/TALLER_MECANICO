@@ -78,7 +78,6 @@ public class ClienteFormDialog extends JDialog {
         mainPanel.setOpaque(false);
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
-        // Row 1
         JPanel pnlRow1 = new JPanel(new BorderLayout());
         pnlRow1.setOpaque(false);
 
@@ -89,7 +88,6 @@ public class ClienteFormDialog extends JDialog {
 
         pnlRow1.add(pnlNombre, BorderLayout.CENTER);
 
-        // Row 2
         JPanel pnlRow2 = new JPanel(new BorderLayout());
         pnlRow2.setOpaque(false);
         pnlRow2.add(crearLabel("HISTORIAL DE VEHICULOS"), BorderLayout.NORTH);
@@ -102,7 +100,6 @@ public class ClienteFormDialog extends JDialog {
         ));
         pnlRow2.add(cmbHistorial, BorderLayout.CENTER);
 
-        // Row 3
         JPanel pnlRow3 = new JPanel(new GridLayout(1, 2, 15, 0));
         pnlRow3.setOpaque(false);
         JPanel pnlCorreo = new JPanel(new BorderLayout()); pnlCorreo.setOpaque(false);

@@ -13,13 +13,21 @@ import java.awt.GridLayout;
 import java.awt.RenderingHints;
 import java.awt.Window;
 import java.awt.geom.RoundRectangle2D;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.UUID;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import java.awt.Image;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -55,8 +63,11 @@ public class VehiculosDialog extends JDialog {
     private JTextField txtAnio;
     private JTextField txtPlacas;
     private JTextField txtNumSerie;
-    private JTextField txtKilometraje;
-    private JTextArea txtFalla;
+    private javax.swing.JComboBox<String> cmbCliente;
+    private java.util.List<models.ClienteModelo> clientes;
+    private JButton btnSubirImagen;
+    private JLabel lblImgNombre;
+    private String rutaImagenSeleccionada = null;
 
     // Indica si el usuario guardó o canceló
     private boolean guardado = false;
@@ -69,9 +80,10 @@ public class VehiculosDialog extends JDialog {
      * @param owner Ventana padre.
      * @param vehiculoAEditar null para crear uno nuevo, o un VehiculoModelo existente para editarlo.
      */
-    public VehiculosDialog(Window owner, VehiculoModelo vehiculoAEditar) {
+    public VehiculosDialog(Window owner, VehiculoModelo vehiculoAEditar, java.util.List<models.ClienteModelo> clientes) {
     	super(owner, vehiculoAEditar == null ? "Registrar Vehículo" : "Editar Vehículo", ModalityType.APPLICATION_MODAL);
         this.vehiculoOriginal = vehiculoAEditar;
+        this.clientes = clientes;
 
         setSize(850, 620);
         setLocationRelativeTo(owner);
@@ -129,17 +141,27 @@ public class VehiculosDialog extends JDialog {
 
         // Fila 3: Número de Serie
         txtNumSerie = crearTextField("");
-        leftPanel.add(crearInputGroup("NUMERO DE SERIE", txtNumSerie));
+        JPanel pnlSerie = crearInputGroup("NUMERO DE SERIE", txtNumSerie);
+        pnlSerie.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+        leftPanel.add(pnlSerie);
         leftPanel.add(Box.createVerticalStrut(20));
 
         // Historial de Servicios (visual)
         leftPanel.add(crearLabel("HISTORIAL DE SERVICIOS", 13));
         leftPanel.add(Box.createVerticalStrut(5));
 
+        List<models.OrdenServicioModelo> ordenes = vehiculoAEditar != null ? models.OrdenServicioModelo.obtenerPorVehiculo(vehiculoAEditar.getId()) : new ArrayList<>();
         DefaultTableModel modelHistorial = new DefaultTableModel(new String[]{"Servicio", "Costo", " "}, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
-        modelHistorial.addRow(new Object[]{"Agregar nuevo...", "", ""});
+        
+        for (models.OrdenServicioModelo o : ordenes) {
+            String resumenFalla = o.getFallaReportada() != null && o.getFallaReportada().length() > 20 ? o.getFallaReportada().substring(0, 20) + "..." : o.getFallaReportada();
+            modelHistorial.addRow(new Object[]{resumenFalla, "$" + String.format("%.2f", o.getMontoTotal()), "Ver"});
+        }
+        if (ordenes.isEmpty()) {
+            modelHistorial.addRow(new Object[]{"Sin historial", "-", "-"});
+        }
 
         JTable tablaHistorial = new JTable(modelHistorial);
         tablaHistorial.setRowHeight(30);
@@ -149,16 +171,29 @@ public class VehiculosDialog extends JDialog {
         tablaHistorial.getTableHeader().setUI(null);
         tablaHistorial.setBorder(BorderFactory.createLineBorder(TEAL, 2, true));
         
+        // Evento doble clic para ver resumen
+        tablaHistorial.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int row = tablaHistorial.rowAtPoint(e.getPoint());
+                    if (row >= 0 && row < ordenes.size()) {
+                        models.OrdenServicioModelo o = ordenes.get(row);
+                        JOptionPane.showMessageDialog(VehiculosDialog.this, 
+                            "Orden ID: " + o.getId() + "\nFecha: " + o.getFechaIngreso() + "\nFalla: " + o.getFallaReportada() + "\nTotal: $" + o.getMontoTotal(), 
+                            "Detalle de Servicio", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                }
+            }
+        });
+        
         tablaHistorial.getColumnModel().getColumn(2).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 JLabel l = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 l.setHorizontalAlignment(SwingConstants.CENTER);
-                if ("-".equals(value)) {
-                    l.setForeground(TEAL);
-                    l.setFont(new Font("Inter", Font.BOLD, 18));
-                    l.setText("⊝");
-                }
+                l.setForeground(TEAL);
+                l.setFont(new Font("Inter", Font.BOLD, 12));
                 return l;
             }
         });
@@ -218,63 +253,30 @@ public class VehiculosDialog extends JDialog {
         rightPanel.add(cardInfo);
         rightPanel.add(Box.createVerticalStrut(15));
 
-        // 2. Kilometraje y Nivel de combustible
-        JPanel rowMetrics = new JPanel(new GridLayout(1, 2, 10, 0));
-        rowMetrics.setOpaque(false);
-        txtKilometraje = crearTextField("");
-        rowMetrics.add(crearInputGroup("Kilometraje", txtKilometraje));
-
-        JPanel pnlCombustible = new JPanel(new BorderLayout(0, 5));
-        pnlCombustible.setOpaque(false);
-        pnlCombustible.add(crearLabel("Nivel de combustible", 12), BorderLayout.NORTH);
-
-        JPanel progressMock = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                int w = getWidth() - 40;
-                g2.setColor(Color.WHITE);
-                g2.fill(new RoundRectangle2D.Float(0, 5, w, 15, 10, 10));
-                g2.setColor(TEAL);
-                g2.draw(new RoundRectangle2D.Float(0, 5, w, 15, 10, 10));
-                g2.fill(new RoundRectangle2D.Float(0, 5, w * 0.38f, 15, 10, 10));
-                g2.setColor(Color.BLACK);
-                g2.setFont(new Font("Inter", Font.PLAIN, 10));
-                g2.drawString("E", 0, 32);
-                g2.drawString("1/2", (w / 2) - 5, 32);
-                g2.drawString("F", w - 5, 32);
-                g2.drawString("38%", w + 5, 17);
-                g2.dispose();
-            }
-        };
-        progressMock.setOpaque(false);
-        progressMock.setPreferredSize(new Dimension(150, 40));
-        pnlCombustible.add(progressMock, BorderLayout.CENTER);
-        rowMetrics.add(pnlCombustible);
-
-        rightPanel.add(rowMetrics);
-        rightPanel.add(Box.createVerticalStrut(15));
-
-        // 3. Falla Reportada
-        rightPanel.add(crearLabel("FALLA REPORTADA", 12));
+        // 2. Cliente Propietario
+        rightPanel.add(crearLabel("CLIENTE PROPIETARIO", 12));
         rightPanel.add(Box.createVerticalStrut(5));
-        txtFalla = new JTextArea("");
-        txtFalla.setFont(new Font("Inter", Font.PLAIN, 12));
-        txtFalla.setLineWrap(true);
-        txtFalla.setWrapStyleWord(true);
-        txtFalla.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(TEAL, 2, true),
-                new EmptyBorder(8, 8, 8, 8)
-        ));
-        JScrollPane scrollFalla = new JScrollPane(txtFalla);
-        scrollFalla.setBorder(BorderFactory.createEmptyBorder());
-        scrollFalla.setPreferredSize(new Dimension(300, 70));
-        rightPanel.add(scrollFalla);
+        
+        cmbCliente = new javax.swing.JComboBox<>();
+        cmbCliente.setFont(new Font("Inter", Font.PLAIN, 13));
+        cmbCliente.setBackground(Color.WHITE);
+        cmbCliente.setBorder(BorderFactory.createLineBorder(TEAL, 2, true));
+        
+        if (clientes != null) {
+            for (models.ClienteModelo c : clientes) {
+                cmbCliente.addItem(c.getNombreCompleto() + " - " + c.getCorreo());
+            }
+        }
+        
+        JPanel pnlCliente = new JPanel(new BorderLayout());
+        pnlCliente.setOpaque(false);
+        pnlCliente.add(cmbCliente, BorderLayout.CENTER);
+        pnlCliente.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        
+        rightPanel.add(pnlCliente);
         rightPanel.add(Box.createVerticalStrut(15));
 
-        // 4. Imagen del auto (placeholder)
+        // 4. Imagen del auto
         JPanel pnlCarImage = new JPanel(new BorderLayout());
         pnlCarImage.setBackground(Color.WHITE);
         pnlCarImage.setBorder(BorderFactory.createLineBorder(TEAL, 2, true));
@@ -283,15 +285,35 @@ public class VehiculosDialog extends JDialog {
         lblCarImage.setFont(new Font("Inter", Font.PLAIN, 16));
         lblCarImage.setForeground(Color.GRAY);
         try {
-            javax.swing.Icon carIcon = IconoManager.cargarIcono("car.png", 250, 130);
-            if (carIcon != null) {
-                lblCarImage.setIcon(carIcon);
+            if (vehiculoAEditar != null && vehiculoAEditar.getImagen() != null) {
+                lblCarImage.setIcon(new ImageIcon(new ImageIcon(vehiculoAEditar.getImagen()).getImage().getScaledInstance(250, 130, Image.SCALE_SMOOTH)));
                 lblCarImage.setText("");
+            } else {
+                javax.swing.Icon carIcon = IconoManager.cargarIcono("car.png", 250, 130);
+                if (carIcon != null) {
+                    lblCarImage.setIcon(carIcon);
+                    lblCarImage.setText("");
+                }
             }
         } catch (Exception e) { /* usar texto por defecto */ }
         pnlCarImage.add(lblCarImage, BorderLayout.CENTER);
         pnlCarImage.setPreferredSize(new Dimension(300, 150));
         rightPanel.add(pnlCarImage);
+        
+        btnSubirImagen = new JButton("Subir Imagen del Vehículo");
+        btnSubirImagen.setFont(new Font("Inter", Font.BOLD, 12));
+        btnSubirImagen.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnSubirImagen.addActionListener(e -> seleccionarImagenVehiculo(lblCarImage));
+        
+        lblImgNombre = new JLabel("Ninguna imagen seleccionada", SwingConstants.CENTER);
+        lblImgNombre.setFont(new Font("Inter", Font.PLAIN, 11));
+        
+        JPanel pnlImgBotones = new JPanel(new BorderLayout());
+        pnlImgBotones.setOpaque(false);
+        pnlImgBotones.add(btnSubirImagen, BorderLayout.NORTH);
+        pnlImgBotones.add(lblImgNombre, BorderLayout.SOUTH);
+        
+        rightPanel.add(pnlImgBotones);
 
         rightPanelWrap.add(rightPanel, BorderLayout.CENTER);
 
@@ -332,7 +354,16 @@ public class VehiculosDialog extends JDialog {
             txtAnio.setText(String.valueOf(vehiculoAEditar.getAnio()));
             txtPlacas.setText(vehiculoAEditar.getPlacas());
             txtNumSerie.setText(vehiculoAEditar.getNumeroSerie() != null ? vehiculoAEditar.getNumeroSerie() : "");
-            txtFalla.setText(vehiculoAEditar.getFallaReportada() != null ? vehiculoAEditar.getFallaReportada() : "");
+            
+            // Seleccionar cliente en el combobox
+            if (clientes != null && vehiculoAEditar.getIdCliente() != null) {
+                for (int i = 0; i < clientes.size(); i++) {
+                    if (clientes.get(i).getId().equals(vehiculoAEditar.getIdCliente())) {
+                        cmbCliente.setSelectedIndex(i);
+                        break;
+                    }
+                }
+            }
         }
     }
     
@@ -372,7 +403,7 @@ public class VehiculosDialog extends JDialog {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(bg);
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 40, 40));
+                g2.fill(new java.awt.geom.RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 40, 40));
                 super.paintComponent(g);
                 g2.dispose();
             }
@@ -385,6 +416,30 @@ public class VehiculosDialog extends JDialog {
         return btn;
     }
     
+    private void seleccionarImagenVehiculo(JLabel lblCarImage) {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Imágenes (JPG, PNG)", "jpg", "jpeg", "png"));
+        int res = chooser.showOpenDialog(this);
+        if (res == JFileChooser.APPROVE_OPTION) {
+            File archivoSeleccionado = chooser.getSelectedFile();
+            try {
+                File dir = new File("imagenes_vehiculos");
+                if (!dir.exists()) dir.mkdirs();
+                
+                File destino = new File(dir, System.currentTimeMillis() + "_" + archivoSeleccionado.getName());
+                Files.copy(archivoSeleccionado.toPath(), destino.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                
+                rutaImagenSeleccionada = destino.getAbsolutePath();
+                lblImgNombre.setText(archivoSeleccionado.getName());
+                
+                lblCarImage.setText("");
+                lblCarImage.setIcon(new ImageIcon(new ImageIcon(rutaImagenSeleccionada).getImage().getScaledInstance(250, 130, Image.SCALE_SMOOTH)));
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Error al copiar la imagen: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+    
     /**
      * Método que se ejecuta al pulsar "Registrar/Guardar".
      * Valida campos, actualiza el vehículo original (si edita) o marca guardado=true.
@@ -392,6 +447,11 @@ public class VehiculosDialog extends JDialog {
     private void guardar() {
         if (txtMarca.getText().trim().isEmpty() || txtModelo.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Marca y Modelo son obligatorios.");
+            return;
+        }
+
+        if (rutaImagenSeleccionada == null && (vehiculoOriginal == null || vehiculoOriginal.getImagen() == null)) {
+            JOptionPane.showMessageDialog(this, "Debe subir una imagen del vehículo.", "Falta Imagen", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -411,7 +471,7 @@ public class VehiculosDialog extends JDialog {
             vehiculoOriginal.setAnio(anio);
             vehiculoOriginal.setPlacas(txtPlacas.getText().trim());
             vehiculoOriginal.setNumeroSerie(txtNumSerie.getText().trim());
-            vehiculoOriginal.setFallaReportada(txtFalla.getText().trim());
+            // vehiculoOriginal.setFallaReportada(txtFalla.getText().trim());
         }
 
         guardado = true;
@@ -430,5 +490,14 @@ public class VehiculosDialog extends JDialog {
     public String getAnioText() { return txtAnio.getText().trim(); }
     public String getPlacas() { return txtPlacas.getText().trim(); }
     public String getNumSerie() { return txtNumSerie.getText().trim(); }
-    public String getFallaReportada() { return txtFalla.getText().trim(); }
+    public String getRutaImagen() { return rutaImagenSeleccionada; }
+    
+    public String getIdClienteSeleccionado() {
+        if (clientes == null || clientes.isEmpty()) return "1";
+        int idx = cmbCliente.getSelectedIndex();
+        if (idx >= 0 && idx < clientes.size()) {
+            return clientes.get(idx).getId();
+        }
+        return "1";
+    }
 }

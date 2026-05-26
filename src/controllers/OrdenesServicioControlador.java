@@ -29,9 +29,8 @@ public class OrdenesServicioControlador {
 
  public OrdenesServicioControlador(OrdenesServicioVista vista) {
      this.vista = vista;
-     this.ordenes = new ArrayList<>();
+     this.ordenes = OrdenServicioModelo.obtenerTodas();
 
-     cargarDatosPrueba();
      this.vista.setOrdenes(ordenes);
      inicializarEventos();
  }
@@ -81,8 +80,13 @@ public class OrdenesServicioControlador {
              "¿Está seguro de eliminar esta orden?", "Confirmar",
              JOptionPane.YES_NO_OPTION);
      if (r == JOptionPane.YES_OPTION) {
-         ordenes.remove(row);
-         vista.setOrdenes(ordenes);
+         OrdenServicioModelo o = ordenes.get(row);
+         if (OrdenServicioModelo.eliminar(o.getId())) {
+             ordenes.remove(row);
+             vista.setOrdenes(ordenes);
+         } else {
+             JOptionPane.showMessageDialog(vista, "Error al eliminar la orden de la base de datos.");
+         }
      }
  }
 
@@ -110,7 +114,7 @@ public class OrdenesServicioControlador {
          document.add(new Paragraph("Cliente: " + o.getNombreCliente(), textFont));
          document.add(new Paragraph("Vehículo: " + o.getVehiculoRelacionado(), textFont));
          document.add(new Paragraph("Fecha Ingreso: " + o.getFechaIngreso(), textFont));
-         document.add(new Paragraph("Fecha Entrega: " + o.getFechaEntrega(), textFont));
+         document.add(new Paragraph("Fecha Entrega: " + o.getFechaEntregaEstimada(), textFont));
          document.add(new Paragraph("\nCOSTOS", headerFont));
          document.add(new Paragraph("Mano de Obra: $" + String.format("%.2f", o.getCostoManoObra()), textFont));
          document.add(new Paragraph("Refacciones: $" + String.format("%.2f", o.getCostoRefacciones()), textFont));
@@ -133,8 +137,13 @@ public class OrdenesServicioControlador {
   * Agrega una nueva orden a la lista (se llama desde el controlador de "Crear Orden").
   */
  public void agregarOrden(OrdenServicioModelo orden) {
-     ordenes.add(orden);
-     vista.setOrdenes(ordenes);
+     if (orden.guardar()) {
+         // La guardamos en BD y la agregamos a la lista en memoria
+         ordenes.add(orden);
+         vista.setOrdenes(ordenes);
+     } else {
+         JOptionPane.showMessageDialog(vista, "Error al guardar la orden en la base de datos.");
+     }
  }
 
  public OrdenesServicioVista getVista() { return vista; }
@@ -143,14 +152,8 @@ public class OrdenesServicioControlador {
   * Refresca la tabla con los datos actuales.
   */
  public void refrescarTabla() {
+     // Recargar desde la BD en lugar de solo setear la lista
+     this.ordenes = OrdenServicioModelo.obtenerTodas();
      vista.setOrdenes(ordenes);
- }
-
- private void cargarDatosPrueba() {
-     ordenes.add(new OrdenServicioModelo(
-             "ORD-001", "S.De Anda", "Ford Explorer",
-             "31/3/2026", "4/4/2026",
-             300.00, 500.00, 820.00, "LISTO"
-     ));
  }
 }

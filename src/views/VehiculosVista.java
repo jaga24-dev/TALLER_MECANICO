@@ -350,10 +350,10 @@ public class VehiculosVista extends JPanel {
                     v.getAnio(),
                     v.getPlacas(),
                     v.getNumeroSerie() != null ? v.getNumeroSerie() : "",
-                    v.getFallaReportada() != null ? v.getFallaReportada() : "",
-                    v.getImagenRuta() != null ? "🚗" : "",   // Icono simple
-                    v.getEstado() != null ? v.getEstado() : "En Espera",
-                    ""                      // Columna de acciones
+                    "Ver Órdenes", // Falla Reportada
+                    "🚗",           // IMG DEL VEHÍCULO
+                    "N/A",         // ESTADO
+                    "Editar",      // ACCION
             });
         }
     }

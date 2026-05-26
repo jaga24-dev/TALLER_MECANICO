@@ -37,10 +37,7 @@ public class VehiculosControlador {
 
     public VehiculosControlador(VehiculosVista vista) {
         this.vista = vista;
-        this.vehiculos = new ArrayList<>();
-        
-        // Cargar un dato de prueba para que la tabla no se vea vacía
-        cargarDatosPrueba();
+        this.vehiculos = models.VehiculoModelo.obtenerTodos();
         
         // Mostrar los datos en la tabla
         this.vista.setVehiculos(vehiculos);
@@ -79,7 +76,8 @@ public class VehiculosControlador {
      * Abre el formulario estilizado para agregar un nuevo vehículo.
      */
     private void agregarVehiculo() {
-    	VehiculosDialog dialog = new VehiculosDialog(SwingUtilities.getWindowAncestor(vista), null);
+        List<models.ClienteModelo> clientes = models.ClienteModelo.obtenerTodos();
+    	VehiculosDialog dialog = new VehiculosDialog(SwingUtilities.getWindowAncestor(vista), null, clientes);
         dialog.setVisible(true);
 
         if (dialog.isGuardado()) {
@@ -87,19 +85,22 @@ public class VehiculosControlador {
             try { anio = Integer.parseInt(dialog.getAnioText()); } catch (NumberFormatException ex) { /* ignorar */ }
 
             VehiculoModelo nuevo = new VehiculoModelo(
-                    UUID.randomUUID().toString(),
+                    null, // ID generado por la BD
+                    dialog.getIdClienteSeleccionado(),  // ID del cliente real seleccionado
                     dialog.getMarca(),
                     dialog.getModelo(),
                     anio,
                     dialog.getPlacas(),
                     dialog.getNumSerie(),
-                    dialog.getFallaReportada(),
-                    null,
-                    "En Espera"
+                    dialog.getRutaImagen()
             );
 
-            vehiculos.add(nuevo);
-            vista.setVehiculos(vehiculos); // Refrescar la tabla
+            if (nuevo.guardar()) {
+                vehiculos.add(nuevo);
+                vista.setVehiculos(vehiculos); // Refrescar la tabla
+            } else {
+                JOptionPane.showMessageDialog(vista, "Error al guardar el vehículo en la base de datos.");
+            }
         }
     }
 
@@ -110,12 +111,17 @@ public class VehiculosControlador {
         if (row < 0 || row >= vehiculos.size()) return;
         VehiculoModelo v = vehiculos.get(row);
 
-        VehiculosDialog dialog = new VehiculosDialog(SwingUtilities.getWindowAncestor(vista), v);
+        List<models.ClienteModelo> clientes = models.ClienteModelo.obtenerTodos();
+        VehiculosDialog dialog = new VehiculosDialog(SwingUtilities.getWindowAncestor(vista), v, clientes);
         dialog.setVisible(true);
 
         if (dialog.isGuardado()) {
-            // El diálogo ya actualizó el objeto 'v' directamente
-            vista.setVehiculos(vehiculos);
+            v.setIdCliente(dialog.getIdClienteSeleccionado());
+            if (v.actualizar()) {
+                vista.setVehiculos(vehiculos);
+            } else {
+                JOptionPane.showMessageDialog(vista, "Error al actualizar el vehículo.");
+            }
         }
     }
 
@@ -128,8 +134,13 @@ public class VehiculosControlador {
                 "¿Está seguro de eliminar este vehículo?", "Confirmar",
                 JOptionPane.YES_NO_OPTION);
         if (r == JOptionPane.YES_OPTION) {
-            vehiculos.remove(row);
-            vista.setVehiculos(vehiculos);
+            VehiculoModelo v = vehiculos.get(row);
+            if (VehiculoModelo.eliminar(v.getId())) {
+                vehiculos.remove(row);
+                vista.setVehiculos(vehiculos);
+            } else {
+                JOptionPane.showMessageDialog(vista, "Error al eliminar el vehículo.");
+            }
         }
     }
 
@@ -159,8 +170,8 @@ public class VehiculosControlador {
             document.add(new Paragraph("Placas: " + v.getPlacas(), textFont));
             document.add(new Paragraph("Número de Serie: " + (v.getNumeroSerie() != null ? v.getNumeroSerie() : "N/A"), textFont));
             document.add(new Paragraph("\nFALLA REPORTADA", headerFont));
-            document.add(new Paragraph(v.getFallaReportada() != null ? v.getFallaReportada() : "Sin falla reportada", textFont));
-            document.add(new Paragraph("\nEstado: " + (v.getEstado() != null ? v.getEstado() : "N/A"), textFont));
+            document.add(new Paragraph("Consultar órdenes de servicio para fallas.", textFont));
+            document.add(new Paragraph("\nEstado: N/A", textFont));
 
             document.close();
             JOptionPane.showMessageDialog(vista,
@@ -175,16 +186,4 @@ public class VehiculosControlador {
     }
 
     public VehiculosVista getVista() { return vista; }
-
-    /**
-     * Carga datos de prueba para que la tabla no se vea vacía al iniciar.
-     */
-    private void cargarDatosPrueba() {
-        vehiculos.add(new VehiculoModelo(
-                "v1", "Nissan", "Sentra", 2018, "HPR-456-A",
-                "3N1AB7AP1JY327654",
-                "Falla en transmisión, no hace cambios de velocidad.",
-                null, "Listo"
-        ));
-    }
 }

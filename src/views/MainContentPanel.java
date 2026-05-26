@@ -40,6 +40,13 @@ public class MainContentPanel extends JPanel {
     private static final Color TEAL_DARK = Color.decode("#005064");
     private static final Color BORDER_TEAL = Color.decode("#008296");
 
+    private IndicatorCard cardVehiculos;
+    private IndicatorCard cardTrabajos;
+    private IndicatorCard cardIngresos;
+    private IndicatorCard cardEficiencia;
+    private JPanel entregasContainer;
+    private JLabel techLabel;
+
     public MainContentPanel() {
         setBackground(BG_LIGHT);
         setLayout(new BorderLayout());
@@ -64,14 +71,15 @@ public class MainContentPanel extends JPanel {
         cardsGrid.setAlignmentX(Component.LEFT_ALIGNMENT);
         cardsGrid.setMaximumSize(new Dimension(Integer.MAX_VALUE, 260));
 
-        cardsGrid.add(new IndicatorCard("VEHÍCULOS DE HOY", "0",
-                "0 Ingresados, 0 Entregados", "vehiculo.png"));
-        cardsGrid.add(new IndicatorCard("TRABAJOS EN CURSO", "0",
-                "1 Reparación", "trabajos.png"));
-        cardsGrid.add(new IndicatorCard("INGRESOS SEMANALES", "$0 MXN",
-                "+0% de ayer", "ingresos.png"));
-        cardsGrid.add(new IndicatorCard("EFICIENCIA DEL TALLER", "0%",
-                "Tiempo promedio: 3.0 hrs", "eficiencia.png"));
+        cardVehiculos = new IndicatorCard("VEHÍCULOS DE HOY", "0", "0 Ingresados, 0 Entregados", "vehiculo.png");
+        cardTrabajos = new IndicatorCard("TRABAJOS EN CURSO", "0", "0 Reparación", "trabajos.png");
+        cardIngresos = new IndicatorCard("INGRESOS SEMANALES", "$0 MXN", "+0% de ayer", "ingresos.png");
+        cardEficiencia = new IndicatorCard("EFICIENCIA DEL TALLER", "0%", "Tiempo promedio: 0 hrs", "eficiencia.png");
+
+        cardsGrid.add(cardVehiculos);
+        cardsGrid.add(cardTrabajos);
+        cardsGrid.add(cardIngresos);
+        cardsGrid.add(cardEficiencia);
 
         body.add(cardsGrid);
         body.add(Box.createVerticalStrut(18));
@@ -136,7 +144,7 @@ public class MainContentPanel extends JPanel {
         leftPanel.add(dashTitle);
         leftPanel.add(dashDate);
 
-        JLabel techLabel = new JLabel("  Técnico: Juan Angel  ");
+        techLabel = new JLabel("  Técnico: ...  ");
         techLabel.setFont(new Font("Inter", Font.PLAIN, 12));
         techLabel.setForeground(GOLD);
         techLabel.setIcon(IconoManager.cargarIcono("tecnico.png", 16, 16));
@@ -165,19 +173,68 @@ public class MainContentPanel extends JPanel {
         ));
         card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
 
-        JLabel entregaTitle = new JLabel("PRÓXIMAS ENTREGAS (Hoy)");
+        JLabel entregaTitle = new JLabel("PRÓXIMAS ENTREGAS");
         entregaTitle.setFont(new Font("Inter", Font.BOLD, 12));
         entregaTitle.setForeground(GOLD);
-
-        JLabel entregaItem = new JLabel("  1.  Ford Explorer 2012 (Santiago De Anda)");
-        entregaItem.setFont(new Font("Inter", Font.PLAIN, 12));
-        entregaItem.setForeground(Color.decode("#323C46"));
-
         card.add(entregaTitle);
         card.add(Box.createVerticalStrut(6));
-        card.add(entregaItem);
+
+        entregasContainer = new JPanel();
+        entregasContainer.setOpaque(false);
+        entregasContainer.setLayout(new BoxLayout(entregasContainer, BoxLayout.Y_AXIS));
+        card.add(entregasContainer);
 
         return card;
+    }
+
+    public void setNombreTecnico(String nombre) {
+        if (techLabel != null) {
+            techLabel.setText("  Técnico: " + nombre + "  ");
+        }
+    }
+
+    public void actualizarVehiculos(String val, String sub) {
+        cardVehiculos.setValue(val);
+        cardVehiculos.setSubtitle(sub);
+    }
+
+    public void actualizarTrabajos(String val, String sub) {
+        cardTrabajos.setValue(val);
+        cardTrabajos.setSubtitle(sub);
+    }
+
+    public void actualizarIngresos(String val, String sub) {
+        cardIngresos.setValue(val);
+        cardIngresos.setSubtitle(sub);
+    }
+
+    public void actualizarEficiencia(String val, String sub) {
+        cardEficiencia.setValue(val);
+        cardEficiencia.setSubtitle(sub);
+    }
+
+    public void actualizarEntregas(java.util.List<String> entregas) {
+        if (entregasContainer != null) {
+            entregasContainer.removeAll();
+            if (entregas.isEmpty()) {
+                JLabel lbl = new JLabel("  Sin entregas pendientes.");
+                lbl.setFont(new Font("Inter", Font.PLAIN, 12));
+                lbl.setForeground(Color.decode("#323C46"));
+                entregasContainer.add(lbl);
+            } else {
+                int i = 1;
+                for (String e : entregas) {
+                    JLabel lbl = new JLabel("  " + i + ".  " + e);
+                    lbl.setFont(new Font("Inter", Font.PLAIN, 12));
+                    lbl.setForeground(Color.decode("#323C46"));
+                    entregasContainer.add(lbl);
+                    entregasContainer.add(Box.createVerticalStrut(4));
+                    i++;
+                }
+            }
+            entregasContainer.revalidate();
+            entregasContainer.repaint();
+        }
     }
 
     private static class RoundBorder extends AbstractBorder {

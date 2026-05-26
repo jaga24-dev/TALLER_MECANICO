@@ -326,7 +326,7 @@ public class OrdenesServicioVista extends JPanel {
                     o.getNombreCliente(),
                     o.getVehiculoRelacionado(),
                     o.getFechaIngreso(),
-                    o.getFechaEntrega(),
+                    o.getFechaEntregaEstimada(),
                     String.format("$%.2f", o.getCostoManoObra()),
                     String.format("$%.2f", o.getCostoRefacciones()),
                     String.format("$%.2f", o.getMontoTotal()),

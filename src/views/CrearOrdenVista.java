@@ -54,12 +54,8 @@ public class CrearOrdenVista extends JPanel {
     private static final Color TEAL = Color.decode("#005064");
 
     // --- Campos del formulario ---
-    private JTextField txtNombreCliente;
-    private JTextField txtNombreVehiculo;
-    private JTextField txtPlaca;
-    private JTextField txtNumSerie;
-    private JTextField txtAnio;
-    private JTextField txtColor;
+    private JComboBox<String> cmbClientes;
+    private JComboBox<models.VehiculoModelo> cmbVehiculos;
 
     private ButtonGroup grupoFalla;       // Radio buttons: Reparación, Mantención, Garantía
     private JRadioButton rbReparacion;
@@ -80,6 +76,8 @@ public class CrearOrdenVista extends JPanel {
     private JComboBox<String> cmbEstado;  // LISTO, EN REPARACIÓN, EN ESPERA
 
     private JButton btnCrearOrden;
+    private JButton btnSubirImagen;
+    private JLabel lblImgNombre;
 
     // Constructor
     public CrearOrdenVista() {
@@ -271,36 +269,17 @@ public class CrearOrdenVista extends JPanel {
         clientePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel iconCliente = new JLabel(IconoManager.cargarIcono("clientes.png", 30, 30));
-        txtNombreCliente = new JTextField(15) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                if (getText().isEmpty() && !hasFocus()) {
-                    Graphics2D g2 = (Graphics2D) g.create();
-                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    g2.setColor(Color.GRAY);
-                    g2.setFont(new Font("Inter", Font.ITALIC, 16));
-                    g2.drawString("Nombre de cliente...", getInsets().left + 2, getHeight() / 2 + 5);
-                    g2.dispose();
-                }
-            }
-            @Override
-            public Dimension getMaximumSize() {
-                return new Dimension(super.getPreferredSize().width, super.getPreferredSize().height);
-            }
-        };
-        txtNombreCliente.setFont(new Font("Inter", Font.BOLD, 20));
-        txtNombreCliente.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        txtNombreCliente.setOpaque(false);
+        cmbClientes = new JComboBox<>();
+        cmbClientes.setEditable(true);
+        cmbClientes.setFont(new Font("Inter", Font.BOLD, 16));
+        cmbClientes.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        cmbClientes.setOpaque(false);
         
-        txtNombreCliente.addFocusListener(new java.awt.event.FocusAdapter() {
-            @Override public void focusGained(java.awt.event.FocusEvent e) { txtNombreCliente.repaint(); }
-            @Override public void focusLost(java.awt.event.FocusEvent e) { txtNombreCliente.repaint(); }
-        });
+        cmbClientes.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
         clientePanel.add(iconCliente);
         clientePanel.add(Box.createHorizontalStrut(10));
-        clientePanel.add(txtNombreCliente);
+        clientePanel.add(cmbClientes);
         panel.add(clientePanel);
         panel.add(Box.createVerticalStrut(18));
 
@@ -334,7 +313,7 @@ public class CrearOrdenVista extends JPanel {
         rbMantencion.setOpaque(false); rbMantencion.setFont(new Font("Inter", Font.PLAIN, 13));
         rbGarantia.setOpaque(false); rbGarantia.setFont(new Font("Inter", Font.PLAIN, 13));
         
-        rbReparacion.setSelected(true); // Default
+        rbReparacion.setSelected(true);
 
         radioPanel.add(rbReparacion);
         radioPanel.add(rbMantencion);
@@ -473,13 +452,6 @@ public class CrearOrdenVista extends JPanel {
         vehiculoCard.setBackground(Color.WHITE);
         vehiculoCard.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-     // --- Inicializar campos de texto ocultos para que el controlador no falle ---
-        txtNombreVehiculo = new JTextField();
-        txtPlaca = new JTextField();
-        txtNumSerie = new JTextField();
-        txtAnio = new JTextField();
-        txtColor = new JTextField();
-
         // --- Icono de selector (Círculo naranja con flecha azul) ---
         JPanel iconPanel = new JPanel() {
             @Override
@@ -504,32 +476,14 @@ public class CrearOrdenVista extends JPanel {
         iconPanel.setPreferredSize(new Dimension(46, 46));
         iconPanel.setOpaque(false);
 
-        // --- Textos (puro texto simulando selector) ---
-        JPanel textPanel = new JPanel();
-        textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
-        textPanel.setOpaque(false);
-
-        JLabel lblNombre = new JLabel("Nombre de vehiculo...");
-        lblNombre.setFont(new Font("Inter", Font.PLAIN, 15));
-        lblNombre.setForeground(GOLD); // Dorado
+        // --- Selector de Vehículo ---
+        cmbVehiculos = new JComboBox<>();
+        cmbVehiculos.setFont(new Font("Inter", Font.PLAIN, 15));
+        cmbVehiculos.setBackground(Color.WHITE);
+        cmbVehiculos.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         
-        JLabel lblPlacaSerie = new JLabel("Placa - Número de serie (VIN)");
-        lblPlacaSerie.setFont(new Font("Inter", Font.PLAIN, 15));
-        lblPlacaSerie.setForeground(GOLD);
-        
-        JLabel lblAnioColor = new JLabel("Año - Color");
-        lblAnioColor.setFont(new Font("Inter", Font.PLAIN, 15));
-        lblAnioColor.setForeground(GOLD);
-
-        textPanel.add(lblNombre);
-        textPanel.add(Box.createVerticalStrut(2));
-        textPanel.add(lblPlacaSerie);
-        textPanel.add(Box.createVerticalStrut(2));
-        textPanel.add(lblAnioColor);
-
-        // Layout
         vehiculoCard.add(iconPanel, BorderLayout.WEST);
-        vehiculoCard.add(textPanel, BorderLayout.CENTER);
+        vehiculoCard.add(cmbVehiculos, BorderLayout.CENTER);
 
         panel.add(vehiculoCard);
         panel.add(Box.createVerticalStrut(10));
@@ -607,15 +561,28 @@ public class CrearOrdenVista extends JPanel {
         imgPanel.setBorder(BorderFactory.createLineBorder(TEAL, 2, true));
         imgPanel.setBackground(Color.decode("#D0E0E8"));
 
+        btnSubirImagen = new JButton("Seleccionar Imagen");
+        btnSubirImagen.setFont(new Font("Inter", Font.BOLD, 13));
+        btnSubirImagen.setForeground(HEADER_BG);
+        btnSubirImagen.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnSubirImagen.setFocusPainted(false);
+        
+        lblImgNombre = new JLabel("Ninguna imagen seleccionada", SwingConstants.CENTER);
+        lblImgNombre.setFont(new Font("Inter", Font.PLAIN, 11));
+        lblImgNombre.setForeground(TEAL);
+
         JLabel lblImg = new JLabel("Agregar imágenes", SwingConstants.CENTER);
         lblImg.setFont(new Font("Inter", Font.ITALIC, 13));
         lblImg.setForeground(GOLD);
         lblImg.setBorder(new EmptyBorder(5, 0, 0, 0));
 
-        JLabel iconPlus = new JLabel(IconoManager.cargarIcono("agregar.png", 40, 40), SwingConstants.CENTER);
+        JPanel btnWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        btnWrapper.setOpaque(false);
+        btnWrapper.add(btnSubirImagen);
 
         imgPanel.add(lblImg, BorderLayout.NORTH);
-        imgPanel.add(iconPlus, BorderLayout.CENTER);
+        imgPanel.add(btnWrapper, BorderLayout.CENTER);
+        imgPanel.add(lblImgNombre, BorderLayout.SOUTH);
 
         panel.add(imgPanel);
 
@@ -625,12 +592,10 @@ public class CrearOrdenVista extends JPanel {
     // ==================== GETTERS para el Controlador ====================
 
     public JButton getBtnCrearOrden() { return btnCrearOrden; }
-    public JTextField getTxtNombreCliente() { return txtNombreCliente; }
-    public JTextField getTxtNombreVehiculo() { return txtNombreVehiculo; }
-    public JTextField getTxtPlaca() { return txtPlaca; }
-    public JTextField getTxtNumSerie() { return txtNumSerie; }
-    public JTextField getTxtAnio() { return txtAnio; }
-    public JTextField getTxtColor() { return txtColor; }
+    public JComboBox<String> getCmbClientes() { return cmbClientes; }
+    public JButton getBtnSubirImagen() { return btnSubirImagen; }
+    public JLabel getLblImgNombre() { return lblImgNombre; }
+    public JComboBox<models.VehiculoModelo> getCmbVehiculos() { return cmbVehiculos; }
     public JTextArea getTxtDescripcionFalla() { return txtDescripcionFalla; }
     public JTextArea getTxtServicioProducto() { return txtServicioProducto; }
     public JTextField getTxtKilometraje() { return txtKilometraje; }
@@ -656,12 +621,12 @@ public class CrearOrdenVista extends JPanel {
      * Limpia todos los campos del formulario para crear una nueva orden.
      */
     public void limpiarFormulario() {
-        txtNombreCliente.setText("");
-        txtNombreVehiculo.setText("");
-        txtPlaca.setText("");
-        txtNumSerie.setText("");
-        txtAnio.setText("");
-        txtColor.setText("");
+        if (cmbClientes.getItemCount() > 0) {
+            cmbClientes.setSelectedIndex(0);
+        }
+        if (cmbVehiculos.getItemCount() > 0) {
+            cmbVehiculos.setSelectedIndex(0);
+        }
         txtDescripcionFalla.setText("");
         txtServicioProducto.setText("");
         txtKilometraje.setText("");
@@ -672,5 +637,6 @@ public class CrearOrdenVista extends JPanel {
         grupoFalla.clearSelection();
         cmbEstado.setSelectedIndex(2);
         cmbCombustible.setSelectedIndex(0);
+        lblImgNombre.setText("Ninguna imagen seleccionada");
     }
 }

@@ -85,6 +85,7 @@ public class DashboardControlador {
         dashboard.getSidebar().setOnMenuSelectedListener((index, title) -> {
             switch (index) {
                 case 0: // Dashboard (pantalla principal con indicadores)
+                    actualizarDashboard();
                     dashboard.setMainContent(dashboard.getMainContent());
                     break;
 
@@ -109,6 +110,59 @@ public class DashboardControlador {
                     break;
             }
         });
+        
+        // Actualizar dashboard al inicio
+        actualizarDashboard();
+    }
+
+    private void actualizarDashboard() {
+        java.util.List<models.OrdenServicioModelo> ordenes = models.OrdenServicioModelo.obtenerTodas();
+        
+        int vehiculosIngresadosHoy = 0;
+        int vehiculosEntregadosHoy = 0;
+        int trabajosEnCurso = 0;
+        double ingresosSemanales = 0;
+        int ordenesListas = 0;
+        java.util.List<String> proximasEntregas = new java.util.ArrayList<>();
+        
+        String fechaHoy = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("d/M/yyyy"));
+
+        for (models.OrdenServicioModelo o : ordenes) {
+            // Vehículos de hoy
+            if (fechaHoy.equals(o.getFechaIngreso())) vehiculosIngresadosHoy++;
+            if ("LISTO".equalsIgnoreCase(o.getEstado()) || "ENTREGADO".equalsIgnoreCase(o.getEstado())) {
+                if (fechaHoy.equals(o.getFechaEntregaEstimada()) || fechaHoy.equals(o.getFechaIngreso())) {
+                    vehiculosEntregadosHoy++;
+                }
+            }
+            
+            // Trabajos en curso
+            if ("EN ESPERA".equalsIgnoreCase(o.getEstado()) || "REVISIÓN".equalsIgnoreCase(o.getEstado()) || "REPARACIÓN".equalsIgnoreCase(o.getEstado())) {
+                trabajosEnCurso++;
+            }
+            
+            // Ingresos (simplificado)
+            if ("LISTO".equalsIgnoreCase(o.getEstado()) || "ENTREGADO".equalsIgnoreCase(o.getEstado())) {
+                ingresosSemanales += o.getMontoTotal();
+                ordenesListas++;
+            }
+            
+            // Próximas entregas
+            if (!"ENTREGADO".equalsIgnoreCase(o.getEstado()) && !"LISTO".equalsIgnoreCase(o.getEstado())) {
+                if (proximasEntregas.size() < 5) {
+                    proximasEntregas.add(o.getVehiculoRelacionado() + " (" + o.getNombreCliente() + ")");
+                }
+            }
+        }
+        
+        int eficiencia = ordenes.isEmpty() ? 0 : (int) Math.round((ordenesListas * 100.0) / ordenes.size());
+
+        views.MainContentPanel mainPanel = dashboard.getMainContent();
+        mainPanel.actualizarVehiculos(String.valueOf(vehiculosIngresadosHoy), vehiculosIngresadosHoy + " Ingresados, " + vehiculosEntregadosHoy + " Entregados");
+        mainPanel.actualizarTrabajos(String.valueOf(trabajosEnCurso), trabajosEnCurso + " Órdenes activas");
+        mainPanel.actualizarIngresos("$" + String.format("%.2f", ingresosSemanales) + " MXN", "Total acumulado");
+        mainPanel.actualizarEficiencia(eficiencia + "%", "Órdenes completadas");
+        mainPanel.actualizarEntregas(proximasEntregas);
     }
 
     /**
