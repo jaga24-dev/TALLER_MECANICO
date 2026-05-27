@@ -103,23 +103,31 @@ public class OrdenesServicioControlador {
          PdfWriter.getInstance(document, new FileOutputStream(fileName));
          document.open();
 
-         Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD, BaseColor.BLUE);
+         Font titleFont = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD, BaseColor.BLACK);
+         Font subTitleFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.DARK_GRAY);
          Font headerFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD);
          Font textFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL);
 
-         document.add(new Paragraph("TALLER MECÁNICO UABCS - Orden de Servicio", titleFont));
+         Paragraph p1 = new Paragraph("U A B C S DEPARTAMENTO DE SISTEMAS COMPUTACIONALES", titleFont);
+         p1.setAlignment(com.itextpdf.text.Element.ALIGN_CENTER);
+         document.add(p1);
+         Paragraph p2 = new Paragraph("UNIVERSIDAD AUTÓNOMA DE BAJA CALIFORNIA SUR", subTitleFont);
+         p2.setAlignment(com.itextpdf.text.Element.ALIGN_CENTER);
+         document.add(p2);
          document.add(new Paragraph("\n"));
-         document.add(new Paragraph("DATOS DE LA ORDEN", headerFont));
-         document.add(new Paragraph("ID: " + o.getId(), textFont));
+
+         document.add(new Paragraph("Orden de servicio (Recibo generado)", headerFont));
          document.add(new Paragraph("Cliente: " + o.getNombreCliente(), textFont));
-         document.add(new Paragraph("Vehículo: " + o.getVehiculoRelacionado(), textFont));
-         document.add(new Paragraph("Fecha Ingreso: " + o.getFechaIngreso(), textFont));
-         document.add(new Paragraph("Fecha Entrega: " + o.getFechaEntregaEstimada(), textFont));
-         document.add(new Paragraph("\nCOSTOS", headerFont));
-         document.add(new Paragraph("Mano de Obra: $" + String.format("%.2f", o.getCostoManoObra()), textFont));
-         document.add(new Paragraph("Refacciones: $" + String.format("%.2f", o.getCostoRefacciones()), textFont));
-         document.add(new Paragraph("Monto Total (IVA): $" + String.format("%.2f", o.getMontoTotal()), textFont));
-         document.add(new Paragraph("\nEstado: " + o.getEstado(), textFont));
+         document.add(new Paragraph("Vehículo relacionado: " + o.getVehiculoRelacionado(), textFont));
+         document.add(new Paragraph("Fecha de ingreso: " + o.getFechaIngreso(), textFont));
+         document.add(new Paragraph("Fecha de entrega estimada: " + (o.getFechaEntregaEstimada() != null ? o.getFechaEntregaEstimada() : "N/A"), textFont));
+         
+         document.add(new Paragraph("\nCostos:", headerFont));
+         document.add(new Paragraph("Costo de refacciones: $" + String.format("%.2f", o.getCostoRefacciones()), textFont));
+         document.add(new Paragraph("Costo de mano de obra: $" + String.format("%.2f", o.getCostoManoObra()), textFont));
+         
+         Font totalFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD);
+         document.add(new Paragraph("Monto total: $" + String.format("%.2f", o.getMontoTotal()), totalFont));
 
          document.close();
          JOptionPane.showMessageDialog(vista,

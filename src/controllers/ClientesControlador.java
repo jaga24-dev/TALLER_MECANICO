@@ -165,20 +165,25 @@ public class ClientesControlador {
              PdfWriter.getInstance(document, new FileOutputStream(fileName));
              document.open();
 
-             Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD, BaseColor.BLUE);
+             Font titleFont = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD, BaseColor.BLACK);
+             Font subTitleFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.DARK_GRAY);
              Font headerFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD);
              Font textFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL);
 
-             document.add(new Paragraph("TALLER MECÁNICO UABCS - Historial de Cliente", titleFont));
+             Paragraph p1 = new Paragraph("U A B C S DEPARTAMENTO DE SISTEMAS COMPUTACIONALES", titleFont);
+             p1.setAlignment(com.itextpdf.text.Element.ALIGN_CENTER);
+             document.add(p1);
+             Paragraph p2 = new Paragraph("UNIVERSIDAD AUTÓNOMA DE BAJA CALIFORNIA SUR", subTitleFont);
+             p2.setAlignment(com.itextpdf.text.Element.ALIGN_CENTER);
+             document.add(p2);
              document.add(new Paragraph("\n"));
              
-             document.add(new Paragraph("DATOS DEL CLIENTE", headerFont));
-             document.add(new Paragraph("ID: " + cliente.getId(), textFont));
-             document.add(new Paragraph("Nombre: " + cliente.getNombreCompleto(), textFont));
+             document.add(new Paragraph("Cliente (Resumen)", headerFont));
+             document.add(new Paragraph("Nombre completo: " + cliente.getNombreCompleto(), textFont));
              document.add(new Paragraph("Teléfono: " + cliente.getTelefono(), textFont));
-             document.add(new Paragraph("Correo: " + cliente.getCorreo(), textFont));
+             document.add(new Paragraph("Correo electrónico: " + (cliente.getCorreo() != null ? cliente.getCorreo() : "N/A"), textFont));
              
-             document.add(new Paragraph("\nVEHÍCULOS", headerFont));
+             document.add(new Paragraph("\nHistorial de vehículos:", headerFont));
              if (cliente.getVehiculos().isEmpty()) {
                  document.add(new Paragraph("No tiene vehículos registrados.", textFont));
              } else {
@@ -186,6 +191,9 @@ public class ClientesControlador {
                      document.add(new Paragraph("- " + v.getMarca() + " " + v.getModelo() + " (" + v.getAnio() + ") Placas: " + v.getPlacas(), textFont));
                  }
              }
+             
+             document.add(new Paragraph("\nServicios activos:", headerFont));
+             document.add(new Paragraph("Consultar sección de órdenes para detalles de servicios activos.", textFont));
 
              document.close();
              JOptionPane.showMessageDialog(vista, "Historial guardado exitosamente como: " + fileName, "PDF Creado", JOptionPane.INFORMATION_MESSAGE);

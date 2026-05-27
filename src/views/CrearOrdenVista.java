@@ -70,6 +70,7 @@ public class CrearOrdenVista extends JPanel {
     private JTextArea txtCondicionVehiculo;
 
     private JTextField txtSubtotal;
+    private JTextField txtRefacciones;
     private JTextField txtImpuesto;
     private JTextField txtTotal;
 
@@ -361,7 +362,8 @@ public class CrearOrdenVista extends JPanel {
         panel.add(Box.createVerticalStrut(10));
 
         // --- Costos (Subtotal, Impuesto, Total) ---
-        JPanel costosPanel = new JPanel(new GridLayout(1, 3, 15, 0)) {
+        // Costos: Mano de Obra, Refacciones, Impuesto, Total
+        JPanel costosPanel = new JPanel(new GridLayout(1, 4, 5, 0)) {
             @Override
             public Dimension getMaximumSize() {
                 return new Dimension(Integer.MAX_VALUE, super.getPreferredSize().height);
@@ -369,17 +371,29 @@ public class CrearOrdenVista extends JPanel {
         };
         costosPanel.setOpaque(false);
         costosPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        costosPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
-     // Subtotal
+        // Subtotal (Mano de obra)
         JPanel subPanel = new JPanel(new GridLayout(2, 1));
         subPanel.setOpaque(false);
-        JLabel lSub = new JLabel("SUBTOTAL:"); lSub.setFont(new Font("Inter", Font.PLAIN, 10)); lSub.setForeground(GOLD);
+        JLabel lSub = new JLabel("M. OBRA:"); lSub.setFont(new Font("Inter", Font.PLAIN, 10)); lSub.setForeground(GOLD);
         txtSubtotal = new JTextField(5);
         txtSubtotal.setFont(new Font("Inter", Font.PLAIN, 13));
         txtSubtotal.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY));
         txtSubtotal.setOpaque(false);
         subPanel.add(lSub); subPanel.add(txtSubtotal);
         costosPanel.add(subPanel);
+        
+        // Refacciones
+        JPanel refPanel = new JPanel(new GridLayout(2, 1));
+        refPanel.setOpaque(false);
+        JLabel lRef = new JLabel("REFAC.:"); lRef.setFont(new Font("Inter", Font.PLAIN, 10)); lRef.setForeground(GOLD);
+        txtRefacciones = new JTextField(5);
+        txtRefacciones.setFont(new Font("Inter", Font.PLAIN, 13));
+        txtRefacciones.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY));
+        txtRefacciones.setOpaque(false);
+        refPanel.add(lRef); refPanel.add(txtRefacciones);
+        costosPanel.add(refPanel);
 
         // Impuesto
         JPanel impPanel = new JPanel(new GridLayout(2, 1));
@@ -602,6 +616,7 @@ public class CrearOrdenVista extends JPanel {
     public JComboBox<String> getCmbCombustible() { return cmbCombustible; }
     public JTextArea getTxtCondicionVehiculo() { return txtCondicionVehiculo; }
     public JTextField getTxtSubtotal() { return txtSubtotal; }
+    public JTextField getTxtRefacciones() { return txtRefacciones; }
     public JTextField getTxtImpuesto() { return txtImpuesto; }
     public JTextField getTxtTotal() { return txtTotal; }
     public JComboBox<String> getCmbEstado() { return cmbEstado; }

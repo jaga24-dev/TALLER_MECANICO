@@ -69,6 +69,7 @@ public class CrearOrdenControlador {
             public void changedUpdate(DocumentEvent e) { calcularTotalAutomatico(); }
         };
         vista.getTxtSubtotal().getDocument().addDocumentListener(docListener);
+        vista.getTxtRefacciones().getDocument().addDocumentListener(docListener);
         vista.getTxtImpuesto().getDocument().addDocumentListener(docListener);
     }
 
@@ -128,10 +129,11 @@ public class CrearOrdenControlador {
     }
 
     private void calcularTotalAutomatico() {
-        double subtotal = 0, impuesto = 0;
+        double subtotal = 0, impuesto = 0, refacciones = 0;
         try { subtotal = Double.parseDouble(vista.getTxtSubtotal().getText().trim()); } catch (Exception ex) { /* ignorar */ }
+        try { refacciones = Double.parseDouble(vista.getTxtRefacciones().getText().trim()); } catch (Exception ex) { /* ignorar */ }
         try { impuesto = Double.parseDouble(vista.getTxtImpuesto().getText().trim()); } catch (Exception ex) { /* ignorar */ }
-        vista.getTxtTotal().setText(String.format("%.2f", subtotal + impuesto));
+        vista.getTxtTotal().setText(String.format("%.2f", subtotal + refacciones + impuesto));
     }
 
     private void seleccionarImagen() {
@@ -190,14 +192,15 @@ public class CrearOrdenControlador {
             return;
         }
 
-        String fechaHoy = LocalDate.now().format(DateTimeFormatter.ofPattern("d/M/yyyy"));
+        String fechaHoy = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         String estado = (String) vista.getCmbEstado().getSelectedItem();
 
         // Calcular costos
-        double subtotal = 0, impuesto = 0, total = 0;
+        double subtotal = 0, impuesto = 0, total = 0, refacciones = 0;
         try { subtotal = Double.parseDouble(vista.getTxtSubtotal().getText().trim()); } catch (Exception ex) { /* ignorar */ }
+        try { refacciones = Double.parseDouble(vista.getTxtRefacciones().getText().trim()); } catch (Exception ex) { /* ignorar */ }
         try { impuesto = Double.parseDouble(vista.getTxtImpuesto().getText().trim()); } catch (Exception ex) { /* ignorar */ }
-        total = subtotal + impuesto;
+        total = subtotal + refacciones + impuesto;
 
         // Mostrar el total calculado en el formulario
         vista.getTxtTotal().setText(String.format("%.2f", total));
@@ -209,9 +212,9 @@ public class CrearOrdenControlador {
                 nombreCliente,
                 vehiculoStr,
                 fechaHoy,       // Fecha de ingreso = hoy
-                "",             // Fecha de entrega (pendiente)
+                null,             // Fecha de entrega (pendiente)
                 subtotal,       // Costo mano de obra = subtotal por ahora
-                0,              // Costo refacciones
+                refacciones,    // Costo refacciones
                 total,          // Monto total
                 estado
         );
@@ -251,6 +254,7 @@ public class CrearOrdenControlador {
 
         // Limpiar el formulario para crear otra orden
         vista.limpiarFormulario();
+        vista.getTxtRefacciones().setText("");
         rutaImagenSeleccionada = null;
     }
 

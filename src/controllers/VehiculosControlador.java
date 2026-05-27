@@ -157,21 +157,29 @@ public class VehiculosControlador {
             PdfWriter.getInstance(document, new FileOutputStream(fileName));
             document.open();
 
-            Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD, BaseColor.BLUE);
+            Font titleFont = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD, BaseColor.BLACK);
+            Font subTitleFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.DARK_GRAY);
             Font headerFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD);
             Font textFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL);
 
-            document.add(new Paragraph("TALLER MECÁNICO UABCS - Ficha de Vehículo", titleFont));
+            Paragraph p1 = new Paragraph("U A B C S DEPARTAMENTO DE SISTEMAS COMPUTACIONALES", titleFont);
+            p1.setAlignment(com.itextpdf.text.Element.ALIGN_CENTER);
+            document.add(p1);
+            Paragraph p2 = new Paragraph("UNIVERSIDAD AUTÓNOMA DE BAJA CALIFORNIA SUR", subTitleFont);
+            p2.setAlignment(com.itextpdf.text.Element.ALIGN_CENTER);
+            document.add(p2);
             document.add(new Paragraph("\n"));
-            document.add(new Paragraph("DATOS DEL VEHÍCULO", headerFont));
-            document.add(new Paragraph("Marca: " + v.getMarca(), textFont));
-            document.add(new Paragraph("Modelo: " + v.getModelo(), textFont));
-            document.add(new Paragraph("Año: " + v.getAnio(), textFont));
+
+            document.add(new Paragraph("Vehículo (Ficha)", headerFont));
+            document.add(new Paragraph("Marca, modelo y año: " + v.getMarca() + " " + v.getModelo() + " " + v.getAnio(), textFont));
             document.add(new Paragraph("Placas: " + v.getPlacas(), textFont));
-            document.add(new Paragraph("Número de Serie: " + (v.getNumeroSerie() != null ? v.getNumeroSerie() : "N/A"), textFont));
-            document.add(new Paragraph("\nFALLA REPORTADA", headerFont));
-            document.add(new Paragraph("Consultar órdenes de servicio para fallas.", textFont));
-            document.add(new Paragraph("\nEstado: N/A", textFont));
+            document.add(new Paragraph("Número de serie (VIN): " + (v.getNumeroSerie() != null ? v.getNumeroSerie() : "N/A"), textFont));
+            
+            // Simular Falla Reportada y Estado obtenidos de su última orden si estuviera disponible, o poner pendiente.
+            document.add(new Paragraph("Falla reportada / Diagnóstico: Consultar órdenes relacionadas.", textFont));
+            document.add(new Paragraph("Estado (espera, reparación, listo): Consultar órdenes relacionadas.", textFont));
+            
+            document.add(new Paragraph("Imagen del vehículo/daño: " + (v.getImagen() != null ? "Adjunta (" + v.getImagen() + ")" : "Sin imagen"), textFont));
 
             document.close();
             JOptionPane.showMessageDialog(vista,
