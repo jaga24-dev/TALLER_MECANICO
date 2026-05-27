@@ -1,7 +1,7 @@
 UABCS-Taller_Mecanico
 Taller Mecánico UABCS Idea del diseño
 
-USUARIO=admin CONTRASEÑA=1234
+USUARIO=carlos CONTRASEÑA=1234
 
 El diseño se hizo pensando en que sea fácil de usar y rápido, ya que en un menu de taller la prioridad es la facilidad de utilizar una interfaz, en este caso para los trabajadores del taller.
 
