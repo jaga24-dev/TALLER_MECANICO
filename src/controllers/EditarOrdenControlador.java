@@ -43,6 +43,20 @@ public class EditarOrdenControlador {
         vista.getBtnConfirmar().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+            	String fechaIngreso = vista.getTxtFechaIngreso().getText().trim();
+                String fechaEntrega = vista.getTxtFechaEntrega().getText().trim();
+                try {
+                    java.time.LocalDate.parse(fechaIngreso);
+                    if (!fechaEntrega.isEmpty()) {
+                        java.time.LocalDate.parse(fechaEntrega);
+                    }
+                } catch (java.time.format.DateTimeParseException ex) {
+                    javax.swing.JOptionPane.showMessageDialog(vista, 
+                        "El formato de las fechas debe ser YYYY-MM-DD (ejemplo: 2026-05-27) y deben ser fechas válidas.",
+                        "Formato de fecha inválido", javax.swing.JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
                 // Guardar cambios en el modelo
                 vista.actualizarModelo(orden);
                 // Volver a la tabla

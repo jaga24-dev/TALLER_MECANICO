@@ -68,6 +68,8 @@ public class CrearOrdenVista extends JPanel {
     private JTextField txtKilometraje;
     private JComboBox<String> cmbCombustible;
     private JTextArea txtCondicionVehiculo;
+    private JTextField txtFechaIngreso;
+    private JTextField txtFechaEntrega;
 
     private JTextField txtSubtotal;
     private JTextField txtImpuesto;
@@ -475,12 +477,21 @@ public class CrearOrdenVista extends JPanel {
         };
         iconPanel.setPreferredSize(new Dimension(46, 46));
         iconPanel.setOpaque(false);
+        iconPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         // --- Selector de Vehículo ---
         cmbVehiculos = new JComboBox<>();
         cmbVehiculos.setFont(new Font("Inter", Font.PLAIN, 15));
         cmbVehiculos.setBackground(Color.WHITE);
         cmbVehiculos.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        iconPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                cmbVehiculos.requestFocusInWindow();
+                cmbVehiculos.setPopupVisible(!cmbVehiculos.isPopupVisible());
+            }
+        });
         
         vehiculoCard.add(iconPanel, BorderLayout.WEST);
         vehiculoCard.add(cmbVehiculos, BorderLayout.CENTER);
@@ -530,6 +541,53 @@ public class CrearOrdenVista extends JPanel {
         kmCombPanel.add(kmPanel);
         kmCombPanel.add(combPanel);
         panel.add(kmCombPanel);
+        panel.add(Box.createVerticalStrut(10));
+
+        // --- Fechas ---
+        JPanel fechasPanel = new JPanel(new GridLayout(1, 2, 20, 0)) {
+            @Override
+            public Dimension getMaximumSize() {
+                return new Dimension(Integer.MAX_VALUE, super.getPreferredSize().height);
+            }
+        };
+        fechasPanel.setOpaque(false);
+        fechasPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        // Fecha Ingreso
+        JPanel ingresoPanel = new JPanel(new BorderLayout(0, 5));
+        ingresoPanel.setOpaque(false);
+        JLabel lblFIngreso = new JLabel("Fecha Ingreso (yyyy-mm-dd)");
+        lblFIngreso.setFont(new Font("Inter", Font.ITALIC, 11));
+        lblFIngreso.setForeground(GOLD);
+        txtFechaIngreso = new JTextField(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        txtFechaIngreso.setFont(new Font("Inter", Font.BOLD, 13));
+        txtFechaIngreso.setHorizontalAlignment(SwingConstants.CENTER);
+        txtFechaIngreso.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(TEAL, 2, true),
+                new EmptyBorder(5, 5, 5, 5)
+        ));
+        ingresoPanel.add(lblFIngreso, BorderLayout.NORTH);
+        ingresoPanel.add(txtFechaIngreso, BorderLayout.CENTER);
+
+        // Fecha Entrega
+        JPanel entregaPanel = new JPanel(new BorderLayout(0, 5));
+        entregaPanel.setOpaque(false);
+        JLabel lblFEntrega = new JLabel("Est. Entrega (yyyy-mm-dd)");
+        lblFEntrega.setFont(new Font("Inter", Font.ITALIC, 11));
+        lblFEntrega.setForeground(GOLD);
+        txtFechaEntrega = new JTextField(LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        txtFechaEntrega.setFont(new Font("Inter", Font.BOLD, 13));
+        txtFechaEntrega.setHorizontalAlignment(SwingConstants.CENTER);
+        txtFechaEntrega.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(TEAL, 2, true),
+                new EmptyBorder(5, 5, 5, 5)
+        ));
+        entregaPanel.add(lblFEntrega, BorderLayout.NORTH);
+        entregaPanel.add(txtFechaEntrega, BorderLayout.CENTER);
+
+        fechasPanel.add(ingresoPanel);
+        fechasPanel.add(entregaPanel);
+        panel.add(fechasPanel);
         panel.add(Box.createVerticalStrut(10));
 
         // --- Condición del vehículo ---
@@ -604,6 +662,10 @@ public class CrearOrdenVista extends JPanel {
     public JTextField getTxtSubtotal() { return txtSubtotal; }
     public JTextField getTxtImpuesto() { return txtImpuesto; }
     public JTextField getTxtTotal() { return txtTotal; }
+    
+    public JTextField getTxtFechaIngreso() { return txtFechaIngreso; }
+    public JTextField getTxtFechaEntrega() { return txtFechaEntrega; }
+    
     public JComboBox<String> getCmbEstado() { return cmbEstado; }
 
     /**

@@ -17,7 +17,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -34,7 +33,6 @@ public class ClienteFormDialog extends JDialog {
     private static final Color BG_FIELD = Color.decode("#EBEBEB");
 
     private JTextField txtNombre;
-    private JComboBox<String> cmbHistorial;
     private JTextField txtCorreo;
     private JTextField txtTelefono;
     
@@ -53,7 +51,7 @@ public class ClienteFormDialog extends JDialog {
         super(owner, clienteAEditar == null ? "Agregar Cliente Nuevo" : "Editar Cliente", ModalityType.APPLICATION_MODAL);
         this.cliente = clienteAEditar != null ? clienteAEditar : new ClienteModelo();
         
-        setSize(520, 350);
+        setSize(520, 280);
         setLocationRelativeTo(owner);
         setUndecorated(true);
         setBackground(new Color(0, 0, 0, 0));
@@ -88,17 +86,7 @@ public class ClienteFormDialog extends JDialog {
 
         pnlRow1.add(pnlNombre, BorderLayout.CENTER);
 
-        JPanel pnlRow2 = new JPanel(new BorderLayout());
-        pnlRow2.setOpaque(false);
-        pnlRow2.add(crearLabel("HISTORIAL DE VEHICULOS"), BorderLayout.NORTH);
-        cmbHistorial = new JComboBox<>(new String[]{" "});
-        cmbHistorial.setBackground(BG_FIELD);
-        cmbHistorial.setFont(new Font("Inter", Font.PLAIN, 13));
-        cmbHistorial.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(TEAL, 1, true),
-                new EmptyBorder(2, 2, 2, 2)
-        ));
-        pnlRow2.add(cmbHistorial, BorderLayout.CENTER);
+        
 
         JPanel pnlRow3 = new JPanel(new GridLayout(1, 2, 15, 0));
         pnlRow3.setOpaque(false);
@@ -116,8 +104,6 @@ public class ClienteFormDialog extends JDialog {
         pnlRow3.add(pnlTel);
 
         mainPanel.add(pnlRow1);
-        mainPanel.add(Box.createVerticalStrut(15));
-        mainPanel.add(pnlRow2);
         mainPanel.add(Box.createVerticalStrut(15));
         mainPanel.add(pnlRow3);
 

@@ -70,6 +70,8 @@ public class EditarOrdenVista extends JPanel {
     private JTextField txtKilometraje;
     private JProgressBar barraCombustible;
     private JTextArea txtCondicionVehiculo;
+    private JTextField txtFechaIngreso;
+    private JTextField txtFechaEntrega;
 
     private JComboBox<String> cmbEstado;
 
@@ -548,6 +550,49 @@ public class EditarOrdenVista extends JPanel {
         kmCombPanel.add(combPanel);
         panel.add(kmCombPanel);
         panel.add(Box.createVerticalStrut(5));
+        
+     // --- Fechas ---
+        JPanel fechasPanel = new JPanel(new GridLayout(1, 2, 20, 0));
+        fechasPanel.setOpaque(false);
+        fechasPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        fechasPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+
+        // Fecha Ingreso
+        JPanel ingresoPanel = new JPanel(new BorderLayout(0, 5));
+        ingresoPanel.setOpaque(false);
+        JLabel lblFIngreso = new JLabel("Fecha Ingreso");
+        lblFIngreso.setFont(new Font("Inter", Font.PLAIN, 13));
+        lblFIngreso.setForeground(GOLD);
+        txtFechaIngreso = new JTextField();
+        txtFechaIngreso.setFont(new Font("Inter", Font.BOLD, 13));
+        txtFechaIngreso.setHorizontalAlignment(SwingConstants.CENTER);
+        txtFechaIngreso.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(TEAL, 2, true),
+                new EmptyBorder(5, 5, 5, 5)
+        ));
+        ingresoPanel.add(lblFIngreso, BorderLayout.NORTH);
+        ingresoPanel.add(txtFechaIngreso, BorderLayout.CENTER);
+
+        // Fecha Entrega
+        JPanel entregaPanel = new JPanel(new BorderLayout(0, 5));
+        entregaPanel.setOpaque(false);
+        JLabel lblFEntrega = new JLabel("Est. Entrega");
+        lblFEntrega.setFont(new Font("Inter", Font.PLAIN, 13));
+        lblFEntrega.setForeground(GOLD);
+        txtFechaEntrega = new JTextField();
+        txtFechaEntrega.setFont(new Font("Inter", Font.BOLD, 13));
+        txtFechaEntrega.setHorizontalAlignment(SwingConstants.CENTER);
+        txtFechaEntrega.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(TEAL, 2, true),
+                new EmptyBorder(5, 5, 5, 5)
+        ));
+        entregaPanel.add(lblFEntrega, BorderLayout.NORTH);
+        entregaPanel.add(txtFechaEntrega, BorderLayout.CENTER);
+
+        fechasPanel.add(ingresoPanel);
+        fechasPanel.add(entregaPanel);
+        panel.add(fechasPanel);
+        panel.add(Box.createVerticalStrut(5));
 
         // --- Condición del vehículo ---
         JLabel lblCondicion = new JLabel("Condición del vehículo");
@@ -592,15 +637,23 @@ public class EditarOrdenVista extends JPanel {
         lblImpuestoVal.setText("$20.00");
         lblTotalVal.setText("TOTAL: " + String.format("%.2f", orden.getMontoTotal()));
         
+        txtFechaIngreso.setText(orden.getFechaIngreso());
+        txtFechaEntrega.setText(orden.getFechaEntregaEstimada());
+        
         cmbEstado.setSelectedItem(orden.getEstado());
     }
 
     public void actualizarModelo(OrdenServicioModelo orden) {
         orden.setEstado((String) cmbEstado.getSelectedItem());
         orden.setMontoTotal(Double.parseDouble(lblTotalVal.getText().replace("TOTAL: ", "").trim()));
+        orden.setFechaIngreso(txtFechaIngreso.getText());
+        orden.setFechaEntregaEstimada(txtFechaEntrega.getText());
         // Otros campos se actualizarían aquí si el modelo los soportara
     }
 
     public JButton getBtnConfirmar() { return btnConfirmar; }
     public JButton getBtnCancelar() { return btnCancelar; }
+    
+    public JTextField getTxtFechaIngreso() { return txtFechaIngreso; }
+    public JTextField getTxtFechaEntrega() { return txtFechaEntrega; }
 }

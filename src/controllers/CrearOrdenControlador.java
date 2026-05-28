@@ -106,6 +106,23 @@ public class CrearOrdenControlador {
             }
         });
         
+     // Asegurar que al hacer clic en la flecha, se muestren todos los clientes
+        vista.getCmbClientes().addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
+            @Override
+            public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent e) {
+                String textoActual = editor.getText();
+                vista.getCmbClientes().removeAllItems();
+                for (ClienteModelo c : listaClientes) {
+                    vista.getCmbClientes().addItem(c.getNombreCompleto() + " - " + c.getCorreo());
+                }
+                editor.setText(textoActual);
+            }
+            @Override
+            public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent e) {}
+            @Override
+            public void popupMenuCanceled(javax.swing.event.PopupMenuEvent e) {}
+        });
+        
         actualizarVehiculosPorCliente();
     }
 
@@ -185,12 +202,31 @@ public class CrearOrdenControlador {
         
         if (vehiculoSeleccionado == null) {
             JOptionPane.showMessageDialog(vista,
-                    "Debe seleccionar un vehículo para crear la orden.",
+                    "Debe seleccionar o registrar un vehículo del cliente para crear la orden.",
                     "Dato faltante", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
+<<<<<<< Updated upstream
         String fechaHoy = LocalDate.now().format(DateTimeFormatter.ofPattern("d/M/yyyy"));
+=======
+        String fechaHoy = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String fechaIngreso = vista.getTxtFechaIngreso().getText().trim();
+        String fechaEntrega = vista.getTxtFechaEntrega().getText().trim();
+
+        try {
+            java.time.LocalDate.parse(fechaIngreso);
+            if (!fechaEntrega.isEmpty()) {
+                java.time.LocalDate.parse(fechaEntrega);
+            }
+        } catch (java.time.format.DateTimeParseException e) {
+            JOptionPane.showMessageDialog(vista, 
+                "El formato de las fechas debe ser YYYY-MM-DD (ejemplo: 2026-05-27) y deben ser fechas válidas.",
+                "Formato de fecha inválido", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+>>>>>>> Stashed changes
         String estado = (String) vista.getCmbEstado().getSelectedItem();
 
         // Calcular costos
@@ -208,8 +244,13 @@ public class CrearOrdenControlador {
                 "ORD-" + String.format("%03d", contadorOrdenes),
                 nombreCliente,
                 vehiculoStr,
+<<<<<<< Updated upstream
                 fechaHoy,       // Fecha de ingreso = hoy
                 "",             // Fecha de entrega (pendiente)
+=======
+                fechaIngreso,
+                fechaEntrega,
+>>>>>>> Stashed changes
                 subtotal,       // Costo mano de obra = subtotal por ahora
                 0,              // Costo refacciones
                 total,          // Monto total

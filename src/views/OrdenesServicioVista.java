@@ -51,7 +51,7 @@ public class OrdenesServicioVista extends JPanel {
     private static final Color HEADER_BG = Color.decode("#00314A");
     private static final Color GOLD = Color.decode("#E4C25E");
     private static final Color ROW_BG_1 = Color.decode("#E4C25E");
-    private static final Color ROW_BG_2 = Color.decode("#9DB2BF");
+    private static final Color ROW_BG_2 = Color.decode("#014461");
 
     // --- Componentes de la vista ---
     private DefaultTableModel tableModel;
@@ -220,6 +220,8 @@ public class OrdenesServicioVista extends JPanel {
         tablaOrdenes.getTableHeader().setForeground(GOLD);
         tablaOrdenes.getTableHeader().setFont(new Font("Inter", Font.BOLD, 10));
         tablaOrdenes.getTableHeader().setPreferredSize(new Dimension(0, 45));
+        tablaOrdenes.getTableHeader().setReorderingAllowed(false);
+        tablaOrdenes.getTableHeader().setResizingAllowed(false);
 
         // Renderer para filas de colores alternos
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer() {
@@ -230,7 +232,7 @@ public class OrdenesServicioVista extends JPanel {
                 setHorizontalAlignment(SwingConstants.CENTER);
                 if (!isSelected) {
                     c.setBackground(row % 2 == 0 ? ROW_BG_1 : ROW_BG_2);
-                    c.setForeground(Color.BLACK);
+                    c.setForeground(row % 2 == 0 ? Color.BLACK : Color.WHITE);
                 }
                 return c;
             }
@@ -381,8 +383,13 @@ public class OrdenesServicioVista extends JPanel {
         private int currentRow;
 
         public AccionesEditor() {
-            panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
-
+        	panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 8));
+            panel.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mousePressed(java.awt.event.MouseEvent e) {
+                    fireEditingStopped();
+                }
+            });
             JButton btnEdit = new JButton(IconoManager.cargarIcono("editar.png", 20, 20));
             JButton btnPdf = new JButton(IconoManager.cargarIcono("pdf.png", 20, 20));
             JButton btnDelete = new JButton(IconoManager.cargarIcono("eliminar.png", 20, 20));

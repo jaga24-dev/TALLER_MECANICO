@@ -16,10 +16,13 @@ import java.awt.geom.RoundRectangle2D;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Locale;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -36,6 +39,7 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
 import models.ClienteModelo;
+import models.VehiculoModelo;
 
 public class ClientesVista extends JPanel {
 
@@ -50,6 +54,7 @@ public class ClientesVista extends JPanel {
     private JTable tablaClientes;
     private JButton btnAgregar;
     private JTextField txtBuscar;
+    private List<ClienteModelo> clientes = new ArrayList<>();
 
     public interface AccionListener {
         void onEditar(int row);
@@ -222,6 +227,8 @@ public class ClientesVista extends JPanel {
         tablaClientes.getTableHeader().setForeground(GOLD);
         tablaClientes.getTableHeader().setFont(new Font("Inter", Font.BOLD, 11));
         tablaClientes.getTableHeader().setPreferredSize(new Dimension(0, 40));
+        tablaClientes.getTableHeader().setReorderingAllowed(false);
+        tablaClientes.getTableHeader().setResizingAllowed(false);
 
         // Renderer para filas de colores alternos y texto centrado
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer() {
@@ -231,7 +238,7 @@ public class ClientesVista extends JPanel {
                 setHorizontalAlignment(SwingConstants.CENTER);
                 if (!isSelected) {
                     c.setBackground(row % 2 == 0 ? ROW_BG_1 : ROW_BG_2);
-                    c.setForeground(Color.BLACK);
+                    c.setForeground(row % 2 == 0 ? Color.BLACK : Color.WHITE);
                 }
                 return c;
             }
@@ -247,7 +254,7 @@ public class ClientesVista extends JPanel {
 
         // Historial Renderer (simular ComboBox)
         tablaClientes.getColumnModel().getColumn(5).setCellRenderer(new HistorialRenderer());
-        //tablaClientes.getColumnModel().getColumn(5).setCellEditor(new HistorialEditor());
+        tablaClientes.getColumnModel().getColumn(5).setCellEditor(new HistorialEditor());
         tablaClientes.getColumnModel().getColumn(5).setPreferredWidth(150);
 
         // Acciones Renderer/Editor
@@ -289,7 +296,8 @@ public class ClientesVista extends JPanel {
     }
 
     public void setClientes(List<ClienteModelo> clientes) {
-        tableModel.setRowCount(0);
+        this.clientes = clientes;
+    	tableModel.setRowCount(0);
         for (ClienteModelo c : clientes) {
             tableModel.addRow(new Object[]{
                     "", c.getId(), c.getNombreCompleto(), c.getTelefono(), c.getCorreo(), c.getResumenVehiculos(), ""
@@ -341,17 +349,45 @@ public class ClientesVista extends JPanel {
      * Detecta cuando el usuario hace clic en el historial y avisa al controlador
      * para que abra la ventana detallada de vehículos.
      */
-    /*class HistorialEditor extends AbstractCellEditor implements TableCellEditor {
+    class HistorialEditor extends AbstractCellEditor implements TableCellEditor {
+        private JComboBox<String> comboBox;
+        private Object currentValue;
+
+        public HistorialEditor() {
+            comboBox = new JComboBox<>();
+            comboBox.setEditable(false); // Solo lectura, no se puede escribir
+            comboBox.setFont(new Font("Inter", Font.PLAIN, 12));
+        }
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-            // Si hay alguien escuchando (el controlador), avisamos que se quieren ver los vehículos de esta fila
-            if (accionListener != null) {
-                SwingUtilities.invokeLater(() -> accionListener.onVerVehiculos(row));
+            currentValue = value;
+            comboBox.removeAllItems();
+
+            // Obtener los vehículos del cliente de esta fila
+            if (row >= 0 && row < clientes.size()) {
+                ClienteModelo cliente = clientes.get(row);
+                List<VehiculoModelo> vehiculos = cliente.getVehiculos();
+                if (vehiculos == null || vehiculos.isEmpty()) {
+                    comboBox.addItem("Sin vehículos");
+                } else {
+                    for (VehiculoModelo v : vehiculos) {
+                        comboBox.addItem(v.getMarca() + " " + v.getModelo() + " (" + v.getAnio() + ")");
+                    }
+                }
+            } else {
+                comboBox.addItem("Sin vehículos");
             }
-            return new JLabel(value != null ? value.toString() : "");
+
+            // Estilo según la fila
+            comboBox.setBackground(isSelected ? table.getSelectionBackground() : (row % 2 == 0 ? ROW_BG_1 : ROW_BG_2));
+            return comboBox;
         }
-        @Override public Object getCellEditorValue() { return null; }
-    }*/
+
+        @Override
+        public Object getCellEditorValue() {
+            return currentValue; // Siempre devuelve el valor original del resumen
+        }
+    }
 
     /**
      * Dibuja los 3 botones (Lápiz, PDF, Equis) en la última columna.
@@ -389,7 +425,13 @@ public class ClientesVista extends JPanel {
         private int currentRow;
 
         public AccionesEditor() {
-            panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
+        	panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 8));
+            panel.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mousePressed(java.awt.event.MouseEvent e) {
+                    fireEditingStopped();
+                }
+            });
             JButton btnEdit = new JButton(IconoManager.cargarIcono("editar.png", 20, 20));
             JButton btnPdf = new JButton(IconoManager.cargarIcono("pdf.png", 20, 20));
             JButton btnDelete = new JButton(IconoManager.cargarIcono("eliminar.png", 20, 20));
