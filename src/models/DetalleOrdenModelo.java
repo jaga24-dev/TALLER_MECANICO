@@ -40,7 +40,7 @@ public class DetalleOrdenModelo {
 
     public static List<DetalleOrdenModelo> obtenerPorOrden(String idOrden) {
         List<DetalleOrdenModelo> lista = new ArrayList<>();
-        String query = "SELECT * FROM Detalle_Orden WHERE id_orden = ?";
+        String query = "SELECT * FROM detalle_orden WHERE id_orden = ?";
         try (Connection conn = ConexionDB.obtenerConexion();
              PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, Integer.parseInt(idOrden));
@@ -61,7 +61,7 @@ public class DetalleOrdenModelo {
     }
 
     public boolean guardar() {
-        String query = "INSERT INTO Detalle_Orden (id_orden, concepto, precio) VALUES (?, ?, ?)";
+        String query = "INSERT INTO detalle_orden (id_orden, concepto, precio) VALUES (?, ?, ?)";
         try (Connection conn = ConexionDB.obtenerConexion();
              PreparedStatement ps = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, Integer.parseInt(this.idOrden));

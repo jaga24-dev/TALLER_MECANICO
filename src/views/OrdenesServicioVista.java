@@ -56,6 +56,7 @@ public class OrdenesServicioVista extends JPanel {
     // --- Componentes de la vista ---
     private DefaultTableModel tableModel;
     private JTable tablaOrdenes;
+    private JLabel techLabel;
 
     /**
      * Interfaz para que el controlador escuche las acciones del usuario.
@@ -126,7 +127,7 @@ public class OrdenesServicioVista extends JPanel {
         leftPanel.add(title);
         leftPanel.add(dateLabel);
 
-        JLabel techLabel = new JLabel("  Técnico: Juan Angel  ");
+        techLabel = new JLabel("  Técnico: ...  ");
         techLabel.setFont(new Font("Inter", Font.PLAIN, 12));
         techLabel.setForeground(GOLD);
         techLabel.setIcon(IconoManager.cargarIcono("tecnico.png", 16, 16));
@@ -335,6 +336,12 @@ public class OrdenesServicioVista extends JPanel {
                     o.getEstado(),
                     ""
             });
+        }
+    }
+    
+    public void setNombreTecnico(String nombre) {
+        if (techLabel != null) {
+            techLabel.setText("  Técnico: " + nombre + "  ");
         }
     }
 

@@ -74,7 +74,7 @@ public class VehiculoModelo {
 
     public static List<VehiculoModelo> obtenerTodos() {
         List<VehiculoModelo> lista = new ArrayList<>();
-        String query = "SELECT * FROM Vehiculos";
+        String query = "SELECT * FROM vehiculos";
         try (Connection conn = ConexionDB.obtenerConexion();
              PreparedStatement ps = conn.prepareStatement(query);
              ResultSet rs = ps.executeQuery()) {
@@ -98,7 +98,7 @@ public class VehiculoModelo {
 
     public static List<VehiculoModelo> obtenerPorCliente(String idCliente) {
         List<VehiculoModelo> lista = new ArrayList<>();
-        String query = "SELECT * FROM Vehiculos WHERE id_cliente = ?";
+        String query = "SELECT * FROM vehiculos WHERE id_cliente = ?";
         try (Connection conn = ConexionDB.obtenerConexion();
              PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, Integer.parseInt(idCliente));
@@ -123,7 +123,7 @@ public class VehiculoModelo {
     }
 
     public boolean guardar() {
-        String query = "INSERT INTO Vehiculos (id_cliente, marca, modelo, anio, placas, numero_serie, imagen_vehiculo) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO vehiculos (id_cliente, marca, modelo, anio, placas, numero_serie, imagen_vehiculo) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = ConexionDB.obtenerConexion();
              PreparedStatement ps = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, Integer.parseInt(this.idCliente));
@@ -149,7 +149,7 @@ public class VehiculoModelo {
     }
 
     public boolean actualizar() {
-        String query = "UPDATE Vehiculos SET id_cliente=?, marca=?, modelo=?, anio=?, placas=?, numero_serie=?, imagen_vehiculo=? WHERE id_vehiculo=?";
+        String query = "UPDATE vehiculos SET id_cliente=?, marca=?, modelo=?, anio=?, placas=?, numero_serie=?, imagen_vehiculo=? WHERE id_vehiculo=?";
         try (Connection conn = ConexionDB.obtenerConexion();
              PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, Integer.parseInt(this.idCliente));
@@ -168,7 +168,7 @@ public class VehiculoModelo {
     }
 
     public static boolean eliminar(String id) {
-        String query = "DELETE FROM Vehiculos WHERE id_vehiculo=?";
+        String query = "DELETE FROM vehiculos WHERE id_vehiculo=?";
         try (Connection conn = ConexionDB.obtenerConexion();
              PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, Integer.parseInt(id));

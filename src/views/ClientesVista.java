@@ -55,6 +55,7 @@ public class ClientesVista extends JPanel {
     private JButton btnAgregar;
     private JTextField txtBuscar;
     private List<ClienteModelo> clientes = new ArrayList<>();
+    private JLabel techLabel;
 
     public interface AccionListener {
         void onEditar(int row);
@@ -129,7 +130,7 @@ public class ClientesVista extends JPanel {
         leftPanel.add(title);
         leftPanel.add(dateLabel);
 
-        JLabel techLabel = new JLabel("  Técnico: Juan Angel  ");
+        techLabel = new JLabel("  Técnico: ...  ");
         techLabel.setFont(new Font("Inter", Font.PLAIN, 12));
         techLabel.setForeground(GOLD);
         techLabel.setIcon(IconoManager.cargarIcono("tecnico.png", 16, 16));
@@ -302,6 +303,12 @@ public class ClientesVista extends JPanel {
             tableModel.addRow(new Object[]{
                     "", c.getId(), c.getNombreCompleto(), c.getTelefono(), c.getCorreo(), c.getResumenVehiculos(), ""
             });
+        }
+    }
+    
+    public void setNombreTecnico(String nombre) {
+        if (techLabel != null) {
+            techLabel.setText("  Técnico: " + nombre + "  ");
         }
     }
 

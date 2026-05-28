@@ -200,4 +200,9 @@ public class ClientesControlador {
  public ClientesVista getVista() {
      return vista;
  }
+ 
+ public void refrescarTabla() {
+     this.clientes = ClienteModelo.obtenerTodos();
+     this.vista.setClientes(this.clientes);
+ }
 }
