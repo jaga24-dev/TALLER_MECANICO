@@ -91,9 +91,9 @@ public class OrdenServicioModelo {
         List<OrdenServicioModelo> lista = new ArrayList<>();
         // Unimos con Vehiculos y Clientes para obtener nombres
         String query = "SELECT o.*, v.marca, v.modelo, c.nombre_completo " +
-                       "FROM Ordenes_Servicio o " +
-                       "JOIN Vehiculos v ON o.id_vehiculo = v.id_vehiculo " +
-                       "JOIN Clientes c ON v.id_cliente = c.id_cliente";
+                       "FROM ordenes_servicio o " +
+                       "JOIN vehiculos v ON o.id_vehiculo = v.id_vehiculo " +
+                       "JOIN clientes c ON v.id_cliente = c.id_cliente";
         try (Connection conn = ConexionDB.obtenerConexion();
              PreparedStatement ps = conn.prepareStatement(query);
              ResultSet rs = ps.executeQuery()) {
@@ -138,9 +138,9 @@ public class OrdenServicioModelo {
         }
 
         String query = "SELECT o.*, v.marca, v.modelo, c.nombre_completo " +
-                       "FROM Ordenes_Servicio o " +
-                       "JOIN Vehiculos v ON o.id_vehiculo = v.id_vehiculo " +
-                       "JOIN Clientes c ON v.id_cliente = c.id_cliente " +
+                       "FROM ordenes_servicio o " +
+                       "JOIN vehiculos v ON o.id_vehiculo = v.id_vehiculo " +
+                       "JOIN clientes c ON v.id_cliente = c.id_cliente " +
                        "WHERE o.id_vehiculo = ?";
         try (Connection conn = ConexionDB.obtenerConexion();
              java.sql.PreparedStatement ps = conn.prepareStatement(query)) {
@@ -177,7 +177,7 @@ public class OrdenServicioModelo {
     }
 
     public boolean guardar() {
-        String query = "INSERT INTO Ordenes_Servicio (id_vehiculo, fecha_ingreso, fecha_entrega_estimada, tipo_requerimiento, " +
+        String query = "INSERT INTO ordenes_servicio (id_vehiculo, fecha_ingreso, fecha_entrega_estimada, tipo_requerimiento, " +
                        "kilometraje, nivel_combustible, falla_reportada, estado, costo_refacciones, costo_mano_obra, subtotal, " +
                        "impuesto, monto_total, imagen_diagnostico) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = ConexionDB.obtenerConexion();
@@ -213,8 +213,8 @@ public class OrdenServicioModelo {
     }
 
     public boolean actualizar() {
-        //String query = "UPDATE Ordenes_Servicio SET estado=?, fecha_entrega_estimada=?, costo_refacciones=?, costo_mano_obra=?, subtotal=?, impuesto=?, monto_total=? WHERE id_orden=?";
-    	String query = "UPDATE Ordenes_Servicio SET estado=?, fecha_ingreso=?, fecha_entrega_estimada=?, costo_refacciones=?, costo_mano_obra=?, subtotal=?, impuesto=?, monto_total=? WHERE id_orden=?";
+        //String query = "UPDATE ordenes_servicio SET estado=?, fecha_entrega_estimada=?, costo_refacciones=?, costo_mano_obra=?, subtotal=?, impuesto=?, monto_total=? WHERE id_orden=?";
+    	String query = "UPDATE ordenes_servicio SET estado=?, fecha_ingreso=?, fecha_entrega_estimada=?, costo_refacciones=?, costo_mano_obra=?, subtotal=?, impuesto=?, monto_total=? WHERE id_orden=?";
     	try (Connection conn = ConexionDB.obtenerConexion();
              PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, this.estado);
@@ -234,7 +234,7 @@ public class OrdenServicioModelo {
     }
 
     public static boolean eliminar(String id) {
-        String query = "DELETE FROM Ordenes_Servicio WHERE id_orden=?";
+        String query = "DELETE FROM ordenes_servicio WHERE id_orden=?";
         try (Connection conn = ConexionDB.obtenerConexion();
              PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, Integer.parseInt(id));

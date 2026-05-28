@@ -59,7 +59,7 @@ public class ClienteModelo {
 
     public static List<ClienteModelo> obtenerTodos() {
         List<ClienteModelo> lista = new ArrayList<>();
-        String query = "SELECT * FROM Clientes";
+        String query = "SELECT * FROM clientes";
         try (Connection conn = ConexionDB.obtenerConexion();
              PreparedStatement ps = conn.prepareStatement(query);
              ResultSet rs = ps.executeQuery()) {
@@ -81,7 +81,7 @@ public class ClienteModelo {
     }
 
     public boolean guardar() {
-        String query = "INSERT INTO Clientes (nombre_completo, telefono, correo) VALUES (?, ?, ?)";
+        String query = "INSERT INTO clientes (nombre_completo, telefono, correo) VALUES (?, ?, ?)";
         try (Connection conn = ConexionDB.obtenerConexion();
              PreparedStatement ps = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, this.nombreCompleto);
@@ -103,7 +103,7 @@ public class ClienteModelo {
     }
 
     public boolean actualizar() {
-        String query = "UPDATE Clientes SET nombre_completo = ?, telefono = ?, correo = ? WHERE id_cliente = ?";
+        String query = "UPDATE clientes SET nombre_completo = ?, telefono = ?, correo = ? WHERE id_cliente = ?";
         try (Connection conn = ConexionDB.obtenerConexion();
              PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, this.nombreCompleto);
@@ -118,7 +118,7 @@ public class ClienteModelo {
     }
 
     public boolean eliminar() {
-        String query = "DELETE FROM Clientes WHERE id_cliente = ?";
+        String query = "DELETE FROM clientes WHERE id_cliente = ?";
         try (Connection conn = ConexionDB.obtenerConexion();
              PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, Integer.parseInt(this.id));

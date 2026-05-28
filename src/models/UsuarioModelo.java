@@ -7,7 +7,7 @@ import java.sql.ResultSet;
 public class UsuarioModelo {
 
     public boolean validarCredenciales(String usuario, String password) {
-        String query = "SELECT * FROM Usuarios WHERE username = ? AND password_hash = ?";
+        String query = "SELECT * FROM usuarios WHERE username = ? AND password_hash = ?";
         try (Connection conn = ConexionDB.obtenerConexion();
              PreparedStatement ps = conn.prepareStatement(query)) {
             
