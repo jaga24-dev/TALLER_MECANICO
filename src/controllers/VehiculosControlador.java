@@ -186,4 +186,9 @@ public class VehiculosControlador {
     }
 
     public VehiculosVista getVista() { return vista; }
+    
+    public void refrescarTabla() {
+        this.vehiculos = models.VehiculoModelo.obtenerTodos();
+        this.vista.setVehiculos(this.vehiculos);
+    }
 }

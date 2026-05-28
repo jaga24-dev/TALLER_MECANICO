@@ -90,6 +90,7 @@ public class DashboardControlador {
                     break;
 
                 case 1: // Consultar clientes (tabla de clientes)
+                	this.clientesControlador.refrescarTabla();
                 	dashboard.setMainContent(this.clientesVista);
                     break;
 
@@ -98,11 +99,13 @@ public class DashboardControlador {
                     break;
 
                 case 3: // Órdenes de servicio (tabla de órdenes)
-                    dashboard.setMainContent(this.ordenesVista);
+                	this.ordenesControlador.refrescarTabla();
+                	dashboard.setMainContent(this.ordenesVista);
                     break;
 
                 case 4: // Vehículos (tabla de vehículos)
-                    dashboard.setMainContent(this.vehiculosVista);
+                	this.vehiculosControlador.refrescarTabla();
+                	dashboard.setMainContent(this.vehiculosVista);
                     break;
 
                 default:

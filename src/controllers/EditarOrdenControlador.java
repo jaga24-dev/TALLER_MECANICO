@@ -57,8 +57,16 @@ public class EditarOrdenControlador {
                     return;
                 }
 
-                // Guardar cambios en el modelo
+             // Guardar cambios en el modelo (en memoria)
                 vista.actualizarModelo(orden);
+
+                // Guardar cambios en la base de datos
+                if (!orden.actualizar()) {
+                    javax.swing.JOptionPane.showMessageDialog(vista, 
+                        "Hubo un error al guardar los cambios en la base de datos.",
+                        "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
                 // Volver a la tabla
                 if (alTerminar != null) {
                     alTerminar.run();

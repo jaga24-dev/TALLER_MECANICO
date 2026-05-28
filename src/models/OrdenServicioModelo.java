@@ -213,17 +213,19 @@ public class OrdenServicioModelo {
     }
 
     public boolean actualizar() {
-        String query = "UPDATE Ordenes_Servicio SET estado=?, fecha_entrega_estimada=?, costo_refacciones=?, costo_mano_obra=?, subtotal=?, impuesto=?, monto_total=? WHERE id_orden=?";
-        try (Connection conn = ConexionDB.obtenerConexion();
+        //String query = "UPDATE Ordenes_Servicio SET estado=?, fecha_entrega_estimada=?, costo_refacciones=?, costo_mano_obra=?, subtotal=?, impuesto=?, monto_total=? WHERE id_orden=?";
+    	String query = "UPDATE Ordenes_Servicio SET estado=?, fecha_ingreso=?, fecha_entrega_estimada=?, costo_refacciones=?, costo_mano_obra=?, subtotal=?, impuesto=?, monto_total=? WHERE id_orden=?";
+    	try (Connection conn = ConexionDB.obtenerConexion();
              PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, this.estado);
-            ps.setString(2, this.fechaEntregaEstimada);
-            ps.setDouble(3, this.costoRefacciones);
-            ps.setDouble(4, this.costoManoObra);
-            ps.setDouble(5, this.subtotal);
-            ps.setDouble(6, this.impuesto);
-            ps.setDouble(7, this.montoTotal);
-            ps.setInt(8, Integer.parseInt(this.id));
+            ps.setString(2, this.fechaIngreso);
+            ps.setString(3, this.fechaEntregaEstimada);
+            ps.setDouble(4, this.costoRefacciones);
+            ps.setDouble(5, this.costoManoObra);
+            ps.setDouble(6, this.subtotal);
+            ps.setDouble(7, this.impuesto);
+            ps.setDouble(8, this.montoTotal);
+            ps.setInt(9, Integer.parseInt(this.id));
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
