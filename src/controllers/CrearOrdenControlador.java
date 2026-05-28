@@ -207,9 +207,7 @@ public class CrearOrdenControlador {
             return;
         }
 
-<<<<<<< Updated upstream
-        String fechaHoy = LocalDate.now().format(DateTimeFormatter.ofPattern("d/M/yyyy"));
-=======
+        
         String fechaHoy = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         String fechaIngreso = vista.getTxtFechaIngreso().getText().trim();
         String fechaEntrega = vista.getTxtFechaEntrega().getText().trim();
@@ -226,7 +224,6 @@ public class CrearOrdenControlador {
             return;
         }
 
->>>>>>> Stashed changes
         String estado = (String) vista.getCmbEstado().getSelectedItem();
 
         // Calcular costos
@@ -244,13 +241,8 @@ public class CrearOrdenControlador {
                 "ORD-" + String.format("%03d", contadorOrdenes),
                 nombreCliente,
                 vehiculoStr,
-<<<<<<< Updated upstream
-                fechaHoy,       // Fecha de ingreso = hoy
-                "",             // Fecha de entrega (pendiente)
-=======
                 fechaIngreso,
                 fechaEntrega,
->>>>>>> Stashed changes
                 subtotal,       // Costo mano de obra = subtotal por ahora
                 0,              // Costo refacciones
                 total,          // Monto total
