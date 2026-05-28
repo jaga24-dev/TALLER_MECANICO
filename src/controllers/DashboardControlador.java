@@ -175,4 +175,11 @@ public class DashboardControlador {
         dashboard.dispose();
         loginControlador.mostrarLogin();
     }
+
+    public void setNombreTecnico(String nombre) {
+        dashboard.getMainContent().setNombreTecnico(nombre);
+        clientesVista.setNombreTecnico(nombre);
+        ordenesVista.setNombreTecnico(nombre);
+        vehiculosVista.setNombreTecnico(nombre);
+    }
 }
