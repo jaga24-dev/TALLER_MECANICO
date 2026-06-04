@@ -264,10 +264,13 @@ public class VehiculosVista extends JPanel {
         tablaVehiculos.getColumnModel().getColumn(0).setCellRenderer(new CircleRenderer());
         tablaVehiculos.getColumnModel().getColumn(0).setPreferredWidth(30);
 
-        // Asignar el renderer centrado a todas las columnas de datos
-        for (int i = 1; i <= 7; i++) {
+        // Asignar el renderer centrado a las columnas de texto (1 a 6)
+        for (int i = 1; i <= 6; i++) {
             tablaVehiculos.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
+        
+        // Asignar el renderer de imágenes a la columna 7
+        tablaVehiculos.getColumnModel().getColumn(7).setCellRenderer(new ImageRenderer());
 
         // Renderer para la columna ESTADO (8)
         DefaultTableCellRenderer estadoRenderer = new DefaultTableCellRenderer() {
@@ -339,14 +342,24 @@ public class VehiculosVista extends JPanel {
 
     // ==================== MÉTODOS PÚBLICOS ====================
 
-    /**
-     * Carga la lista de vehículos en la tabla.
-     * Se llama desde el controlador cada vez que los datos cambian.
-     */
     public void setVehiculos(List<VehiculoModelo> vehiculos) {
         tableModel.setRowCount(0); // Limpiar la tabla
         for (VehiculoModelo v : vehiculos) {
-            tableModel.addRow(new Object[]{
+        	Object iconoVehiculo = "🚗";
+            if (v.getImagen() != null && !v.getImagen().isEmpty()) {
+                java.io.File file = new java.io.File(v.getImagen());
+                if (file.exists()) {
+                    try {
+                        java.awt.image.BufferedImage img = javax.imageio.ImageIO.read(file);
+                        java.awt.Image escalada = img.getScaledInstance(60, 35, java.awt.Image.SCALE_SMOOTH);
+                        iconoVehiculo = new javax.swing.ImageIcon(escalada);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        	
+        	tableModel.addRow(new Object[]{
                     "",                     // Círculo (estético)
                     v.getMarca(),
                     v.getModelo(),
@@ -354,7 +367,7 @@ public class VehiculosVista extends JPanel {
                     v.getPlacas(),
                     v.getNumeroSerie() != null ? v.getNumeroSerie() : "",
                     "Ver Órdenes", // Falla Reportada
-                    "🚗",           // IMG DEL VEHÍCULO
+                    iconoVehiculo,  // IMG DEL VEHÍCULO
                     "N/A",         // ESTADO
                     "Editar",      // ACCION
             });
@@ -375,9 +388,7 @@ public class VehiculosVista extends JPanel {
     // NOTA PARA NOVATOS:
     // "Renderer" = cómo se VE la celda.   "Editor" = qué PASA cuando haces clic.
 
-    /**
-     * Dibuja un círculo "○" en la primera columna (solo decoración).
-     */
+
     class CircleRenderer extends DefaultTableCellRenderer {
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
@@ -388,6 +399,32 @@ public class VehiculosVista extends JPanel {
             circle.setFont(new Font("Inter", Font.BOLD, 18));
             p.add(circle);
             return p;
+        }
+    }
+
+    /**
+     * Dibuja una imagen si la celda contiene un ImageIcon.
+     */
+    class ImageRenderer extends DefaultTableCellRenderer {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            JLabel lbl = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            lbl.setText("");
+            lbl.setHorizontalAlignment(SwingConstants.CENTER);
+            if (!isSelected) {
+                lbl.setBackground(row % 2 == 0 ? ROW_BG_1 : ROW_BG_2);
+                lbl.setForeground(row % 2 == 0 ? Color.BLACK : Color.WHITE);
+            }
+            if (value instanceof javax.swing.ImageIcon) {
+                lbl.setIcon((javax.swing.ImageIcon) value);
+            } else if (value != null) {
+                lbl.setText(value.toString());
+                lbl.setIcon(null);
+            } else {
+                lbl.setIcon(null);
+            }
+            return lbl;
         }
     }
 

@@ -128,7 +128,7 @@ public class DashboardControlador {
         int ordenesListas = 0;
         java.util.List<String> proximasEntregas = new java.util.ArrayList<>();
         
-        String fechaHoy = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("d/M/yyyy"));
+        String fechaHoy = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
         for (models.OrdenServicioModelo o : ordenes) {
             // Vehículos de hoy

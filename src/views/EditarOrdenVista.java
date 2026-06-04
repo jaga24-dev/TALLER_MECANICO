@@ -69,6 +69,7 @@ public class EditarOrdenVista extends JPanel {
 
     private JTextField txtKilometraje;
     private JProgressBar barraCombustible;
+    private JLabel lblPctCombustible;
     private JTextArea txtCondicionVehiculo;
     private JTextField txtFechaIngreso;
     private JTextField txtFechaEntrega;
@@ -538,10 +539,11 @@ public class EditarOrdenVista extends JPanel {
         barWrap.add(barraCombustible, BorderLayout.CENTER);
         barWrap.add(labelsBar, BorderLayout.SOUTH);
         
-        JLabel lblPct = new JLabel("38%"); lblPct.setFont(new Font("Inter", Font.PLAIN, 11));
+        lblPctCombustible = new JLabel("38%");
+        lblPctCombustible.setFont(new Font("Inter", Font.PLAIN, 11));
         
         progressContainer.add(barWrap, BorderLayout.CENTER);
-        progressContainer.add(lblPct, BorderLayout.EAST);
+        progressContainer.add(lblPctCombustible, BorderLayout.EAST);
 
         combPanel.add(lblComb, BorderLayout.NORTH);
         combPanel.add(progressContainer, BorderLayout.CENTER);
@@ -628,19 +630,50 @@ public class EditarOrdenVista extends JPanel {
 
     // ==================== METODOS PARA EL CONTROLADOR ====================
     public void cargarDatosOrden(OrdenServicioModelo orden) {
-        lblNombreCliente.setText(orden.getNombreCliente());
-        lblVehiculoDesc.setText(orden.getVehiculoRelacionado());
+    	lblNombreCliente.setText(orden.getNombreCliente() != null ? orden.getNombreCliente() : "Desconocido");
+        lblVehiculoDesc.setText(orden.getVehiculoRelacionado() != null ? orden.getVehiculoRelacionado() : "Desconocido");
         
-        txtDescripcionFalla.setText("Mantenimiento programado."); // Falla simulada ya que el modelo no tiene este campo detallado.
+        // Tipo de requerimiento
+        if ("Reparación".equals(orden.getTipoRequerimiento())) rbReparacion.setSelected(true);
+        else if ("Mantención".equals(orden.getTipoRequerimiento()) || "Mantenimiento".equals(orden.getTipoRequerimiento())) rbMantenimiento.setSelected(true);
+        else if ("Garantía".equals(orden.getTipoRequerimiento())) rbGarantia.setSelected(true);
+
+        txtDescripcionFalla.setText(orden.getFallaReportada() != null ? orden.getFallaReportada() : "");
+        txtKilometraje.setText(orden.getKilometraje() + " Kms.");
         
-        lblSubtotalVal.setText("$" + String.format("%.2f", orden.getMontoTotal() - 20.0)); // Simulando
-        lblImpuestoVal.setText("$20.00");
+        // Nivel de combustible
+        String nivelCombustible = orden.getNivelCombustible();
+        int porcentaje = 0;
+        if (nivelCombustible != null) {
+            switch (nivelCombustible) {
+                case "E": porcentaje = 0; break;
+                case "1/4": porcentaje = 25; break;
+                case "1/2": porcentaje = 50; break;
+                case "3/4": porcentaje = 75; break;
+                case "F": porcentaje = 100; break;
+                default: 
+                    try {
+                        porcentaje = Integer.parseInt(nivelCombustible.replace("%", "").trim());
+                    } catch (NumberFormatException e) {
+                        porcentaje = 0;
+                    }
+            }
+        }
+        barraCombustible.setValue(porcentaje);
+        lblPctCombustible.setText(porcentaje + "%");
+        
+        lblSubtotalVal.setText("$" + String.format("%.2f", orden.getSubtotal()));
+        lblImpuestoVal.setText("$" + String.format("%.2f", orden.getImpuesto()));
         lblTotalVal.setText("TOTAL: " + String.format("%.2f", orden.getMontoTotal()));
         
-        txtFechaIngreso.setText(orden.getFechaIngreso());
-        txtFechaEntrega.setText(orden.getFechaEntregaEstimada());
+        txtFechaIngreso.setText(orden.getFechaIngreso() != null ? orden.getFechaIngreso() : "");
+        txtFechaEntrega.setText(orden.getFechaEntregaEstimada() != null ? orden.getFechaEntregaEstimada() : "");
         
-        cmbEstado.setSelectedItem(orden.getEstado());
+        txtCondicionVehiculo.setText(""); // Opcional: Extraer de fallaReportada si se desea, por ahora vacío o dejar lo que tiene el texto de falla
+        
+        if (orden.getEstado() != null) {
+            cmbEstado.setSelectedItem(orden.getEstado().toUpperCase());
+        }
     }
 
     public void actualizarModelo(OrdenServicioModelo orden) {
