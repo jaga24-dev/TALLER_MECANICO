@@ -264,12 +264,6 @@ public class CrearOrdenControlador {
         // Forzar la adición de cualquier refacción que se haya quedado escrita en los campos pero sin presionar '+'
         vista.getPanelListaServicios().agregarElementoPendiente();
 
-        // Obtener el ID del vehículo
-        String idVehiculoStr = (String) vista.getCmbVehiculos().getSelectedItem();
-        if (idVehiculoStr == null || !idVehiculoStr.contains(" - ")) {
-            JOptionPane.showMessageDialog(vista, "Seleccione un vehículo válido.", "Error", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
 
         // Validar Nivel de Combustible
         String combustible = (String) vista.getCmbCombustible().getSelectedItem();
