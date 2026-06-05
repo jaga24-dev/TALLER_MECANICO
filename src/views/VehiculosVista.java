@@ -65,6 +65,8 @@ public class VehiculosVista extends JPanel {
      * Interfaz para que el controlador escuche las acciones del usuario.
      * Cuando el usuario hace clic en un botón de la tabla, se notifica al controlador.
      */
+    private JTextField txtBuscar;
+
     public interface AccionListener {
         void onEditar(int row);
         void onDescargarPDF(int row);
@@ -72,6 +74,18 @@ public class VehiculosVista extends JPanel {
     }
 
     private AccionListener accionListener;
+
+    public interface PaginacionListener {
+        void onPaginaCambiada(int nuevaPagina);
+    }
+    private PaginacionListener paginacionListener;
+
+    private JLabel lblPaginaActual;
+    private JLabel lblTotalPaginas;
+    private JButton btnAnterior;
+    private JButton btnSiguiente;
+    private int paginaActualVista = 1;
+    private int totalPaginasVista = 1;
 
     // Constructor: arma toda la interfaz
     public VehiculosVista() {
@@ -97,6 +111,14 @@ public class VehiculosVista extends JPanel {
      */
     public void setAccionListener(AccionListener listener) {
         this.accionListener = listener;
+    }
+
+    public void setPaginacionListener(PaginacionListener listener) {
+        this.paginacionListener = listener;
+    }
+
+    public JTextField getTxtBuscar() {
+        return txtBuscar;
     }
 
     // ==================== CABECERA ====================
@@ -167,7 +189,7 @@ public class VehiculosVista extends JPanel {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         searchPanel.setOpaque(false);
         JLabel searchIcon = new JLabel(IconoManager.cargarIcono("buscar.png", 20, 20));
-        JTextField txtBuscar = new JTextField(25);
+        txtBuscar = new JTextField(25);
         txtBuscar.setBackground(HEADER_BG);
         txtBuscar.setForeground(Color.WHITE);
         txtBuscar.setCaretColor(Color.WHITE);
@@ -327,17 +349,56 @@ public class VehiculosVista extends JPanel {
         JPanel pagPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         pagPanel.setBackground(HEADER_BG);
 
-        JLabel left = new JLabel(IconoManager.cargarIcono("izq.png", 16, 16));
-        JLabel page1 = new JLabel(" 1 "); page1.setForeground(Color.BLACK); page1.setBackground(GOLD); page1.setOpaque(true);
-        JLabel page2 = new JLabel(" 2 "); page2.setForeground(Color.WHITE);
-        JLabel page3 = new JLabel(" 3 "); page3.setForeground(Color.WHITE);
-        JLabel dots = new JLabel(" ... "); dots.setForeground(Color.WHITE);
-        JLabel page5 = new JLabel(" 5 "); page5.setForeground(Color.WHITE);
-        JLabel right = new JLabel(IconoManager.cargarIcono("der.png", 16, 16));
+        btnAnterior = new JButton(IconoManager.cargarIcono("izq.png", 16, 16));
+        configurarBotonPaginacion(btnAnterior);
 
-        pagPanel.add(left); pagPanel.add(page1); pagPanel.add(page2);
-        pagPanel.add(page3); pagPanel.add(dots); pagPanel.add(page5); pagPanel.add(right);
+        btnSiguiente = new JButton(IconoManager.cargarIcono("der.png", 16, 16));
+        configurarBotonPaginacion(btnSiguiente);
+
+        lblPaginaActual = new JLabel(" 1 ");
+        lblPaginaActual.setForeground(Color.BLACK); 
+        lblPaginaActual.setBackground(GOLD); 
+        lblPaginaActual.setOpaque(true);
+        lblPaginaActual.setFont(new Font("Inter", Font.BOLD, 12));
+
+        lblTotalPaginas = new JLabel(" de 1 ");
+        lblTotalPaginas.setForeground(Color.WHITE);
+        lblTotalPaginas.setFont(new Font("Inter", Font.PLAIN, 12));
+
+        pagPanel.add(btnAnterior);
+        pagPanel.add(lblPaginaActual);
+        pagPanel.add(lblTotalPaginas);
+        pagPanel.add(btnSiguiente);
+
+        btnAnterior.addActionListener(e -> {
+            if (paginacionListener != null && paginaActualVista > 1) {
+                paginacionListener.onPaginaCambiada(paginaActualVista - 1);
+            }
+        });
+        
+        btnSiguiente.addActionListener(e -> {
+            if (paginacionListener != null && paginaActualVista < totalPaginasVista) {
+                paginacionListener.onPaginaCambiada(paginaActualVista + 1);
+            }
+        });
+
         return pagPanel;
+    }
+
+    private void configurarBotonPaginacion(JButton btn) {
+        btn.setContentAreaFilled(false);
+        btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    public void actualizarPaginacion(int paginaActual, int totalPaginas) {
+        this.paginaActualVista = paginaActual;
+        this.totalPaginasVista = Math.max(1, totalPaginas);
+        lblPaginaActual.setText(" " + this.paginaActualVista + " ");
+        lblTotalPaginas.setText(" de " + this.totalPaginasVista + " ");
+        btnAnterior.setEnabled(this.paginaActualVista > 1);
+        btnSiguiente.setEnabled(this.paginaActualVista < this.totalPaginasVista);
     }
 
     // ==================== MÉTODOS PÚBLICOS ====================

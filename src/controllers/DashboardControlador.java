@@ -108,6 +108,7 @@ public class DashboardControlador {
                 	dashboard.setMainContent(this.vehiculosVista);
                     break;
 
+
                 default:
                     System.out.println("Navegación a: " + title + " (No implementado aún)");
                     break;

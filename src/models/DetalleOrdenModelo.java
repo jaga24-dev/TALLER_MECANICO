@@ -81,4 +81,17 @@ public class DetalleOrdenModelo {
         }
         return false;
     }
+
+    public static boolean eliminarPorOrden(String idOrden) {
+        String query = "DELETE FROM detalle_orden WHERE id_orden = ?";
+        try (Connection conn = ConexionDB.obtenerConexion();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, Integer.parseInt(idOrden));
+            ps.executeUpdate();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

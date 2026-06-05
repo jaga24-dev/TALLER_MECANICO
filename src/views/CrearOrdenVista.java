@@ -63,7 +63,7 @@ public class CrearOrdenVista extends JPanel {
     private JRadioButton rbGarantia;
 
     private JTextArea txtDescripcionFalla;
-    private JTextArea txtServicioProducto;
+    private PanelListaServicios panelListaServicios;
 
     private JTextField txtKilometraje;
     private JComboBox<String> cmbCombustible;
@@ -347,19 +347,11 @@ public class CrearOrdenVista extends JPanel {
         panel.add(lblServicio);
         panel.add(Box.createVerticalStrut(2));
 
-        txtServicioProducto = new JTextArea(3, 20);
-        txtServicioProducto.setLineWrap(true);
-        txtServicioProducto.setWrapStyleWord(true);
-        txtServicioProducto.setFont(new Font("Inter", Font.PLAIN, 13));
-        txtServicioProducto.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(TEAL, 2, true),
-                new EmptyBorder(5, 5, 5, 5)
-        ));
-        txtServicioProducto.setToolTipText("Agregar nuevo...");
-        JScrollPane scrollServicio = new JScrollPane(txtServicioProducto);
-        scrollServicio.setAlignmentX(Component.LEFT_ALIGNMENT);
-        scrollServicio.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
-        panel.add(scrollServicio);
+        panelListaServicios = new PanelListaServicios();
+        panelListaServicios.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panelListaServicios.setMaximumSize(new Dimension(Integer.MAX_VALUE, 140));
+        panelListaServicios.setPreferredSize(new Dimension(0, 140));
+        panel.add(panelListaServicios);
         panel.add(Box.createVerticalStrut(10));
 
         // --- Costos (Subtotal, Impuesto, Total) ---
@@ -655,7 +647,7 @@ public class CrearOrdenVista extends JPanel {
     public JLabel getLblImgNombre() { return lblImgNombre; }
     public JComboBox<models.VehiculoModelo> getCmbVehiculos() { return cmbVehiculos; }
     public JTextArea getTxtDescripcionFalla() { return txtDescripcionFalla; }
-    public JTextArea getTxtServicioProducto() { return txtServicioProducto; }
+    public PanelListaServicios getPanelListaServicios() { return panelListaServicios; }
     public JTextField getTxtKilometraje() { return txtKilometraje; }
     public JComboBox<String> getCmbCombustible() { return cmbCombustible; }
     public JTextArea getTxtCondicionVehiculo() { return txtCondicionVehiculo; }
@@ -690,7 +682,7 @@ public class CrearOrdenVista extends JPanel {
             cmbVehiculos.setSelectedIndex(0);
         }
         txtDescripcionFalla.setText("");
-        txtServicioProducto.setText("");
+        panelListaServicios.limpiar();
         txtKilometraje.setText("");
         txtCondicionVehiculo.setText("");
         txtSubtotal.setText("");

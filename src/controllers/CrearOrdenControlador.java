@@ -70,6 +70,12 @@ public class CrearOrdenControlador {
         };
         vista.getTxtSubtotal().getDocument().addDocumentListener(docListener);
         vista.getTxtImpuesto().getDocument().addDocumentListener(docListener);
+        
+        // Listener para PanelListaServicios
+        vista.getPanelListaServicios().setOnListChanged(() -> {
+            double sub = vista.getPanelListaServicios().calcularSubtotal();
+            vista.getTxtSubtotal().setText(String.format(java.util.Locale.US, "%.2f", sub));
+        });
     }
 
     private void cargarClientes() {
@@ -148,7 +154,7 @@ public class CrearOrdenControlador {
         double subtotal = 0, impuesto = 0;
         try { subtotal = Double.parseDouble(vista.getTxtSubtotal().getText().trim()); } catch (Exception ex) { /* ignorar */ }
         try { impuesto = Double.parseDouble(vista.getTxtImpuesto().getText().trim()); } catch (Exception ex) { /* ignorar */ }
-        vista.getTxtTotal().setText(String.format("%.2f", subtotal + impuesto));
+        vista.getTxtTotal().setText(String.format(java.util.Locale.US, "%.2f", subtotal + impuesto));
     }
 
     private void seleccionarImagen() {
@@ -254,12 +260,10 @@ public class CrearOrdenControlador {
         nuevaOrden.setTipoRequerimiento(vista.getTipoFallaSeleccionado());
         
         String descripcion = vista.getTxtDescripcionFalla().getText().trim();
-        String servicio = vista.getTxtServicioProducto().getText().trim();
         String condicion = vista.getTxtCondicionVehiculo().getText().trim();
         
-        // Juntamos descripción, servicio y condición en Falla Reportada (el campo TEXT de la BD)
+        // Juntamos descripción y condición en Falla Reportada (el campo TEXT de la BD)
         String fallaCompleta = descripcion;
-        if (!servicio.isEmpty()) fallaCompleta += " | Servicio: " + servicio;
         if (!condicion.isEmpty()) fallaCompleta += " | Condición: " + condicion;
         
         nuevaOrden.setFallaReportada(fallaCompleta);
@@ -276,7 +280,18 @@ public class CrearOrdenControlador {
 
         // Agregar la orden al controlador de órdenes (aparecerá en la tabla)
         ordenesControlador.agregarOrden(nuevaOrden);
-
+        
+        // Guardar los detalles en la base de datos
+        try {
+            int dbId = Integer.parseInt(nuevaOrden.getId());
+            for (models.DetalleOrdenModelo det : vista.getPanelListaServicios().getDetalles()) {
+                det.setIdOrden(String.valueOf(dbId));
+                det.guardar();
+            }
+        } catch (NumberFormatException ignored) {
+            // El ID no era un número (guardado falló)
+        }
+        
         // Mostrar mensaje de éxito
         JOptionPane.showMessageDialog(vista,
                 "¡Orden de trabajo creada exitosamente!\nID: " + nuevaOrden.getId(),
