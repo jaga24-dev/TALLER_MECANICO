@@ -137,6 +137,12 @@ public class PanelListaServicios extends JPanel {
         this.onListChanged = onListChanged;
     }
 
+    public void agregarElementoPendiente() {
+        if (!txtConcepto.getText().trim().isEmpty()) {
+            agregarElemento();
+        }
+    }
+
     private void agregarElemento() {
         String concepto = txtConcepto.getText().trim();
         String cantidadStr = txtCantidad.getText().trim();

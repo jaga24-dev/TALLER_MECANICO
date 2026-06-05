@@ -57,7 +57,10 @@ public class EditarOrdenControlador {
                     return;
                 }
 
-             // Guardar cambios en el modelo (en memoria)
+                // Forzar la adición de cualquier refacción que se haya quedado escrita en los campos pero sin presionar '+'
+                vista.getPanelListaServicios().agregarElementoPendiente();
+
+                // Guardar cambios en el modelo (en memoria)
                 vista.actualizarModelo(orden);
 
                 // Guardar cambios en la base de datos

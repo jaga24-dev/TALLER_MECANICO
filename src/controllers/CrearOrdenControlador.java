@@ -261,19 +261,54 @@ public class CrearOrdenControlador {
             return;
         }
 
+        // Forzar la adición de cualquier refacción que se haya quedado escrita en los campos pero sin presionar '+'
+        vista.getPanelListaServicios().agregarElementoPendiente();
+
+        // Obtener el ID del vehículo
+        String idVehiculoStr = (String) vista.getCmbVehiculos().getSelectedItem();
+        if (idVehiculoStr == null || !idVehiculoStr.contains(" - ")) {
+            JOptionPane.showMessageDialog(vista, "Seleccione un vehículo válido.", "Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Validar Nivel de Combustible
+        String combustible = (String) vista.getCmbCombustible().getSelectedItem();
+        if (combustible == null || combustible.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(vista, "El nivel de combustible es obligatorio.", "Dato faltante", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Validar Imagen
+        if (rutaImagenSeleccionada == null || rutaImagenSeleccionada.isEmpty()) {
+            JOptionPane.showMessageDialog(vista, "Es obligatorio subir una imagen de diagnóstico del vehículo.", "Dato faltante", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         String estado = (String) vista.getCmbEstado().getSelectedItem();
 
         // Calcular costos con validación
         double costoRefacciones = 0, costoServicios = 0, impuesto = 0, subtotal = 0, total = 0;
         try { 
             String refText = vista.getTxtCostoRefacciones().getText().trim();
-            if (!refText.isEmpty()) costoRefacciones = Double.parseDouble(refText);
+            if (refText.isEmpty()) {
+                JOptionPane.showMessageDialog(vista, "El costo de refacciones es obligatorio (puede ser 0 si no hay).", "Dato faltante", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            costoRefacciones = Double.parseDouble(refText);
             
             String srvText = vista.getTxtCostoServicios().getText().trim();
-            if (!srvText.isEmpty()) costoServicios = Double.parseDouble(srvText);
+            if (srvText.isEmpty()) {
+                JOptionPane.showMessageDialog(vista, "El costo de servicios (mano de obra) es obligatorio (puede ser 0).", "Dato faltante", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            costoServicios = Double.parseDouble(srvText);
             
             String impText = vista.getTxtImpuesto().getText().trim();
-            if (!impText.isEmpty()) impuesto = Double.parseDouble(impText);
+            if (impText.isEmpty()) {
+                JOptionPane.showMessageDialog(vista, "El impuesto es obligatorio (puede ser 0).", "Dato faltante", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            impuesto = Double.parseDouble(impText);
             
             if (costoRefacciones < 0 || costoServicios < 0 || impuesto < 0) {
                 throw new NumberFormatException();
