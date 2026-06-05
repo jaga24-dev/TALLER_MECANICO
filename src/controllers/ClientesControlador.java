@@ -12,7 +12,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-//Importaciones de iText (es necesario agregar itextpdf-5.5.13.3.jar al classpath)
+//Importaciones de iText
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
@@ -56,22 +56,22 @@ public class ClientesControlador {
      vista.setAccionListener(new ClientesVista.AccionListener() {
          @Override
          public void onEditar(int row) {
-             editarCliente(row); // Llama a la función de editar
+             editarCliente(row);
          }
 
          @Override
          public void onDescargarPDF(int row) {
-             descargarPDF(row); // Llama a la función de PDF
+             descargarPDF(row); 
          }
 
          @Override
          public void onEliminar(int row) {
-             eliminarCliente(row); // Llama a la función de eliminar
+             eliminarCliente(row); 
          }
 
          @Override
          public void onVerVehiculos(int row) {
-             verVehiculos(row); // Llama a la función de ver vehículos
+             verVehiculos(row); 
          }
      });
 
@@ -164,9 +164,7 @@ public class ClientesControlador {
      }
  }
 
- /**
-  * Pregunta al usuario si desea eliminar y borra al cliente de la BD.
-  */
+
  private void eliminarCliente(int row) {
      if (row >= 0 && row < clientesMostrados.size()) {
          int r = JOptionPane.showConfirmDialog(vista, "¿Está seguro de eliminar este cliente?", "Confirmar", JOptionPane.YES_NO_OPTION);
@@ -182,9 +180,7 @@ public class ClientesControlador {
      }
  }
 
- /**
-  * Muestra la ventana de gestión de vehículos del cliente seleccionado.
-  */
+
  private void verVehiculos(int row) {
      if (row >= 0 && row < clientesMostrados.size()) {
          ClienteModelo cliente = clientesMostrados.get(row); // Sacamos al cliente
@@ -213,9 +209,7 @@ public class ClientesControlador {
      }
  }
 
- /**
-  * Genera un archivo PDF con la información del cliente usando la librería iText.
-  */
+ 
  private void descargarPDF(int row) {
      if (row >= 0 && row < clientesMostrados.size()) {
          ClienteModelo cliente = clientesMostrados.get(row);

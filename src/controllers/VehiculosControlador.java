@@ -25,7 +25,6 @@ import javax.swing.event.DocumentListener;
  * Controlador de la sección "Vehículos".
  * Maneja la lista de vehículos en memoria y las operaciones CRUD.
  * 
- * NOTA PARA NOVATOS:
  * Este controlador conecta la vista (lo que ve el usuario) con los datos (modelos).
  * Cuando el usuario hace clic en un botón, el controlador decide qué hacer.
  */
@@ -132,7 +131,7 @@ public class VehiculosControlador {
 
         if (dialog.isGuardado()) {
             int anio = 0;
-            try { anio = Integer.parseInt(dialog.getAnioText()); } catch (NumberFormatException ex) { /* ignorar */ }
+            try { anio = Integer.parseInt(dialog.getAnioText()); } catch (NumberFormatException ex) {    }
 
             VehiculoModelo nuevo = new VehiculoModelo(
                     null, // ID generado por la BD
@@ -196,9 +195,7 @@ public class VehiculosControlador {
         }
     }
 
-    /**
-     * Genera un PDF con la información del vehículo y su historial usando iText.
-     */
+  
     private void descargarPDF(int row) {
         if (row >= 0 && row < vehiculosMostrados.size()) {
             VehiculoModelo v = vehiculosMostrados.get(row);

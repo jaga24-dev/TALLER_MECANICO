@@ -377,7 +377,6 @@ public class OrdenesServicioVista extends JPanel {
         btnSiguiente.setEnabled(this.paginaActualVista < this.totalPaginasVista);
     }
 
-    // ==================== MÉTODOS PÚBLICOS ====================
 
     /**
      * Carga la lista de órdenes en la tabla.

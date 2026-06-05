@@ -144,10 +144,7 @@ public class OrdenesServicioControlador {
         }
     }
 
-    /**
-     * Genera un PDF con la información completa de la orden usando iText.
-     * Incluye desglose de refacciones, servicios, impuesto y total.
-     */
+    
     private void descargarPDF(int row) {
         if (row < 0 || row >= ordenesMostradas.size()) return;
         OrdenServicioModelo o = ordenesMostradas.get(row);

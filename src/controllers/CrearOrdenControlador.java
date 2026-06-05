@@ -355,7 +355,7 @@ public class CrearOrdenControlador {
             // El ID no era un número (guardado falló)
         }
         
-        // Mostrar mensaje de éxito
+        
         JOptionPane.showMessageDialog(vista,
                 "¡Orden de trabajo creada exitosamente!\nID: " + nuevaOrden.getId(),
                 "Éxito", JOptionPane.INFORMATION_MESSAGE);
