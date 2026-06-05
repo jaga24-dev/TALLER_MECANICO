@@ -232,18 +232,61 @@ public class CrearOrdenControlador {
             return;
         }
 
+        // Validar Falla Reportada
+        String descripcion = vista.getTxtDescripcionFalla().getText().trim();
+        if (descripcion.isEmpty()) {
+            JOptionPane.showMessageDialog(vista, "La descripción de la falla es obligatoria.", "Dato faltante", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String condicion = vista.getTxtCondicionVehiculo().getText().trim();
+        
+        // Juntamos descripción y condición en Falla Reportada (el campo TEXT de la BD)
+        String fallaCompleta = descripcion;
+        if (!condicion.isEmpty()) fallaCompleta += " | Condición: " + condicion;
+
+        // Validar Kilometraje
+        int km = 0;
+        try {
+            String kmText = vista.getTxtKilometraje().getText().trim();
+            if (!kmText.isEmpty()) {
+                km = Integer.parseInt(kmText);
+                if (km < 0) throw new NumberFormatException();
+            } else {
+                JOptionPane.showMessageDialog(vista, "El kilometraje es obligatorio.", "Dato faltante", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(vista, "El kilometraje debe ser un número entero válido y no negativo.", "Valor inválido", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         String estado = (String) vista.getCmbEstado().getSelectedItem();
 
-        // Calcular costos
+        // Calcular costos con validación
         double costoRefacciones = 0, costoServicios = 0, impuesto = 0, subtotal = 0, total = 0;
-        try { costoRefacciones = Double.parseDouble(vista.getTxtCostoRefacciones().getText().trim()); } catch (Exception ex) { /* ignorar */ }
-        try { costoServicios = Double.parseDouble(vista.getTxtCostoServicios().getText().trim()); } catch (Exception ex) { /* ignorar */ }
-        try { impuesto = Double.parseDouble(vista.getTxtImpuesto().getText().trim()); } catch (Exception ex) { /* ignorar */ }
+        try { 
+            String refText = vista.getTxtCostoRefacciones().getText().trim();
+            if (!refText.isEmpty()) costoRefacciones = Double.parseDouble(refText);
+            
+            String srvText = vista.getTxtCostoServicios().getText().trim();
+            if (!srvText.isEmpty()) costoServicios = Double.parseDouble(srvText);
+            
+            String impText = vista.getTxtImpuesto().getText().trim();
+            if (!impText.isEmpty()) impuesto = Double.parseDouble(impText);
+            
+            if (costoRefacciones < 0 || costoServicios < 0 || impuesto < 0) {
+                throw new NumberFormatException();
+            }
+        } catch (Exception ex) { 
+            JOptionPane.showMessageDialog(vista, "Los costos e impuestos deben ser números válidos y no negativos.", "Valor inválido", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         subtotal = costoRefacciones + costoServicios;
         total = subtotal + impuesto;
 
         // Mostrar el total calculado en el formulario
-        vista.getTxtTotal().setText(String.format("%.2f", total));
+        vista.getTxtTotal().setText(String.format(java.util.Locale.US, "%.2f", total));
 
         // Crear la orden
         contadorOrdenes++;
@@ -264,22 +307,7 @@ public class CrearOrdenControlador {
 
         // Guardar datos adicionales del formulario en la orden
         nuevaOrden.setTipoRequerimiento(vista.getTipoFallaSeleccionado());
-        
-        String descripcion = vista.getTxtDescripcionFalla().getText().trim();
-        String condicion = vista.getTxtCondicionVehiculo().getText().trim();
-        
-        // Juntamos descripción y condición en Falla Reportada (el campo TEXT de la BD)
-        String fallaCompleta = descripcion;
-        if (!condicion.isEmpty()) fallaCompleta += " | Condición: " + condicion;
-        
         nuevaOrden.setFallaReportada(fallaCompleta);
-        
-        int km = 0;
-        try {
-            km = Integer.parseInt(vista.getTxtKilometraje().getText().trim());
-        } catch (Exception ex) {
-            // Ignorar formato incorrecto
-        }
         nuevaOrden.setKilometraje(km);
         nuevaOrden.setNivelCombustible((String) vista.getCmbCombustible().getSelectedItem());
         nuevaOrden.setImagenDiagnostico(rutaImagenSeleccionada);

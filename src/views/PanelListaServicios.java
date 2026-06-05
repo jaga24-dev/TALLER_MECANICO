@@ -36,6 +36,7 @@ public class PanelListaServicios extends JPanel {
 
     private JPanel panelItems;
     private JTextField txtConcepto;
+    private JTextField txtCantidad;
     private JTextField txtPrecio;
     private JButton btnAgregar;
 
@@ -58,6 +59,15 @@ public class PanelListaServicios extends JPanel {
                 new EmptyBorder(4, 6, 4, 6)));
         txtConcepto.setToolTipText("Nombre del servicio o producto");
 
+        txtCantidad = new JTextField("1");
+        txtCantidad.setFont(new Font("Inter", Font.PLAIN, 12));
+        txtCantidad.setPreferredSize(new Dimension(40, 28));
+        txtCantidad.setHorizontalAlignment(SwingConstants.CENTER);
+        txtCantidad.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(TEAL, 1, true),
+                new EmptyBorder(4, 4, 4, 4)));
+        txtCantidad.setToolTipText("Cantidad");
+
         txtPrecio = new JTextField("0.00");
         txtPrecio.setFont(new Font("Inter", Font.PLAIN, 12));
         txtPrecio.setPreferredSize(new Dimension(80, 28));
@@ -65,7 +75,7 @@ public class PanelListaServicios extends JPanel {
         txtPrecio.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(TEAL, 1, true),
                 new EmptyBorder(4, 6, 4, 6)));
-        txtPrecio.setToolTipText("Precio");
+        txtPrecio.setToolTipText("Precio Unitario");
 
         btnAgregar = new JButton("+") {
             @Override
@@ -88,12 +98,19 @@ public class PanelListaServicios extends JPanel {
         btnAgregar.addActionListener(e -> agregarElemento());
 
         // Enter en precio también agrega
+        txtCantidad.addActionListener(e -> txtPrecio.requestFocusInWindow());
         txtPrecio.addActionListener(e -> agregarElemento());
-        txtConcepto.addActionListener(e -> txtPrecio.requestFocusInWindow());
+        txtConcepto.addActionListener(e -> txtCantidad.requestFocusInWindow());
 
         JPanel rightAdd = new JPanel(new BorderLayout(4, 0));
         rightAdd.setOpaque(false);
-        rightAdd.add(txtPrecio, BorderLayout.CENTER);
+        
+        JPanel pnlCantPrecio = new JPanel(new BorderLayout(4, 0));
+        pnlCantPrecio.setOpaque(false);
+        pnlCantPrecio.add(txtCantidad, BorderLayout.WEST);
+        pnlCantPrecio.add(txtPrecio, BorderLayout.CENTER);
+
+        rightAdd.add(pnlCantPrecio, BorderLayout.CENTER);
         rightAdd.add(btnAgregar, BorderLayout.EAST);
 
         panelAgregar.add(txtConcepto, BorderLayout.CENTER);
@@ -122,12 +139,23 @@ public class PanelListaServicios extends JPanel {
 
     private void agregarElemento() {
         String concepto = txtConcepto.getText().trim();
+        String cantidadStr = txtCantidad.getText().trim();
         String precioStr = txtPrecio.getText().trim();
         if (concepto.isEmpty()) return;
 
-        double precio;
+        int cantidad = 1;
         try {
-            precio = Double.parseDouble(precioStr);
+            if (!cantidadStr.isEmpty()) cantidad = Integer.parseInt(cantidadStr);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "La cantidad debe ser un número entero.",
+                    "Cantidad inválida", JOptionPane.WARNING_MESSAGE);
+            txtCantidad.requestFocusInWindow();
+            return;
+        }
+
+        double precioUnitario;
+        try {
+            precioUnitario = Double.parseDouble(precioStr);
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "El precio debe ser un número válido.",
                     "Precio inválido", JOptionPane.WARNING_MESSAGE);
@@ -135,11 +163,15 @@ public class PanelListaServicios extends JPanel {
             return;
         }
 
-        DetalleOrdenModelo detalle = new DetalleOrdenModelo(null, null, concepto, precio);
+        double precioTotal = precioUnitario * cantidad;
+        String conceptoFinal = cantidad > 1 ? cantidad + "x " + concepto : concepto;
+
+        DetalleOrdenModelo detalle = new DetalleOrdenModelo(null, null, conceptoFinal, precioTotal);
         listaDetalles.add(detalle);
         renderizarLista();
 
         txtConcepto.setText("");
+        txtCantidad.setText("1");
         txtPrecio.setText("0.00");
         txtConcepto.requestFocusInWindow();
 
@@ -229,6 +261,7 @@ public class PanelListaServicios extends JPanel {
         listaDetalles.clear();
         renderizarLista();
         txtConcepto.setText("");
+        txtCantidad.setText("1");
         txtPrecio.setText("0.00");
     }
 }
