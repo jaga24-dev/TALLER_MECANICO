@@ -7,19 +7,16 @@ import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.BaseColor;
 
-import models.ClienteModelo;
 import models.VehiculoModelo;
+import models.ClienteModelo;
 import views.VehiculosDialog;
 import views.VehiculosVista;
 
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -200,7 +197,7 @@ public class VehiculosControlador {
     }
 
     /**
-     * Genera un PDF con la información del vehículo usando iText.
+     * Genera un PDF con la información del vehículo y su historial usando iText.
      */
     private void descargarPDF(int row) {
         if (row >= 0 && row < vehiculosMostrados.size()) {
@@ -214,19 +211,45 @@ public class VehiculosControlador {
 
                 Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD, BaseColor.BLUE);
                 Font headerFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD);
+                Font subHeaderFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.DARK_GRAY);
                 Font textFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL);
+                Font smallFont = new Font(Font.FontFamily.HELVETICA, 10, Font.ITALIC, BaseColor.GRAY);
 
-                document.add(new Paragraph("TALLER MECÁNICO UABCS - Ficha de Vehículo", titleFont));
+                document.add(new Paragraph("TALLER MECANICO UABCS - Ficha de Vehiculo", titleFont));
                 document.add(new Paragraph("\n"));
-                document.add(new Paragraph("DATOS DEL VEHÍCULO", headerFont));
+                
+                // Datos del Vehículo
+                document.add(new Paragraph("DATOS DEL VEHICULO", headerFont));
                 document.add(new Paragraph("Marca: " + v.getMarca(), textFont));
                 document.add(new Paragraph("Modelo: " + v.getModelo(), textFont));
                 document.add(new Paragraph("Año: " + v.getAnio(), textFont));
                 document.add(new Paragraph("Placas: " + v.getPlacas(), textFont));
                 document.add(new Paragraph("Número de Serie: " + (v.getNumeroSerie() != null ? v.getNumeroSerie() : "N/A"), textFont));
-                document.add(new Paragraph("\nFALLA REPORTADA", headerFont));
-                document.add(new Paragraph("Consultar órdenes de servicio para fallas.", textFont));
-                document.add(new Paragraph("\nEstado: N/A", textFont));
+                
+                // Historial de Órdenes y Refacciones
+                document.add(new Paragraph("\n────────────────────────────────────────", textFont));
+                document.add(new Paragraph("HISTORIAL DE SERVICIOS Y REFACCIONES", headerFont));
+                
+                java.util.List<models.OrdenServicioModelo> ordenes = models.OrdenServicioModelo.obtenerPorVehiculo(v.getId());
+                if (ordenes.isEmpty()) {
+                    document.add(new Paragraph("  El vehiculo no tiene historial de ordenes de servicio.", textFont));
+                } else {
+                    for (models.OrdenServicioModelo o : ordenes) {
+                        document.add(new Paragraph("\nOrden ID: " + o.getId() + " - Fecha: " + o.getFechaIngreso() + " - Estado: " + o.getEstado(), subHeaderFont));
+                        document.add(new Paragraph("Falla Reportada: " + (o.getFallaReportada() != null && !o.getFallaReportada().isEmpty() ? o.getFallaReportada() : "N/A"), textFont));
+                        
+                        java.util.List<models.DetalleOrdenModelo> detalles = models.DetalleOrdenModelo.obtenerPorOrden(o.getId());
+                        if (detalles.isEmpty()) {
+                            document.add(new Paragraph("  - Sin refacciones registradas para esta orden", smallFont));
+                        } else {
+                            document.add(new Paragraph("  Refacciones utilizadas:", new Font(Font.FontFamily.HELVETICA, 11, Font.BOLD)));
+                            for (models.DetalleOrdenModelo det : detalles) {
+                                document.add(new Paragraph("    - " + det.getConcepto() + "    $" + String.format(java.util.Locale.US, "%.2f", det.getPrecio()), textFont));
+                            }
+                        }
+                    }
+                }
+                document.add(new Paragraph("\n────────────────────────────────────────", textFont));
 
                 document.close();
                 JOptionPane.showMessageDialog(vista,

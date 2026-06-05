@@ -63,7 +63,6 @@ public class ClientesVista extends JPanel {
         void onEliminar(int row);
         void onVerVehiculos(int row);
     }
-
     private AccionListener accionListener;
 
     public interface PaginacionListener {
@@ -315,7 +314,7 @@ public class ClientesVista extends JPanel {
         lblTotalPaginas = new JLabel(" de 1 ");
         lblTotalPaginas.setForeground(Color.WHITE);
         lblTotalPaginas.setFont(new Font("Inter", Font.PLAIN, 12));
-        
+
         pagPanel.add(btnAnterior);
         pagPanel.add(lblPaginaActual);
         pagPanel.add(lblTotalPaginas);

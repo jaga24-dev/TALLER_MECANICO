@@ -25,26 +25,28 @@ import views.ClienteFormDialog;
 import views.ClientesVista;
 import views.VehiculosDialog;
 
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
 public class ClientesControlador {
 
- private ClientesVista vista;
- private List<ClienteModelo> todosLosClientes;
- private List<ClienteModelo> clientesFiltrados;
- private List<ClienteModelo> clientesMostrados;
- 
- private int paginaActual = 1;
- private int elementosPorPagina = 8;
+    private ClientesVista vista;
+    private List<ClienteModelo> todosLosClientes;
+    private List<ClienteModelo> clientesFiltrados;
+    private List<ClienteModelo> clientesMostrados;
+    
+    private int paginaActual = 1;
+    private int elementosPorPagina = 8;
 
-
- public ClientesControlador(ClientesVista vista) {
-     this.vista = vista;
-     this.todosLosClientes = ClienteModelo.obtenerTodos(); // Cargar de la base de datos
-     this.clientesFiltrados = new ArrayList<>(this.todosLosClientes);
-     this.clientesMostrados = new ArrayList<>();
-     
-     inicializarEventos();
-     actualizarVista();
- }
+    public ClientesControlador(ClientesVista vista) {
+        this.vista = vista;
+        this.todosLosClientes = ClienteModelo.obtenerTodos(); // Cargar de la base de datos
+        this.clientesFiltrados = new ArrayList<>(this.todosLosClientes);
+        this.clientesMostrados = new ArrayList<>();
+        
+        inicializarEventos();
+        actualizarVista();
+    }
 
  private void inicializarEventos() {
      // Cuando se haga clic en "Agregar cliente", llamamos a la función agregarCliente()
@@ -72,6 +74,8 @@ public class ClientesControlador {
              verVehiculos(row); // Llama a la función de ver vehículos
          }
      });
+
+
      // Paginación
      vista.setPaginacionListener(nuevaPagina -> {
          paginaActual = nuevaPagina;
@@ -131,7 +135,7 @@ public class ClientesControlador {
      if (dialog.isGuardado()) {
          ClienteModelo nuevo = dialog.getCliente();
          if (nuevo.guardar()) {
-        	 todosLosClientes.add(nuevo);
+             todosLosClientes.add(nuevo);
              buscar(); // Refresca filtros y actualiza vista
          } else {
              JOptionPane.showMessageDialog(vista, "Error al guardar en la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
@@ -143,7 +147,7 @@ public class ClientesControlador {
   * Abre la ventana de edición con los datos del cliente seleccionado y actualiza la BD.
   */
  private void editarCliente(int row) {
-	 if (row >= 0 && row < clientesMostrados.size()) {
+     if (row >= 0 && row < clientesMostrados.size()) {
          ClienteModelo cliente = clientesMostrados.get(row); // Obtenemos el cliente de la sublista
          // Creamos el diálogo pasándole el cliente actual
          ClienteFormDialog dialog = new ClienteFormDialog(SwingUtilities.getWindowAncestor(vista), cliente);
@@ -152,7 +156,7 @@ public class ClientesControlador {
          // Si el usuario apretó "Guardar", actualizamos la BD y tabla
          if (dialog.isGuardado()) {
              if (cliente.actualizar()) {
-            	 actualizarVista(); // Refrescar tabla actual
+                 actualizarVista(); // Refrescar tabla actual
              } else {
                  JOptionPane.showMessageDialog(vista, "Error al actualizar en la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
              }

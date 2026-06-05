@@ -71,7 +71,8 @@ public class CrearOrdenVista extends JPanel {
     private JTextField txtFechaIngreso;
     private JTextField txtFechaEntrega;
 
-    private JTextField txtSubtotal;
+    private JTextField txtCostoRefacciones; // Auto-calculado del PanelListaServicios
+    private JTextField txtCostoServicios;   // Campo manual para mano de obra
     private JTextField txtImpuesto;
     private JTextField txtTotal;
 
@@ -339,12 +340,12 @@ public class CrearOrdenVista extends JPanel {
         panel.add(scrollFalla);
         panel.add(Box.createVerticalStrut(10));
 
-        // --- Servicio o Producto ---
-        JLabel lblServicio = new JLabel("SERVICIO O PRODUCTO");
-        lblServicio.setFont(new Font("Inter", Font.BOLD, 13));
-        lblServicio.setForeground(GOLD);
-        lblServicio.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panel.add(lblServicio);
+        // --- Refacciones (lista interactiva) ---
+        JLabel lblRefacciones = new JLabel("REFACCIONES");
+        lblRefacciones.setFont(new Font("Inter", Font.BOLD, 13));
+        lblRefacciones.setForeground(GOLD);
+        lblRefacciones.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panel.add(lblRefacciones);
         panel.add(Box.createVerticalStrut(2));
 
         panelListaServicios = new PanelListaServicios();
@@ -354,26 +355,52 @@ public class CrearOrdenVista extends JPanel {
         panel.add(panelListaServicios);
         panel.add(Box.createVerticalStrut(10));
 
-        // --- Costos (Subtotal, Impuesto, Total) ---
-        JPanel costosPanel = new JPanel(new GridLayout(1, 3, 15, 0)) {
+        // --- Costos (Refacciones, Servicios M.O., Impuesto, Total) ---
+        // Fila 1: Refacciones (auto) + Servicios M.O. (manual)
+        JPanel costosRow1 = new JPanel(new GridLayout(1, 2, 15, 0)) {
             @Override
             public Dimension getMaximumSize() {
                 return new Dimension(Integer.MAX_VALUE, super.getPreferredSize().height);
             }
         };
-        costosPanel.setOpaque(false);
-        costosPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        costosRow1.setOpaque(false);
+        costosRow1.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-     // Subtotal
-        JPanel subPanel = new JPanel(new GridLayout(2, 1));
-        subPanel.setOpaque(false);
-        JLabel lSub = new JLabel("SUBTOTAL:"); lSub.setFont(new Font("Inter", Font.PLAIN, 10)); lSub.setForeground(GOLD);
-        txtSubtotal = new JTextField(5);
-        txtSubtotal.setFont(new Font("Inter", Font.PLAIN, 13));
-        txtSubtotal.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY));
-        txtSubtotal.setOpaque(false);
-        subPanel.add(lSub); subPanel.add(txtSubtotal);
-        costosPanel.add(subPanel);
+        // Refacciones (auto-calculado del PanelListaServicios)
+        JPanel refPanel = new JPanel(new GridLayout(2, 1));
+        refPanel.setOpaque(false);
+        JLabel lRef = new JLabel("REFACCIONES:"); lRef.setFont(new Font("Inter", Font.PLAIN, 10)); lRef.setForeground(GOLD);
+        txtCostoRefacciones = new JTextField(5);
+        txtCostoRefacciones.setFont(new Font("Inter", Font.PLAIN, 13));
+        txtCostoRefacciones.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY));
+        txtCostoRefacciones.setOpaque(false);
+        txtCostoRefacciones.setEditable(false); // Auto-calculado
+        refPanel.add(lRef); refPanel.add(txtCostoRefacciones);
+        costosRow1.add(refPanel);
+
+        // Servicios / Mano de Obra (campo manual)
+        JPanel srvPanel = new JPanel(new GridLayout(2, 1));
+        srvPanel.setOpaque(false);
+        JLabel lSrv = new JLabel("SERVICIOS (M.O.):"); lSrv.setFont(new Font("Inter", Font.PLAIN, 10)); lSrv.setForeground(GOLD);
+        txtCostoServicios = new JTextField(5);
+        txtCostoServicios.setFont(new Font("Inter", Font.PLAIN, 13));
+        txtCostoServicios.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY));
+        txtCostoServicios.setOpaque(false);
+        srvPanel.add(lSrv); srvPanel.add(txtCostoServicios);
+        costosRow1.add(srvPanel);
+
+        panel.add(costosRow1);
+        panel.add(Box.createVerticalStrut(5));
+
+        // Fila 2: Impuesto + Total
+        JPanel costosRow2 = new JPanel(new GridLayout(1, 2, 15, 0)) {
+            @Override
+            public Dimension getMaximumSize() {
+                return new Dimension(Integer.MAX_VALUE, super.getPreferredSize().height);
+            }
+        };
+        costosRow2.setOpaque(false);
+        costosRow2.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         // Impuesto
         JPanel impPanel = new JPanel(new GridLayout(2, 1));
@@ -384,7 +411,7 @@ public class CrearOrdenVista extends JPanel {
         txtImpuesto.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY));
         txtImpuesto.setOpaque(false);
         impPanel.add(lImp); impPanel.add(txtImpuesto);
-        costosPanel.add(impPanel);
+        costosRow2.add(impPanel);
 
         // Total
         JPanel totPanel = new JPanel() {
@@ -417,9 +444,9 @@ public class CrearOrdenVista extends JPanel {
         totPanel.add(lblTotal);
         totPanel.add(txtTotal);
         
-        costosPanel.add(totPanel);
+        costosRow2.add(totPanel);
 
-        panel.add(costosPanel);
+        panel.add(costosRow2);
 
         return panel;
     }
@@ -651,7 +678,8 @@ public class CrearOrdenVista extends JPanel {
     public JTextField getTxtKilometraje() { return txtKilometraje; }
     public JComboBox<String> getCmbCombustible() { return cmbCombustible; }
     public JTextArea getTxtCondicionVehiculo() { return txtCondicionVehiculo; }
-    public JTextField getTxtSubtotal() { return txtSubtotal; }
+    public JTextField getTxtCostoRefacciones() { return txtCostoRefacciones; }
+    public JTextField getTxtCostoServicios() { return txtCostoServicios; }
     public JTextField getTxtImpuesto() { return txtImpuesto; }
     public JTextField getTxtTotal() { return txtTotal; }
     
@@ -685,7 +713,8 @@ public class CrearOrdenVista extends JPanel {
         panelListaServicios.limpiar();
         txtKilometraje.setText("");
         txtCondicionVehiculo.setText("");
-        txtSubtotal.setText("");
+        txtCostoRefacciones.setText("");
+        txtCostoServicios.setText("");
         txtImpuesto.setText("");
         txtTotal.setText("");
         grupoFalla.clearSelection();
