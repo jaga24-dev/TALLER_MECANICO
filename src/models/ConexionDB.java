@@ -16,7 +16,28 @@ public class ConexionDB {
     private static void cargarEnv() {
         if (env != null) return;
         env = new HashMap<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(".env"))) {
+        
+        // 1. Intentar cargar desde el classpath (cuando está dentro del .jar)
+        try (java.io.InputStream is = ConexionDB.class.getResourceAsStream("/.env")) {
+            if (is != null) {
+                try (BufferedReader br = new BufferedReader(new java.io.InputStreamReader(is))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        if (line.trim().isEmpty() || line.startsWith("#")) continue;
+                        String[] parts = line.split("=", 2);
+                        if (parts.length == 2) {
+                            env.put(parts[0].trim(), parts[1].trim());
+                        }
+                    }
+                }
+                return; // Si se cargó correctamente desde el classpath, terminamos
+            }
+        } catch (Exception e) {
+            // Silencioso, continuamos con la lectura de archivo
+        }
+
+        // 2. Fallback: Intentar cargar desde el sistema de archivos
+        try (BufferedReader br = new BufferedReader(new java.io.FileReader(".env"))) {
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.trim().isEmpty() || line.startsWith("#")) continue;
@@ -26,7 +47,7 @@ public class ConexionDB {
                 }
             }
         } catch (Exception e) {
-            System.out.println("No se pudo cargar el archivo .env: " + e.getMessage());
+            System.out.println("No se pudo cargar el archivo .env desde el classpath ni del archivo local: " + e.getMessage());
         }
     }
 

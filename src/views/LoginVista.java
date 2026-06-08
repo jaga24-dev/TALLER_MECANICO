@@ -37,7 +37,7 @@ public class LoginVista extends JFrame {
         setLocationRelativeTo(null);
 
         // Panel de fondo con imagen
-        panelFondo = new PanelFondo("src/img/fondo.png");
+        panelFondo = new PanelFondo("/img/fondo.png");
         panelFondo.setLayout(new GridBagLayout());
         setContentPane(panelFondo);
 

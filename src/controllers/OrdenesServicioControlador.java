@@ -150,66 +150,79 @@ public class OrdenesServicioControlador {
         OrdenServicioModelo o = ordenesMostradas.get(row);
         String fileName = "Orden_" + o.getId() + "_" + o.getNombreCliente().replace(" ", "_") + ".pdf";
 
-        try {
-            Document document = new Document();
-            PdfWriter.getInstance(document, new FileOutputStream(fileName));
-            document.open();
-
-            Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD, BaseColor.BLUE);
-            Font headerFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD);
-            Font textFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL);
-            Font smallFont = new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.DARK_GRAY);
-            Font totalFont = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD, new BaseColor(0, 80, 100));
-
-            // --- Encabezado ---
-            document.add(new Paragraph("TALLER MECANICO UABCS - Orden de Servicio", titleFont));
-            document.add(new Paragraph("\n"));
-
-            // --- Datos de la Orden ---
-            document.add(new Paragraph("DATOS DE LA ORDEN", headerFont));
-            document.add(new Paragraph("ID: " + o.getId(), textFont));
-            document.add(new Paragraph("Cliente: " + o.getNombreCliente(), textFont));
-            document.add(new Paragraph("Vehiculo: " + o.getVehiculoRelacionado(), textFont));
-            document.add(new Paragraph("Fecha Ingreso: " + o.getFechaIngreso(), textFont));
-            document.add(new Paragraph("Fecha Entrega Estimada: " + (o.getFechaEntregaEstimada() != null ? o.getFechaEntregaEstimada() : "N/A"), textFont));
-            document.add(new Paragraph("Estado: " + o.getEstado(), textFont));
-
-            // --- Datos del Vehiculo ---
-            document.add(new Paragraph("\nDATOS DEL VEHICULO", headerFont));
-            document.add(new Paragraph("Tipo de Requerimiento: " + (o.getTipoRequerimiento() != null ? o.getTipoRequerimiento() : "N/A"), textFont));
-            document.add(new Paragraph("Kilometraje: " + o.getKilometraje() + " Kms", textFont));
-            document.add(new Paragraph("Nivel de Combustible: " + (o.getNivelCombustible() != null ? o.getNivelCombustible() : "N/A"), textFont));
-            if (o.getFallaReportada() != null && !o.getFallaReportada().isEmpty()) {
-                document.add(new Paragraph("Falla Reportada: " + o.getFallaReportada(), textFont));
+        javax.swing.JFileChooser fileChooser = new javax.swing.JFileChooser();
+        fileChooser.setDialogTitle("Guardar Orden de Servicio");
+        fileChooser.setSelectedFile(new java.io.File(fileName));
+        
+        int userSelection = fileChooser.showSaveDialog(vista);
+        if (userSelection == javax.swing.JFileChooser.APPROVE_OPTION) {
+            java.io.File fileToSave = fileChooser.getSelectedFile();
+            String filePath = fileToSave.getAbsolutePath();
+            if (!filePath.toLowerCase().endsWith(".pdf")) {
+                filePath += ".pdf";
             }
 
-            // --- Detalle de Refacciones ---
-            document.add(new Paragraph("\nDETALLE DE REFACCIONES", headerFont));
-            java.util.List<models.DetalleOrdenModelo> detalles = models.DetalleOrdenModelo.obtenerPorOrden(o.getId());
-            if (detalles.isEmpty()) {
-                document.add(new Paragraph("  Sin refacciones registradas", smallFont));
-            } else {
-                for (models.DetalleOrdenModelo det : detalles) {
-                    document.add(new Paragraph("  - " + det.getConcepto() + "    $" + String.format(java.util.Locale.US, "%.2f", det.getPrecio()), textFont));
+            try {
+                Document document = new Document();
+                PdfWriter.getInstance(document, new FileOutputStream(filePath));
+                document.open();
+
+                Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD, BaseColor.BLUE);
+                Font headerFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD);
+                Font textFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL);
+                Font smallFont = new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.DARK_GRAY);
+                Font totalFont = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD, new BaseColor(0, 80, 100));
+
+                // --- Encabezado ---
+                document.add(new Paragraph("TALLER MECANICO UABCS - Orden de Servicio", titleFont));
+                document.add(new Paragraph("\n"));
+
+                // --- Datos de la Orden ---
+                document.add(new Paragraph("DATOS DE LA ORDEN", headerFont));
+                document.add(new Paragraph("ID: " + o.getId(), textFont));
+                document.add(new Paragraph("Cliente: " + o.getNombreCliente(), textFont));
+                document.add(new Paragraph("Vehiculo: " + o.getVehiculoRelacionado(), textFont));
+                document.add(new Paragraph("Fecha Ingreso: " + o.getFechaIngreso(), textFont));
+                document.add(new Paragraph("Fecha Entrega Estimada: " + (o.getFechaEntregaEstimada() != null ? o.getFechaEntregaEstimada() : "N/A"), textFont));
+                document.add(new Paragraph("Estado: " + o.getEstado(), textFont));
+
+                // --- Datos del Vehiculo ---
+                document.add(new Paragraph("\nDATOS DEL VEHICULO", headerFont));
+                document.add(new Paragraph("Tipo de Requerimiento: " + (o.getTipoRequerimiento() != null ? o.getTipoRequerimiento() : "N/A"), textFont));
+                document.add(new Paragraph("Kilometraje: " + o.getKilometraje() + " Kms", textFont));
+                document.add(new Paragraph("Nivel de Combustible: " + (o.getNivelCombustible() != null ? o.getNivelCombustible() : "N/A"), textFont));
+                if (o.getFallaReportada() != null && !o.getFallaReportada().isEmpty()) {
+                    document.add(new Paragraph("Falla Reportada: " + o.getFallaReportada(), textFont));
                 }
+
+                // --- Detalle de Refacciones ---
+                document.add(new Paragraph("\nDETALLE DE REFACCIONES", headerFont));
+                java.util.List<models.DetalleOrdenModelo> detalles = models.DetalleOrdenModelo.obtenerPorOrden(o.getId());
+                if (detalles.isEmpty()) {
+                    document.add(new Paragraph("  Sin refacciones registradas", smallFont));
+                } else {
+                    for (models.DetalleOrdenModelo det : detalles) {
+                        document.add(new Paragraph("  - " + det.getConcepto() + "    $" + String.format(java.util.Locale.US, "%.2f", det.getPrecio()), textFont));
+                    }
+                }
+
+                // --- Desglose de Costos ---
+                document.add(new Paragraph("\n────────────────────────────────────────", textFont));
+                document.add(new Paragraph("DESGLOSE DE COSTOS", headerFont));
+                document.add(new Paragraph("Refacciones:              $" + String.format(java.util.Locale.US, "%.2f", o.getCostoRefacciones()), textFont));
+                document.add(new Paragraph("Servicios (Mano de Obra): $" + String.format(java.util.Locale.US, "%.2f", o.getCostoManoObra()), textFont));
+                document.add(new Paragraph("Subtotal:                 $" + String.format(java.util.Locale.US, "%.2f", o.getSubtotal()), textFont));
+                document.add(new Paragraph("Impuesto:                 $" + String.format(java.util.Locale.US, "%.2f", o.getImpuesto()), textFont));
+                document.add(new Paragraph("────────────────────────────────────────", textFont));
+                document.add(new Paragraph("TOTAL:                    $" + String.format(java.util.Locale.US, "%.2f", o.getMontoTotal()), totalFont));
+
+                document.close();
+                JOptionPane.showMessageDialog(vista, "Historial guardado exitosamente como: " + fileToSave.getName(), "PDF Creado", JOptionPane.INFORMATION_MESSAGE);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(vista, "Error al generar PDF: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
-
-            // --- Desglose de Costos ---
-            document.add(new Paragraph("\n────────────────────────────────────────", textFont));
-            document.add(new Paragraph("DESGLOSE DE COSTOS", headerFont));
-            document.add(new Paragraph("Refacciones:              $" + String.format(java.util.Locale.US, "%.2f", o.getCostoRefacciones()), textFont));
-            document.add(new Paragraph("Servicios (Mano de Obra): $" + String.format(java.util.Locale.US, "%.2f", o.getCostoManoObra()), textFont));
-            document.add(new Paragraph("Subtotal:                 $" + String.format(java.util.Locale.US, "%.2f", o.getSubtotal()), textFont));
-            document.add(new Paragraph("Impuesto:                 $" + String.format(java.util.Locale.US, "%.2f", o.getImpuesto()), textFont));
-            document.add(new Paragraph("────────────────────────────────────────", textFont));
-            document.add(new Paragraph("TOTAL:                    $" + String.format(java.util.Locale.US, "%.2f", o.getMontoTotal()), totalFont));
-
-            document.close();
-            JOptionPane.showMessageDialog(vista, "Historial guardado exitosamente como: " + fileName, "PDF Creado", JOptionPane.INFORMATION_MESSAGE);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(vista, "Error al generar PDF: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 

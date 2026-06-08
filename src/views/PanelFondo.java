@@ -23,11 +23,16 @@ public class PanelFondo extends JPanel {
     public PanelFondo(String rutaImagen) {
         setOpaque(true);
         try {
-            File archivo = new File(rutaImagen);
-            if (archivo.exists()) {
-                imagenFondo = ImageIO.read(archivo);
+            java.net.URL url = getClass().getResource(rutaImagen);
+            if (url != null) {
+                imagenFondo = ImageIO.read(url);
             } else {
-                System.out.println("Imagen de fondo no encontrada: " + archivo.getAbsolutePath());
+                File archivo = new File(rutaImagen.replaceFirst("^/", "src/")); // fallback
+                if (archivo.exists()) {
+                    imagenFondo = ImageIO.read(archivo);
+                } else {
+                    System.out.println("Imagen de fondo no encontrada: " + rutaImagen);
+                }
             }
         } catch (IOException e) {
             System.err.println("Error cargando imagen de fondo: " + e.getMessage());

@@ -423,7 +423,9 @@ public class VehiculosDialog extends JDialog {
         if (res == JFileChooser.APPROVE_OPTION) {
             File archivoSeleccionado = chooser.getSelectedFile();
             try {
-                File dir = new File("imagenes_vehiculos");
+                String userHome = System.getProperty("user.home");
+                File baseDir = new File(userHome, "TallerMecanico");
+                File dir = new File(baseDir, "imagenes_vehiculos");
                 if (!dir.exists()) dir.mkdirs();
                 
                 File destino = new File(dir, System.currentTimeMillis() + "_" + archivoSeleccionado.getName());

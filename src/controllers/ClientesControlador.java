@@ -215,39 +215,52 @@ public class ClientesControlador {
          ClienteModelo cliente = clientesMostrados.get(row);
          String fileName = "Historial_" + cliente.getNombreCompleto().replace(" ", "_") + ".pdf";
          
-         try {
-             Document document = new Document();
-             PdfWriter.getInstance(document, new FileOutputStream(fileName));
-             document.open();
-
-             Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD, BaseColor.BLUE);
-             Font headerFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD);
-             Font textFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL);
-
-             document.add(new Paragraph("TALLER MECÁNICO UABCS - Historial de Cliente", titleFont));
-             document.add(new Paragraph("\n"));
-             
-             document.add(new Paragraph("DATOS DEL CLIENTE", headerFont));
-             document.add(new Paragraph("ID: " + cliente.getId(), textFont));
-             document.add(new Paragraph("Nombre: " + cliente.getNombreCompleto(), textFont));
-             document.add(new Paragraph("Teléfono: " + cliente.getTelefono(), textFont));
-             document.add(new Paragraph("Correo: " + cliente.getCorreo(), textFont));
-             
-             document.add(new Paragraph("\nVEHÍCULOS", headerFont));
-             if (cliente.getVehiculos().isEmpty()) {
-                 document.add(new Paragraph("No tiene vehículos registrados.", textFont));
-             } else {
-                 for (VehiculoModelo v : cliente.getVehiculos()) {
-                     document.add(new Paragraph("- " + v.getMarca() + " " + v.getModelo() + " (" + v.getAnio() + ") Placas: " + v.getPlacas(), textFont));
-                 }
+         javax.swing.JFileChooser fileChooser = new javax.swing.JFileChooser();
+         fileChooser.setDialogTitle("Guardar Historial de Cliente");
+         fileChooser.setSelectedFile(new java.io.File(fileName));
+         
+         int userSelection = fileChooser.showSaveDialog(vista);
+         if (userSelection == javax.swing.JFileChooser.APPROVE_OPTION) {
+             java.io.File fileToSave = fileChooser.getSelectedFile();
+             String filePath = fileToSave.getAbsolutePath();
+             if (!filePath.toLowerCase().endsWith(".pdf")) {
+                 filePath += ".pdf";
              }
+             
+             try {
+                 Document document = new Document();
+                 PdfWriter.getInstance(document, new FileOutputStream(filePath));
+                 document.open();
 
-             document.close();
-             JOptionPane.showMessageDialog(vista, "Historial guardado exitosamente como: " + fileName, "PDF Creado", JOptionPane.INFORMATION_MESSAGE);
+                 Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD, BaseColor.BLUE);
+                 Font headerFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD);
+                 Font textFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL);
 
-         } catch (Exception e) {
-             e.printStackTrace();
-             JOptionPane.showMessageDialog(vista, "Error al generar PDF: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                 document.add(new Paragraph("TALLER MECÁNICO UABCS - Historial de Cliente", titleFont));
+                 document.add(new Paragraph("\n"));
+                 
+                 document.add(new Paragraph("DATOS DEL CLIENTE", headerFont));
+                 document.add(new Paragraph("ID: " + cliente.getId(), textFont));
+                 document.add(new Paragraph("Nombre: " + cliente.getNombreCompleto(), textFont));
+                 document.add(new Paragraph("Teléfono: " + cliente.getTelefono(), textFont));
+                 document.add(new Paragraph("Correo: " + cliente.getCorreo(), textFont));
+                 
+                 document.add(new Paragraph("\nVEHÍCULOS", headerFont));
+                 if (cliente.getVehiculos().isEmpty()) {
+                     document.add(new Paragraph("No tiene vehículos registrados.", textFont));
+                 } else {
+                     for (VehiculoModelo v : cliente.getVehiculos()) {
+                         document.add(new Paragraph("- " + v.getMarca() + " " + v.getModelo() + " (" + v.getAnio() + ") Placas: " + v.getPlacas(), textFont));
+                     }
+                 }
+
+                 document.close();
+                 JOptionPane.showMessageDialog(vista, "Historial guardado exitosamente como: " + fileToSave.getName(), "PDF Creado", JOptionPane.INFORMATION_MESSAGE);
+
+             } catch (Exception e) {
+                 e.printStackTrace();
+                 JOptionPane.showMessageDialog(vista, "Error al generar PDF: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+             }
          }
      }
  }

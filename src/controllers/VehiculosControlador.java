@@ -201,62 +201,75 @@ public class VehiculosControlador {
             VehiculoModelo v = vehiculosMostrados.get(row);
             String fileName = "Vehiculo_" + v.getMarca() + "_" + v.getModelo() + ".pdf";
 
-            try {
-                Document document = new Document();
-                PdfWriter.getInstance(document, new FileOutputStream(fileName));
-                document.open();
+            javax.swing.JFileChooser fileChooser = new javax.swing.JFileChooser();
+            fileChooser.setDialogTitle("Guardar Ficha de Vehículo");
+            fileChooser.setSelectedFile(new java.io.File(fileName));
 
-                Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD, BaseColor.BLUE);
-                Font headerFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD);
-                Font subHeaderFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.DARK_GRAY);
-                Font textFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL);
-                Font smallFont = new Font(Font.FontFamily.HELVETICA, 10, Font.ITALIC, BaseColor.GRAY);
+            int userSelection = fileChooser.showSaveDialog(vista);
+            if (userSelection == javax.swing.JFileChooser.APPROVE_OPTION) {
+                java.io.File fileToSave = fileChooser.getSelectedFile();
+                String filePath = fileToSave.getAbsolutePath();
+                if (!filePath.toLowerCase().endsWith(".pdf")) {
+                    filePath += ".pdf";
+                }
 
-                document.add(new Paragraph("TALLER MECANICO UABCS - Ficha de Vehiculo", titleFont));
-                document.add(new Paragraph("\n"));
-                
-                // Datos del Vehículo
-                document.add(new Paragraph("DATOS DEL VEHICULO", headerFont));
-                document.add(new Paragraph("Marca: " + v.getMarca(), textFont));
-                document.add(new Paragraph("Modelo: " + v.getModelo(), textFont));
-                document.add(new Paragraph("Año: " + v.getAnio(), textFont));
-                document.add(new Paragraph("Placas: " + v.getPlacas(), textFont));
-                document.add(new Paragraph("Número de Serie: " + (v.getNumeroSerie() != null ? v.getNumeroSerie() : "N/A"), textFont));
-                
-                // Historial de Órdenes y Refacciones
-                document.add(new Paragraph("\n────────────────────────────────────────", textFont));
-                document.add(new Paragraph("HISTORIAL DE SERVICIOS Y REFACCIONES", headerFont));
-                
-                java.util.List<models.OrdenServicioModelo> ordenes = models.OrdenServicioModelo.obtenerPorVehiculo(v.getId());
-                if (ordenes.isEmpty()) {
-                    document.add(new Paragraph("  El vehiculo no tiene historial de ordenes de servicio.", textFont));
-                } else {
-                    for (models.OrdenServicioModelo o : ordenes) {
-                        document.add(new Paragraph("\nOrden ID: " + o.getId() + " - Fecha: " + o.getFechaIngreso() + " - Estado: " + o.getEstado(), subHeaderFont));
-                        document.add(new Paragraph("Falla Reportada: " + (o.getFallaReportada() != null && !o.getFallaReportada().isEmpty() ? o.getFallaReportada() : "N/A"), textFont));
-                        
-                        java.util.List<models.DetalleOrdenModelo> detalles = models.DetalleOrdenModelo.obtenerPorOrden(o.getId());
-                        if (detalles.isEmpty()) {
-                            document.add(new Paragraph("  - Sin refacciones registradas para esta orden", smallFont));
-                        } else {
-                            document.add(new Paragraph("  Refacciones utilizadas:", new Font(Font.FontFamily.HELVETICA, 11, Font.BOLD)));
-                            for (models.DetalleOrdenModelo det : detalles) {
-                                document.add(new Paragraph("    - " + det.getConcepto() + "    $" + String.format(java.util.Locale.US, "%.2f", det.getPrecio()), textFont));
+                try {
+                    Document document = new Document();
+                    PdfWriter.getInstance(document, new FileOutputStream(filePath));
+                    document.open();
+
+                    Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD, BaseColor.BLUE);
+                    Font headerFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD);
+                    Font subHeaderFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.DARK_GRAY);
+                    Font textFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL);
+                    Font smallFont = new Font(Font.FontFamily.HELVETICA, 10, Font.ITALIC, BaseColor.GRAY);
+
+                    document.add(new Paragraph("TALLER MECANICO UABCS - Ficha de Vehiculo", titleFont));
+                    document.add(new Paragraph("\n"));
+                    
+                    // Datos del Vehículo
+                    document.add(new Paragraph("DATOS DEL VEHICULO", headerFont));
+                    document.add(new Paragraph("Marca: " + v.getMarca(), textFont));
+                    document.add(new Paragraph("Modelo: " + v.getModelo(), textFont));
+                    document.add(new Paragraph("Año: " + v.getAnio(), textFont));
+                    document.add(new Paragraph("Placas: " + v.getPlacas(), textFont));
+                    document.add(new Paragraph("Número de Serie: " + (v.getNumeroSerie() != null ? v.getNumeroSerie() : "N/A"), textFont));
+                    
+                    // Historial de Órdenes y Refacciones
+                    document.add(new Paragraph("\n────────────────────────────────────────", textFont));
+                    document.add(new Paragraph("HISTORIAL DE SERVICIOS Y REFACCIONES", headerFont));
+                    
+                    java.util.List<models.OrdenServicioModelo> ordenes = models.OrdenServicioModelo.obtenerPorVehiculo(v.getId());
+                    if (ordenes.isEmpty()) {
+                        document.add(new Paragraph("  El vehiculo no tiene historial de ordenes de servicio.", textFont));
+                    } else {
+                        for (models.OrdenServicioModelo o : ordenes) {
+                            document.add(new Paragraph("\nOrden ID: " + o.getId() + " - Fecha: " + o.getFechaIngreso() + " - Estado: " + o.getEstado(), subHeaderFont));
+                            document.add(new Paragraph("Falla Reportada: " + (o.getFallaReportada() != null && !o.getFallaReportada().isEmpty() ? o.getFallaReportada() : "N/A"), textFont));
+                            
+                            java.util.List<models.DetalleOrdenModelo> detalles = models.DetalleOrdenModelo.obtenerPorOrden(o.getId());
+                            if (detalles.isEmpty()) {
+                                document.add(new Paragraph("  - Sin refacciones registradas para esta orden", smallFont));
+                            } else {
+                                document.add(new Paragraph("  Refacciones utilizadas:", new Font(Font.FontFamily.HELVETICA, 11, Font.BOLD)));
+                                for (models.DetalleOrdenModelo det : detalles) {
+                                    document.add(new Paragraph("    - " + det.getConcepto() + "    $" + String.format(java.util.Locale.US, "%.2f", det.getPrecio()), textFont));
+                                }
                             }
                         }
                     }
-                }
-                document.add(new Paragraph("\n────────────────────────────────────────", textFont));
+                    document.add(new Paragraph("\n────────────────────────────────────────", textFont));
 
-                document.close();
-                JOptionPane.showMessageDialog(vista,
-                        "PDF guardado como: " + fileName, "PDF Creado",
-                        JOptionPane.INFORMATION_MESSAGE);
-            } catch (Exception e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(vista,
-                        "Error al generar PDF: " + e.getMessage(), "Error",
-                        JOptionPane.ERROR_MESSAGE);
+                    document.close();
+                    JOptionPane.showMessageDialog(vista,
+                            "PDF guardado como: " + fileToSave.getName(), "PDF Creado",
+                            JOptionPane.INFORMATION_MESSAGE);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(vista,
+                            "Error al generar PDF: " + e.getMessage(), "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
             }
         }
     }

@@ -24,7 +24,7 @@ import javax.swing.ImageIcon;
  */
 public class IconoManager {
 
-    private static final String RUTA_ICONOS = "src/img/";
+    private static final String RUTA_ICONOS = "/img/";
     private static final Map<String, ImageIcon> cache = new HashMap<>();
 
     /**
@@ -40,20 +40,32 @@ public class IconoManager {
             return cache.get(clave);
         }
 
-        File archivo = new File(RUTA_ICONOS + nombre);
-        if (archivo.exists()) {
+        java.net.URL url = IconoManager.class.getResource(RUTA_ICONOS + nombre);
+        if (url != null) {
             try {
-                BufferedImage img = ImageIO.read(archivo);
+                BufferedImage img = ImageIO.read(url);
                 Image escalada = img.getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
                 ImageIcon icono = new ImageIcon(escalada);
                 cache.put(clave, icono);
                 return icono;
             } catch (IOException e) {
-                System.err.println("Error cargando icono: " + nombre);
+                System.err.println("Error cargando icono desde classpath: " + nombre);
             }
         } else {
-            System.out.println("Icono no encontrado: " + archivo.getAbsolutePath()
-                    + " — usando respaldo.");
+            File archivo = new File("src" + RUTA_ICONOS + nombre);
+            if (archivo.exists()) {
+                try {
+                    BufferedImage img = ImageIO.read(archivo);
+                    Image escalada = img.getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
+                    ImageIcon icono = new ImageIcon(escalada);
+                    cache.put(clave, icono);
+                    return icono;
+                } catch (IOException e) {
+                    System.err.println("Error cargando icono: " + nombre);
+                }
+            } else {
+                System.out.println("Icono no encontrado: " + nombre + " — usando respaldo.");
+            }
         }
 
         ImageIcon fallback = crearIconoFallback(nombre, ancho, alto);
