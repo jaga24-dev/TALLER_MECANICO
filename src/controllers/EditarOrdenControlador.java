@@ -57,7 +57,10 @@ public class EditarOrdenControlador {
                     return;
                 }
 
-             // Guardar cambios en el modelo (en memoria)
+                // Forzar la adición de cualquier refacción que se haya quedado escrita en los campos pero sin presionar '+'
+                vista.getPanelListaServicios().agregarElementoPendiente();
+
+                // Guardar cambios en el modelo (en memoria)
                 vista.actualizarModelo(orden);
 
                 // Guardar cambios en la base de datos
@@ -67,6 +70,14 @@ public class EditarOrdenControlador {
                         "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
                     return;
                 }
+                
+                // Guardar detalles (servicios/productos)
+                models.DetalleOrdenModelo.eliminarPorOrden(orden.getId());
+                for (models.DetalleOrdenModelo det : vista.getPanelListaServicios().getDetalles()) {
+                    det.setIdOrden(orden.getId());
+                    det.guardar();
+                }
+
                 // Volver a la tabla
                 if (alTerminar != null) {
                     alTerminar.run();
@@ -79,3 +90,4 @@ public class EditarOrdenControlador {
         return vista;
     }
 }
+

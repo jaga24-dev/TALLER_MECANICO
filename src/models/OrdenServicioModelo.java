@@ -213,7 +213,6 @@ public class OrdenServicioModelo {
     }
 
     public boolean actualizar() {
-        //String query = "UPDATE ordenes_servicio SET estado=?, fecha_entrega_estimada=?, costo_refacciones=?, costo_mano_obra=?, subtotal=?, impuesto=?, monto_total=? WHERE id_orden=?";
     	String query = "UPDATE ordenes_servicio SET estado=?, fecha_ingreso=?, fecha_entrega_estimada=?, costo_refacciones=?, costo_mano_obra=?, subtotal=?, impuesto=?, monto_total=? WHERE id_orden=?";
     	try (Connection conn = ConexionDB.obtenerConexion();
              PreparedStatement ps = conn.prepareStatement(query)) {

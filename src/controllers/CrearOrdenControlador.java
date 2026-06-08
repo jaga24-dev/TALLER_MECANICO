@@ -68,8 +68,15 @@ public class CrearOrdenControlador {
             public void removeUpdate(DocumentEvent e) { calcularTotalAutomatico(); }
             public void changedUpdate(DocumentEvent e) { calcularTotalAutomatico(); }
         };
-        vista.getTxtSubtotal().getDocument().addDocumentListener(docListener);
+        vista.getTxtCostoRefacciones().getDocument().addDocumentListener(docListener);
+        vista.getTxtCostoServicios().getDocument().addDocumentListener(docListener);
         vista.getTxtImpuesto().getDocument().addDocumentListener(docListener);
+        
+        // Listener para PanelListaServicios (calcula total de refacciones)
+        vista.getPanelListaServicios().setOnListChanged(() -> {
+            double totalRefacciones = vista.getPanelListaServicios().calcularSubtotal();
+            vista.getTxtCostoRefacciones().setText(String.format(java.util.Locale.US, "%.2f", totalRefacciones));
+        });
     }
 
     private void cargarClientes() {
@@ -145,10 +152,11 @@ public class CrearOrdenControlador {
     }
 
     private void calcularTotalAutomatico() {
-        double subtotal = 0, impuesto = 0;
-        try { subtotal = Double.parseDouble(vista.getTxtSubtotal().getText().trim()); } catch (Exception ex) { /* ignorar */ }
+        double refacciones = 0, servicios = 0, impuesto = 0;
+        try { refacciones = Double.parseDouble(vista.getTxtCostoRefacciones().getText().trim()); } catch (Exception ex) { /* ignorar */ }
+        try { servicios = Double.parseDouble(vista.getTxtCostoServicios().getText().trim()); } catch (Exception ex) { /* ignorar */ }
         try { impuesto = Double.parseDouble(vista.getTxtImpuesto().getText().trim()); } catch (Exception ex) { /* ignorar */ }
-        vista.getTxtTotal().setText(String.format("%.2f", subtotal + impuesto));
+        vista.getTxtTotal().setText(String.format(java.util.Locale.US, "%.2f", refacciones + servicios + impuesto));
     }
 
     private void seleccionarImagen() {
@@ -224,16 +232,90 @@ public class CrearOrdenControlador {
             return;
         }
 
+        // Validar Falla Reportada
+        String descripcion = vista.getTxtDescripcionFalla().getText().trim();
+        if (descripcion.isEmpty()) {
+            JOptionPane.showMessageDialog(vista, "La descripción de la falla es obligatoria.", "Dato faltante", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String condicion = vista.getTxtCondicionVehiculo().getText().trim();
+        
+        // Juntamos descripción y condición en Falla Reportada (el campo TEXT de la BD)
+        String fallaCompleta = descripcion;
+        if (!condicion.isEmpty()) fallaCompleta += " | Condición: " + condicion;
+
+        // Validar Kilometraje
+        int km = 0;
+        try {
+            String kmText = vista.getTxtKilometraje().getText().trim();
+            if (!kmText.isEmpty()) {
+                km = Integer.parseInt(kmText);
+                if (km < 0) throw new NumberFormatException();
+            } else {
+                JOptionPane.showMessageDialog(vista, "El kilometraje es obligatorio.", "Dato faltante", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(vista, "El kilometraje debe ser un número entero válido y no negativo.", "Valor inválido", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Forzar la adición de cualquier refacción que se haya quedado escrita en los campos pero sin presionar '+'
+        vista.getPanelListaServicios().agregarElementoPendiente();
+
+
+        // Validar Nivel de Combustible
+        String combustible = (String) vista.getCmbCombustible().getSelectedItem();
+        if (combustible == null || combustible.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(vista, "El nivel de combustible es obligatorio.", "Dato faltante", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Validar Imagen
+        if (rutaImagenSeleccionada == null || rutaImagenSeleccionada.isEmpty()) {
+            JOptionPane.showMessageDialog(vista, "Es obligatorio subir una imagen de diagnóstico del vehículo.", "Dato faltante", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         String estado = (String) vista.getCmbEstado().getSelectedItem();
 
-        // Calcular costos
-        double subtotal = 0, impuesto = 0, total = 0;
-        try { subtotal = Double.parseDouble(vista.getTxtSubtotal().getText().trim()); } catch (Exception ex) { /* ignorar */ }
-        try { impuesto = Double.parseDouble(vista.getTxtImpuesto().getText().trim()); } catch (Exception ex) { /* ignorar */ }
+        // Calcular costos con validación
+        double costoRefacciones = 0, costoServicios = 0, impuesto = 0, subtotal = 0, total = 0;
+        try { 
+            String refText = vista.getTxtCostoRefacciones().getText().trim();
+            if (refText.isEmpty()) {
+                JOptionPane.showMessageDialog(vista, "El costo de refacciones es obligatorio (puede ser 0 si no hay).", "Dato faltante", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            costoRefacciones = Double.parseDouble(refText);
+            
+            String srvText = vista.getTxtCostoServicios().getText().trim();
+            if (srvText.isEmpty()) {
+                JOptionPane.showMessageDialog(vista, "El costo de servicios (mano de obra) es obligatorio (puede ser 0).", "Dato faltante", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            costoServicios = Double.parseDouble(srvText);
+            
+            String impText = vista.getTxtImpuesto().getText().trim();
+            if (impText.isEmpty()) {
+                JOptionPane.showMessageDialog(vista, "El impuesto es obligatorio (puede ser 0).", "Dato faltante", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            impuesto = Double.parseDouble(impText);
+            
+            if (costoRefacciones < 0 || costoServicios < 0 || impuesto < 0) {
+                throw new NumberFormatException();
+            }
+        } catch (Exception ex) { 
+            JOptionPane.showMessageDialog(vista, "Los costos e impuestos deben ser números válidos y no negativos.", "Valor inválido", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        subtotal = costoRefacciones + costoServicios;
         total = subtotal + impuesto;
 
         // Mostrar el total calculado en el formulario
-        vista.getTxtTotal().setText(String.format("%.2f", total));
+        vista.getTxtTotal().setText(String.format(java.util.Locale.US, "%.2f", total));
 
         // Crear la orden
         contadorOrdenes++;
@@ -243,41 +325,37 @@ public class CrearOrdenControlador {
                 vehiculoStr,
                 fechaIngreso,
                 fechaEntrega,
-                subtotal,       // Costo mano de obra = subtotal por ahora
-                0,              // Costo refacciones
-                total,          // Monto total
+                costoServicios,      // Costo mano de obra (servicios)
+                costoRefacciones,    // Costo refacciones
+                total,               // Monto total
                 estado
         );
+        nuevaOrden.setSubtotal(subtotal);
+        nuevaOrden.setImpuesto(impuesto);
         nuevaOrden.setIdVehiculo(idVehiculo);
 
         // Guardar datos adicionales del formulario en la orden
         nuevaOrden.setTipoRequerimiento(vista.getTipoFallaSeleccionado());
-        
-        String descripcion = vista.getTxtDescripcionFalla().getText().trim();
-        String servicio = vista.getTxtServicioProducto().getText().trim();
-        String condicion = vista.getTxtCondicionVehiculo().getText().trim();
-        
-        // Juntamos descripción, servicio y condición en Falla Reportada (el campo TEXT de la BD)
-        String fallaCompleta = descripcion;
-        if (!servicio.isEmpty()) fallaCompleta += " | Servicio: " + servicio;
-        if (!condicion.isEmpty()) fallaCompleta += " | Condición: " + condicion;
-        
         nuevaOrden.setFallaReportada(fallaCompleta);
-        
-        int km = 0;
-        try {
-            km = Integer.parseInt(vista.getTxtKilometraje().getText().trim());
-        } catch (Exception ex) {
-            // Ignorar formato incorrecto
-        }
         nuevaOrden.setKilometraje(km);
         nuevaOrden.setNivelCombustible((String) vista.getCmbCombustible().getSelectedItem());
         nuevaOrden.setImagenDiagnostico(rutaImagenSeleccionada);
 
         // Agregar la orden al controlador de órdenes (aparecerá en la tabla)
         ordenesControlador.agregarOrden(nuevaOrden);
-
-        // Mostrar mensaje de éxito
+        
+        // Guardar los detalles en la base de datos
+        try {
+            int dbId = Integer.parseInt(nuevaOrden.getId());
+            for (models.DetalleOrdenModelo det : vista.getPanelListaServicios().getDetalles()) {
+                det.setIdOrden(String.valueOf(dbId));
+                det.guardar();
+            }
+        } catch (NumberFormatException ignored) {
+            // El ID no era un número (guardado falló)
+        }
+        
+        
         JOptionPane.showMessageDialog(vista,
                 "¡Orden de trabajo creada exitosamente!\nID: " + nuevaOrden.getId(),
                 "Éxito", JOptionPane.INFORMATION_MESSAGE);

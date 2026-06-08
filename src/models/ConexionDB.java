@@ -46,6 +46,16 @@ public class ConexionDB {
                         stmt.execute("ALTER TABLE vehiculos ADD COLUMN imagen_vehiculo VARCHAR(255) DEFAULT NULL;");
                     } catch (Exception ignored) {
                     }
+                    try (java.sql.Statement stmt2 = sharedConnection.createStatement()) {
+                        stmt2.execute("CREATE TABLE IF NOT EXISTS detalle_orden (" +
+                                "id_detalle INT AUTO_INCREMENT PRIMARY KEY, " +
+                                "id_orden INT NOT NULL, " +
+                                "concepto VARCHAR(255) NOT NULL, " +
+                                "precio DECIMAL(10,2) NOT NULL, " +
+                                "FOREIGN KEY (id_orden) REFERENCES ordenes_servicio(id_orden) ON DELETE CASCADE" +
+                                ")");
+                    } catch (Exception ignored) {
+                    }
                     alterEjecutado = true;
                 }
             }

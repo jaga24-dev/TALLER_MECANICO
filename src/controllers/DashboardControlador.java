@@ -47,20 +47,19 @@ public class DashboardControlador {
         this.dashboard = dashboard;
         this.loginControlador = loginCtrl;
 
-        // ============ INICIALIZAR VISTAS ============
         // Creamos cada vista (pantalla)
         this.clientesVista = new ClientesVista();
         this.crearOrdenVista = new CrearOrdenVista();
         this.ordenesVista = new OrdenesServicioVista();
         this.vehiculosVista = new VehiculosVista();
 
-        // ============ INICIALIZAR CONTROLADORES ============
+
         // Cada controlador conecta su vista con los datos
         this.clientesControlador = new ClientesControlador(this.clientesVista);
         this.ordenesControlador = new OrdenesServicioControlador(this.ordenesVista);
         this.vehiculosControlador = new VehiculosControlador(this.vehiculosVista);
         // El controlador de "Crear Orden" necesita acceso al controlador de órdenes
-        // para poder agregar nuevas órdenes a la tabla
+        // para agregar nuevas órdenes a la tabla
         this.crearOrdenControlador = new CrearOrdenControlador(this.crearOrdenVista, this.ordenesControlador);
         
         // Configurar listener para editar órdenes
@@ -75,7 +74,6 @@ public class DashboardControlador {
             dashboard.setMainContent(editarVista);
         });
         
-        // ============ REGISTRAR EVENTOS ============
 
         // Botón "Cerrar sesión" del menú lateral
         dashboard.getSidebar().setOnCerrarSesion(this::cerrarSesion);
@@ -108,6 +106,7 @@ public class DashboardControlador {
                 	dashboard.setMainContent(this.vehiculosVista);
                     break;
 
+
                 default:
                     System.out.println("Navegación a: " + title + " (No implementado aún)");
                     break;
@@ -128,7 +127,7 @@ public class DashboardControlador {
         int ordenesListas = 0;
         java.util.List<String> proximasEntregas = new java.util.ArrayList<>();
         
-        String fechaHoy = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("d/M/yyyy"));
+        String fechaHoy = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
         for (models.OrdenServicioModelo o : ordenes) {
             // Vehículos de hoy

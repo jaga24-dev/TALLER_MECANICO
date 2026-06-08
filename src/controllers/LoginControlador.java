@@ -86,7 +86,6 @@ public class LoginControlador {
         vista.setVisible(false);
 
         DashboardVista dashboard = new DashboardVista();
-        //dashboard.getMainContent().setNombreTecnico(nombreUsuario);
         DashboardControlador dashCtrl = new DashboardControlador(dashboard, this);
         dashCtrl.setNombreTecnico(nombreUsuario);
         dashboard.setVisible(true);

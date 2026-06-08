@@ -13,6 +13,7 @@ import java.awt.RenderingHints;
 import java.awt.geom.RoundRectangle2D;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -35,6 +36,7 @@ import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import models.DetalleOrdenModelo;
 import models.OrdenServicioModelo;
 
 /**
@@ -60,15 +62,17 @@ public class EditarOrdenVista extends JPanel {
     private JTextArea txtDescripcionFalla;
     private JTextArea txtServicioProducto; // Opcionalmente una lista, pero usaremos un TextArea para simplificar o un panel personalizado.
     
-    // Panel de servicios (simulado como en la imagen)
-    private JPanel panelServicios;
+    // Panel de refacciones
+    private PanelListaServicios panelServicios;
 
-    private JLabel lblSubtotalVal;
-    private JLabel lblImpuestoVal;
-    private JLabel lblTotalVal;
+    private JTextField txtCostoRefacciones;
+    private JTextField txtCostoServicios;
+    private JTextField txtImpuesto;
+    private JTextField txtTotal;
 
     private JTextField txtKilometraje;
     private JProgressBar barraCombustible;
+    private JLabel lblPctCombustible;
     private JTextArea txtCondicionVehiculo;
     private JTextField txtFechaIngreso;
     private JTextField txtFechaEntrega;
@@ -77,6 +81,7 @@ public class EditarOrdenVista extends JPanel {
 
     private JButton btnConfirmar;
     private JButton btnCancelar;
+    private JLabel imgVehiculo;
 
     // Constructor
     public EditarOrdenVista() {
@@ -207,7 +212,7 @@ public class EditarOrdenVista extends JPanel {
         leftPanel.setOpaque(false);
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
 
-        JLabel title = new JLabel("TABLA CONSULTAR VEHICULO");
+        JLabel title = new JLabel("TABLA DE ÓRDENES DE SERVICIO");
         title.setFont(new Font("Inter", Font.BOLD, 13));
         title.setForeground(GOLD);
 
@@ -334,62 +339,79 @@ public class EditarOrdenVista extends JPanel {
         panel.add(scrollFalla);
         panel.add(Box.createVerticalStrut(5));
 
-        // --- Servicio o Producto ---
-        JLabel lblServicio = new JLabel("SERVICIO O PRODUCTO");
-        lblServicio.setFont(new Font("Inter", Font.BOLD, 13));
-        lblServicio.setForeground(Color.decode("#F29C1F"));
-        lblServicio.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panel.add(lblServicio);
+        // --- Refacciones ---
+        JLabel lblRefacciones = new JLabel("REFACCIONES");
+        lblRefacciones.setFont(new Font("Inter", Font.BOLD, 13));
+        lblRefacciones.setForeground(Color.decode("#F29C1F"));
+        lblRefacciones.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panel.add(lblRefacciones);
         panel.add(Box.createVerticalStrut(2));
 
-        // Lista de servicios interactiva (simulada)
-        panelServicios = new JPanel();
-        panelServicios.setLayout(new BoxLayout(panelServicios, BoxLayout.Y_AXIS));
-        panelServicios.setOpaque(false);
-        
-        // Simular elementos de la lista
-        panelServicios.add(crearItemServicio("Aceite Mobil 5W30", "$500.00"));
-        panelServicios.add(crearItemServicio("Cambio de aceite", "$300.00"));
-        
-        // Nuevo elemento
-        JTextField txtNuevoServicio = new JTextField("Agregar nuevo...");
-        txtNuevoServicio.setForeground(Color.GRAY);
-        txtNuevoServicio.setBorder(new EmptyBorder(5, 5, 5, 5));
-        txtNuevoServicio.setOpaque(false);
-        panelServicios.add(txtNuevoServicio);
-
-        JScrollPane scrollServicios = new JScrollPane(panelServicios);
-        scrollServicios.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Color.decode("#005064"), 2, true),
-                new EmptyBorder(5, 5, 5, 5)
-        ));
-        scrollServicios.setAlignmentX(Component.LEFT_ALIGNMENT);
-        scrollServicios.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
-        scrollServicios.setPreferredSize(new Dimension(0, 80));
-        panel.add(scrollServicios);
+        // Lista de refacciones interactiva
+        panelServicios = new PanelListaServicios();
+        panelServicios.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panelServicios.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
+        panelServicios.setPreferredSize(new Dimension(0, 150));
+        panel.add(panelServicios);
         panel.add(Box.createVerticalStrut(5));
 
-        // --- Costos (Subtotal, Impuesto, Total) ---
-        JPanel costosPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 5));
-        costosPanel.setOpaque(false);
-        costosPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        costosPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
+        // --- Costos (Refacciones, Servicios M.O., Impuesto, Total) ---
+        // Fila 1: Refacciones (auto) + Servicios M.O. (manual)
+        JPanel costosRow1 = new JPanel(new GridLayout(1, 2, 15, 0)) {
+            @Override
+            public Dimension getMaximumSize() {
+                return new Dimension(Integer.MAX_VALUE, super.getPreferredSize().height);
+            }
+        };
+        costosRow1.setOpaque(false);
+        costosRow1.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        // Subtotal
-        JPanel subPanel = new JPanel(new GridLayout(2, 1));
-        subPanel.setOpaque(false);
-        JLabel lSub = new JLabel("SUBTOTAL:"); lSub.setFont(new Font("Inter", Font.PLAIN, 10)); lSub.setForeground(Color.decode("#F29C1F"));
-        lblSubtotalVal = new JLabel("$800.00"); lblSubtotalVal.setFont(new Font("Inter", Font.PLAIN, 13));
-        subPanel.add(lSub); subPanel.add(lblSubtotalVal);
-        costosPanel.add(subPanel);
+        // Refacciones
+        JPanel refPanel = new JPanel(new GridLayout(2, 1));
+        refPanel.setOpaque(false);
+        JLabel lRef = new JLabel("REFACCIONES:"); lRef.setFont(new Font("Inter", Font.PLAIN, 10)); lRef.setForeground(Color.decode("#F29C1F"));
+        txtCostoRefacciones = new JTextField(5);
+        txtCostoRefacciones.setFont(new Font("Inter", Font.PLAIN, 13));
+        txtCostoRefacciones.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY));
+        txtCostoRefacciones.setOpaque(false);
+        txtCostoRefacciones.setEditable(false);
+        refPanel.add(lRef); refPanel.add(txtCostoRefacciones);
+        costosRow1.add(refPanel);
+
+        // Servicios
+        JPanel srvPanel = new JPanel(new GridLayout(2, 1));
+        srvPanel.setOpaque(false);
+        JLabel lSrv = new JLabel("SERVICIOS (M.O.):"); lSrv.setFont(new Font("Inter", Font.PLAIN, 10)); lSrv.setForeground(Color.decode("#F29C1F"));
+        txtCostoServicios = new JTextField(5);
+        txtCostoServicios.setFont(new Font("Inter", Font.PLAIN, 13));
+        txtCostoServicios.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY));
+        txtCostoServicios.setOpaque(false);
+        srvPanel.add(lSrv); srvPanel.add(txtCostoServicios);
+        costosRow1.add(srvPanel);
+
+        panel.add(costosRow1);
+        panel.add(Box.createVerticalStrut(5));
+
+        // Fila 2: Impuesto + Total
+        JPanel costosRow2 = new JPanel(new GridLayout(1, 2, 15, 0)) {
+            @Override
+            public Dimension getMaximumSize() {
+                return new Dimension(Integer.MAX_VALUE, super.getPreferredSize().height);
+            }
+        };
+        costosRow2.setOpaque(false);
+        costosRow2.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         // Impuesto
         JPanel impPanel = new JPanel(new GridLayout(2, 1));
         impPanel.setOpaque(false);
         JLabel lImp = new JLabel("IMPUESTO:"); lImp.setFont(new Font("Inter", Font.PLAIN, 10)); lImp.setForeground(Color.decode("#F29C1F"));
-        lblImpuestoVal = new JLabel("$20.00"); lblImpuestoVal.setFont(new Font("Inter", Font.PLAIN, 13));
-        impPanel.add(lImp); impPanel.add(lblImpuestoVal);
-        costosPanel.add(impPanel);
+        txtImpuesto = new JTextField(5);
+        txtImpuesto.setFont(new Font("Inter", Font.PLAIN, 13));
+        txtImpuesto.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY));
+        txtImpuesto.setOpaque(false);
+        impPanel.add(lImp); impPanel.add(txtImpuesto);
+        costosRow2.add(impPanel);
 
         // Total
         JPanel totPanel = new JPanel() {
@@ -407,42 +429,37 @@ public class EditarOrdenVista extends JPanel {
         };
         totPanel.setOpaque(false);
         totPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 5));
-        lblTotalVal = new JLabel("TOTAL: 820.00");
-        lblTotalVal.setFont(new Font("Inter", Font.BOLD, 13));
-        lblTotalVal.setForeground(Color.decode("#005064"));
-        totPanel.add(lblTotalVal);
-        costosPanel.add(totPanel);
+        JLabel lblTotal = new JLabel("TOTAL:");
+        lblTotal.setFont(new Font("Inter", Font.BOLD, 13));
+        lblTotal.setForeground(Color.decode("#005064"));
+        txtTotal = new JTextField(6);
+        txtTotal.setFont(new Font("Inter", Font.BOLD, 13));
+        txtTotal.setForeground(Color.decode("#005064"));
+        txtTotal.setEditable(false);
+        txtTotal.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 0));
+        txtTotal.setOpaque(false);
+        totPanel.add(lblTotal);
+        totPanel.add(txtTotal);
+        costosRow2.add(totPanel);
 
-        panel.add(costosPanel);
+        panel.add(costosRow2);
+        
+        // Listeners for auto-calc
+        javax.swing.event.DocumentListener docListener = new javax.swing.event.DocumentListener() {
+            public void insertUpdate(javax.swing.event.DocumentEvent e) { calcTotal(); }
+            public void removeUpdate(javax.swing.event.DocumentEvent e) { calcTotal(); }
+            public void changedUpdate(javax.swing.event.DocumentEvent e) { calcTotal(); }
+        };
+        txtCostoRefacciones.getDocument().addDocumentListener(docListener);
+        txtCostoServicios.getDocument().addDocumentListener(docListener);
+        txtImpuesto.getDocument().addDocumentListener(docListener);
+        
+        panelServicios.setOnListChanged(() -> {
+            double ref = panelServicios.calcularSubtotal();
+            txtCostoRefacciones.setText(String.format(java.util.Locale.US, "%.2f", ref));
+        });
 
         return panel;
-    }
-    
-    private JPanel crearItemServicio(String nombre, String precio) {
-        JPanel item = new JPanel(new BorderLayout());
-        item.setOpaque(false);
-        item.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
-        item.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
-        
-        JLabel lblNombre = new JLabel(" " + nombre);
-        lblNombre.setFont(new Font("Inter", Font.PLAIN, 13));
-        
-        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 2));
-        right.setOpaque(false);
-        JLabel lblPrecio = new JLabel(precio);
-        lblPrecio.setFont(new Font("Inter", Font.PLAIN, 13));
-        
-        // Botones simulados
-        JLabel btnCheck = new JLabel("✔"); btnCheck.setForeground(Color.GRAY);
-        JLabel btnMinus = new JLabel("━"); btnMinus.setForeground(Color.WHITE); btnMinus.setOpaque(true); btnMinus.setBackground(Color.decode("#005064"));
-        
-        right.add(lblPrecio);
-        right.add(btnCheck);
-        right.add(btnMinus);
-        
-        item.add(lblNombre, BorderLayout.CENTER);
-        item.add(right, BorderLayout.EAST);
-        return item;
     }
 
     // ==================== PANEL DERECHO ====================
@@ -538,10 +555,11 @@ public class EditarOrdenVista extends JPanel {
         barWrap.add(barraCombustible, BorderLayout.CENTER);
         barWrap.add(labelsBar, BorderLayout.SOUTH);
         
-        JLabel lblPct = new JLabel("38%"); lblPct.setFont(new Font("Inter", Font.PLAIN, 11));
+        lblPctCombustible = new JLabel("38%");
+        lblPctCombustible.setFont(new Font("Inter", Font.PLAIN, 11));
         
         progressContainer.add(barWrap, BorderLayout.CENTER);
-        progressContainer.add(lblPct, BorderLayout.EAST);
+        progressContainer.add(lblPctCombustible, BorderLayout.EAST);
 
         combPanel.add(lblComb, BorderLayout.NORTH);
         combPanel.add(progressContainer, BorderLayout.CENTER);
@@ -551,7 +569,7 @@ public class EditarOrdenVista extends JPanel {
         panel.add(kmCombPanel);
         panel.add(Box.createVerticalStrut(5));
         
-     // --- Fechas ---
+        // --- Fechas ---
         JPanel fechasPanel = new JPanel(new GridLayout(1, 2, 20, 0));
         fechasPanel.setOpaque(false);
         fechasPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -573,7 +591,7 @@ public class EditarOrdenVista extends JPanel {
         ingresoPanel.add(lblFIngreso, BorderLayout.NORTH);
         ingresoPanel.add(txtFechaIngreso, BorderLayout.CENTER);
 
-        // Fecha Entrega
+        // Est. Entrega
         JPanel entregaPanel = new JPanel(new BorderLayout(0, 5));
         entregaPanel.setOpaque(false);
         JLabel lblFEntrega = new JLabel("Est. Entrega");
@@ -618,7 +636,7 @@ public class EditarOrdenVista extends JPanel {
         panel.add(Box.createVerticalStrut(5));
 
         // --- Imagen del vehículo ---
-        JLabel imgVehiculo = new JLabel(IconoManager.cargarIcono("truck.png", 350, 110)); 
+        imgVehiculo = new JLabel(IconoManager.cargarIcono("truck.png", 350, 110));  
         imgVehiculo.setAlignmentX(Component.LEFT_ALIGNMENT);
         imgVehiculo.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
         panel.add(imgVehiculo);
@@ -628,27 +646,109 @@ public class EditarOrdenVista extends JPanel {
 
     // ==================== METODOS PARA EL CONTROLADOR ====================
     public void cargarDatosOrden(OrdenServicioModelo orden) {
-        lblNombreCliente.setText(orden.getNombreCliente());
-        lblVehiculoDesc.setText(orden.getVehiculoRelacionado());
+    	lblNombreCliente.setText(orden.getNombreCliente() != null ? orden.getNombreCliente() : "Desconocido");
+        lblVehiculoDesc.setText(orden.getVehiculoRelacionado() != null ? orden.getVehiculoRelacionado() : "Desconocido");
         
-        txtDescripcionFalla.setText("Mantenimiento programado."); // Falla simulada ya que el modelo no tiene este campo detallado.
+        // Tipo de requerimiento
+        if ("Reparación".equals(orden.getTipoRequerimiento())) rbReparacion.setSelected(true);
+        else if ("Mantención".equals(orden.getTipoRequerimiento()) || "Mantenimiento".equals(orden.getTipoRequerimiento())) rbMantenimiento.setSelected(true);
+        else if ("Garantía".equals(orden.getTipoRequerimiento())) rbGarantia.setSelected(true);
+
+        txtDescripcionFalla.setText(orden.getFallaReportada() != null ? orden.getFallaReportada() : "");
+        txtKilometraje.setText(orden.getKilometraje() + " Kms.");
         
-        lblSubtotalVal.setText("$" + String.format("%.2f", orden.getMontoTotal() - 20.0)); // Simulando
-        lblImpuestoVal.setText("$20.00");
-        lblTotalVal.setText("TOTAL: " + String.format("%.2f", orden.getMontoTotal()));
+        // Cargar detalles reales
+        List<DetalleOrdenModelo> detalles = DetalleOrdenModelo.obtenerPorOrden(orden.getId());
+        panelServicios.setDetalles(detalles);
         
-        txtFechaIngreso.setText(orden.getFechaIngreso());
-        txtFechaEntrega.setText(orden.getFechaEntregaEstimada());
+        // Nivel de combustible
+        String nivelCombustible = orden.getNivelCombustible();
+        int porcentaje = 0;
+        if (nivelCombustible != null) {
+            switch (nivelCombustible) {
+                case "E": porcentaje = 0; break;
+                case "1/4": porcentaje = 25; break;
+                case "1/2": porcentaje = 50; break;
+                case "3/4": porcentaje = 75; break;
+                case "F": porcentaje = 100; break;
+                default: 
+                    try {
+                        porcentaje = Integer.parseInt(nivelCombustible.replace("%", "").trim());
+                    } catch (NumberFormatException e) {
+                        porcentaje = 0;
+                    }
+            }
+        }
+        barraCombustible.setValue(porcentaje);
+        lblPctCombustible.setText(porcentaje + "%");
         
-        cmbEstado.setSelectedItem(orden.getEstado());
+        txtCostoRefacciones.setText(String.format(java.util.Locale.US, "%.2f", orden.getCostoRefacciones()));
+        txtCostoServicios.setText(String.format(java.util.Locale.US, "%.2f", orden.getCostoManoObra()));
+        txtImpuesto.setText(String.format(java.util.Locale.US, "%.2f", orden.getImpuesto()));
+        txtTotal.setText(String.format(java.util.Locale.US, "%.2f", orden.getMontoTotal()));
+        
+        txtFechaIngreso.setText(orden.getFechaIngreso() != null ? orden.getFechaIngreso() : "");
+        txtFechaEntrega.setText(orden.getFechaEntregaEstimada() != null ? orden.getFechaEntregaEstimada() : "");
+        
+        txtCondicionVehiculo.setText(""); // Opcional: Extraer de fallaReportada si se desea, por ahora vacío o dejar lo que tiene el texto de falla
+        
+        if (orden.getEstado() != null) {
+            cmbEstado.setSelectedItem(orden.getEstado().toUpperCase());
+        }
+        
+        // Actualizar imagen
+        if (orden.getImagenDiagnostico() != null && !orden.getImagenDiagnostico().isEmpty()) {
+            java.io.File file = new java.io.File(orden.getImagenDiagnostico());
+            if (file.exists()) {
+                try {
+                    java.awt.image.BufferedImage img = javax.imageio.ImageIO.read(file);
+                    java.awt.Image escalada = img.getScaledInstance(350, 110, java.awt.Image.SCALE_SMOOTH);
+                    imgVehiculo.setIcon(new javax.swing.ImageIcon(escalada));
+                } catch (Exception e) {
+                    System.err.println("Error al cargar la imagen de diagnóstico: " + e.getMessage());
+                    imgVehiculo.setIcon(IconoManager.cargarIcono("truck.png", 350, 110));
+                }
+            } else {
+                imgVehiculo.setIcon(IconoManager.cargarIcono("truck.png", 350, 110));
+            }
+        } else {
+            imgVehiculo.setIcon(IconoManager.cargarIcono("truck.png", 350, 110));
+        }
     }
 
     public void actualizarModelo(OrdenServicioModelo orden) {
         orden.setEstado((String) cmbEstado.getSelectedItem());
-        orden.setMontoTotal(Double.parseDouble(lblTotalVal.getText().replace("TOTAL: ", "").trim()));
+        double ref = 0, serv = 0, imp = 0;
+        try { ref = Double.parseDouble(txtCostoRefacciones.getText().trim()); } catch(Exception e){}
+        try { serv = Double.parseDouble(txtCostoServicios.getText().trim()); } catch(Exception e){}
+        try { imp = Double.parseDouble(txtImpuesto.getText().trim()); } catch(Exception e){}
+        
+        orden.setCostoRefacciones(ref);
+        orden.setCostoManoObra(serv);
+        orden.setSubtotal(ref + serv);
+        orden.setImpuesto(imp);
+        orden.setMontoTotal(ref + serv + imp);
+        
         orden.setFechaIngreso(txtFechaIngreso.getText());
         orden.setFechaEntregaEstimada(txtFechaEntrega.getText());
-        // Otros campos se actualizarían aquí si el modelo los soportara
+        
+        String descripcion = txtDescripcionFalla.getText().trim();
+        String condicion = txtCondicionVehiculo.getText().trim();
+        String fallaCompleta = descripcion;
+        if (!condicion.isEmpty()) fallaCompleta += " | Condición: " + condicion;
+        orden.setFallaReportada(fallaCompleta);
+    }
+
+    private void calcTotal() {
+        double r = 0, s = 0, i = 0;
+        try { r = Double.parseDouble(txtCostoRefacciones.getText().trim()); } catch(Exception ex) {}
+        try { s = Double.parseDouble(txtCostoServicios.getText().trim()); } catch(Exception ex) {}
+        try { i = Double.parseDouble(txtImpuesto.getText().trim()); } catch(Exception ex) {}
+        txtTotal.setText(String.format(java.util.Locale.US, "%.2f", r + s + i));
+    }
+
+    public PanelListaServicios getPanelListaServicios() {
+        return panelServicios;
     }
 
     public JButton getBtnConfirmar() { return btnConfirmar; }
@@ -656,4 +756,8 @@ public class EditarOrdenVista extends JPanel {
     
     public JTextField getTxtFechaIngreso() { return txtFechaIngreso; }
     public JTextField getTxtFechaEntrega() { return txtFechaEntrega; }
+    public JTextField getTxtCostoRefacciones() { return txtCostoRefacciones; }
+    public JTextField getTxtCostoServicios() { return txtCostoServicios; }
+    public JTextField getTxtImpuesto() { return txtImpuesto; }
+    public JTextField getTxtTotal() { return txtTotal; }
 }

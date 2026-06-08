@@ -193,14 +193,28 @@ public class ClienteFormDialog extends JDialog {
      * Extrae el texto de las cajas de texto y lo guarda en el objeto 'cliente'.
      */
     private void guardar() {
-        if (txtNombre.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "El nombre es obligatorio", "Error", JOptionPane.ERROR_MESSAGE);
+        String nombre = txtNombre.getText().trim();
+        String telefono = txtTelefono.getText().trim();
+        String correo = txtCorreo.getText().trim();
+
+        if (nombre.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "El nombre es obligatorio.", "Validación", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
-        cliente.setNombreCompleto(txtNombre.getText().trim());
-        cliente.setTelefono(txtTelefono.getText().trim());
-        cliente.setCorreo(txtCorreo.getText().trim());
+        if (telefono.isEmpty() || !telefono.matches("^[0-9+\\- ]{7,15}$")) {
+            JOptionPane.showMessageDialog(this, "Por favor ingrese un número de teléfono válido.", "Validación", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (correo.isEmpty() || !correo.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            JOptionPane.showMessageDialog(this, "Por favor ingrese un correo electrónico válido.", "Validación", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        cliente.setNombreCompleto(nombre);
+        cliente.setTelefono(telefono);
+        cliente.setCorreo(correo);
         
         guardado = true; // Indicamos que se guardó correctamente
         dispose(); // Cerramos la ventana

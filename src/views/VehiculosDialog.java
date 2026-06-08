@@ -471,7 +471,10 @@ public class VehiculosDialog extends JDialog {
             vehiculoOriginal.setAnio(anio);
             vehiculoOriginal.setPlacas(txtPlacas.getText().trim());
             vehiculoOriginal.setNumeroSerie(txtNumSerie.getText().trim());
-            // vehiculoOriginal.setFallaReportada(txtFalla.getText().trim());
+
+            if (rutaImagenSeleccionada != null) {
+                vehiculoOriginal.setImagen(rutaImagenSeleccionada);
+            }
         }
 
         guardado = true;
